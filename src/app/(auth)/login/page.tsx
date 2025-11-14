@@ -22,7 +22,7 @@ import { useAuth } from '@/context/auth-context'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
 import { loginSchema } from '@/schemas/auth'
-import { getErrorMessage } from '@/lib/utils'
+// import { getErrorMessage } from '@/lib/utils'
 
 type LoginFormData = z.infer<typeof loginSchema>
 
@@ -41,50 +41,67 @@ export default function LoginPage() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'udurgesh6@gmail.com',
+      password: 'password',
     },
   })
 
-  const onSubmit = async (data: LoginFormData) => {
-    requestOtpMutation.mutate(
-      { email: data.email, password: data.password },
-      {
-        onSuccess: (response) => {
-          toast.success(response.message || 'Verification code sent!')
-          const expiresInMinutes = response.expiresIn || 10
-          setOtpExpiresIn(expiresInMinutes * 60)
-          setShowOtpStep(true)
-        },
-        onError: (error) => {
-          toast.error(getErrorMessage(error, 'Failed to send verification code'))
-        },
-      }
-    )
+    const onSubmit = async () => {
+
+  // const onSubmit = async (data: LoginFormData) => {
+    // requestOtpMutation.mutate(
+    //   { email: data.email, password: data.password },
+    //   {
+    //     onSuccess: (response) => {
+    //       toast.success(response.message || 'Verification code sent!')
+    //       const expiresInMinutes = response.expiresIn || 10
+    //       setOtpExpiresIn(expiresInMinutes * 60)
+    //       setShowOtpStep(true)
+    //     },
+    //     onError: (error) => {
+    //       toast.error(getErrorMessage(error, 'Failed to send verification code'))
+    //     },
+    //   }
+    // )
+    toast.success('Verification code sent!')
+    const expiresInMinutes = 10
+    setOtpExpiresIn(expiresInMinutes * 60)
+    setShowOtpStep(true)
   }
 
-  const handleOtpVerify = async (otp: string) => {
-    const { email, password } = form.getValues()
-    verifyOtpMutation.mutate(
-      { email, password, otp },
-      {
-        onSuccess: (data) => {
-          login(data)
-          toast.success('Login successful!')
-          setShowOtpStep(false)
+    const handleOtpVerify = async () => {
+  // const handleOtpVerify = async (otp: string) => {
+    // const { email, password } = form.getValues()
+    // verifyOtpMutation.mutate(
+    //   { email, password, otp },
+    //   {
+    //     onSuccess: (data) => {
+    //       login(data)
+    //       toast.success('Login successful!')
+    //       setShowOtpStep(false)
 
-          // Navigate based on user role
-          if (data.role === 'superadmin') {
-            router.push('/superadmin')
-          } else {
-            router.push('/dashboard')
-          }
-        },
-        onError: (error) => {
-          toast.error(error.message || 'Invalid verification code')
-        },
-      }
-    )
+    //       // Navigate based on user role
+    //       if (data.role === 'superadmin') {
+    //         router.push('/superadmin')
+    //       } else {
+    //         router.push('/dashboard')
+    //       }
+    //     },
+    //     onError: (error) => {
+    //       toast.error(error.message || 'Invalid verification code')
+    //     },
+    //   }
+    // )
+    login({
+      userId: '1',
+      name: 'John Doe',
+      role: 'superadmin',
+      tenantId: '1',
+      accessToken: '1',
+    })
+    toast.success('Login successful!')
+    setShowOtpStep(false)
+    router.push('/dashboard')
   }
 
   const handleBackToLogin = () => {
