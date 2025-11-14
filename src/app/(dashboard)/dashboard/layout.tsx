@@ -25,10 +25,10 @@ const navItems: SubNavItem[] = [
     title: "Trends",
     href: "/dashboard/trends",
   },
-  {
-    title: "Compliance",
-    href: "/dashboard/compliance",
-  },
+  // {
+  //   title: "Compliance",
+  //   href: "/dashboard/compliance",
+  // },
 ];
 
 export default function DashboardLayout({
