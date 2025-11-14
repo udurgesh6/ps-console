@@ -30,6 +30,12 @@ export const pageConfigs: Record<string, PageConfig> = {
     showTitle: true,
     showDescription: false,
   },
+  '/dashboard/trends': {
+    title: 'Security Dashboard',
+    description: 'This is the trends page',
+    showTitle: true,
+    showDescription: false,
+  },
   '/team/employees': {
     title: 'Team',
     description: 'This is the team page',
