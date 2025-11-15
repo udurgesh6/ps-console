@@ -78,6 +78,12 @@ export const pageConfigs: Record<string, PageConfig> = {
     showTitle: true,
     showDescription: false,
   },
+  '/system-config': {
+    title: 'System Config',
+    description: 'This is the system config page',
+    showTitle: true,
+    showDescription: false,
+  },
 };
 
 export function getPageConfig(pathname: string): PageConfig {
