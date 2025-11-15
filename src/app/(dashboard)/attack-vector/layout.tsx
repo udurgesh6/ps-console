@@ -42,10 +42,10 @@ export default function AttackVectorLayout({
       {!isEditRoute && (
         <div className="flex items-center justify-between">
           <PageHeader />
-          <div className="flex gap-2">
+          <div className="flex gap-0">
             <Button onClick={() => router.push('/attack-vector/new')}>
-              <PlusIcon className="mr-2 h-4 w-4 font-semibold" />
-              Create Attack Vector
+              <PlusIcon className=" h-4 w-4 font-semibold" />
+              Create New
             </Button>
           </div>
         </div>

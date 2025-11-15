@@ -13,16 +13,11 @@ export const SimulationProfileItem = (
 ) => {
   const router = useRouter();
 
-  const onProfileClick = () => {
-    if (isSelectEnabled) {
-      return;
-    }
-    router.push(`/simulation-profile/${item.id}`);
-  };
-
   const onToggleStatus = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log(`Toggling status for profile: ${item.name}. New status would be ${item.isActive ? 'Inactive' : 'Active'}.`);
+    console.log(
+      `Toggling status for profile: ${item.name}. New status would be ${item.isActive ? "Inactive" : "Active"}.`
+    );
   };
 
   const getCategoryColor = (category: string) => {
@@ -41,7 +36,9 @@ export const SimulationProfileItem = (
   };
 
   const getStatusColor = (isActive: boolean) => {
-    return isActive ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200";
+    return isActive
+      ? "bg-green-100 text-green-800 border-green-200"
+      : "bg-red-100 text-red-800 border-red-200";
   };
 
   const getIntervalDisplay = (interval: string) => {
@@ -56,20 +53,39 @@ export const SimulationProfileItem = (
     return displays[interval] || interval;
   };
 
+  const onProfileClick = () => {
+    if (isSelectEnabled) {
+      return;
+    }
+    router.push(`/simulations/${item.id}`);
+  };
+
   return (
     <Card
       onClick={onProfileClick}
       className={`cursor-pointer py-0 relative rounded-lg transition-all hover:shadow-md group overflow-hidden ${
-        isSelected ? "border-2 border-primary" : ""
+        isSelected ? "border-2 border-primary" : "border-2 border-gray-100"
       }`}
     >
-      {!isSelectEnabled && <Button
-        onClick={onToggleStatus}
-        className="absolute cursor-pointer top-3 p-1 right-3 z-20 rounded-full bg-background/80 hover:bg-background shadow-md transition-colors"
-        aria-label={item.isActive ? "Pause Simulation" : "Start Simulation"}
-      >
-        {item.isActive ? <Pause className="h-4 w-4 text-primary cursor-pointer" /> : <Play fill="currentColor" className="h-4 w-4 text-primary cursor-pointer" />}
-      </Button>}
+      {!isSelectEnabled && (
+        <Button
+          onClick={onToggleStatus}
+          className="absolute cursor-pointer top-3 p-1 right-3 z-20 rounded-full bg-background/80 hover:bg-background shadow-sm transition-colors"
+          aria-label={item.isActive ? "Pause Simulation" : "Start Simulation"}
+        >
+          {item.isActive ? (
+            <Pause
+              fill="currentColor"
+              className="h-4 w-4 text-primary cursor-pointer"
+            />
+          ) : (
+            <Play
+              fill="currentColor"
+              className="h-4 w-4 text-primary cursor-pointer"
+            />
+          )}
+        </Button>
+      )}
 
       {!isSelected && (
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none rounded-lg" />
@@ -78,7 +94,7 @@ export const SimulationProfileItem = (
       <div className="p-5 space-y-2">
         <div className="mb-4">
           <div className="flex items-start justify-between gap-1">
-            <h3 className="font-semibold text-base line-clamp-1 flex-1 pr-10"> 
+            <h3 className="font-semibold text-base line-clamp-1 flex-1 pr-10">
               {item.name}
             </h3>
           </div>

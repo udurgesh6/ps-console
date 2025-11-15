@@ -1,3 +1,5 @@
+import z from "zod";
+
 export type SimulationInterval = 
   | "daily" 
   | "weekly" 
@@ -115,5 +117,163 @@ export interface SimulationProfileFilterGroup {
     count?: number;
   }[];
 }
+
+export const simulationProfileBasicInfoSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  category: z.enum([
+    "high-priority",
+    "department-specific",
+    "technical",
+    "organization-wide",
+    "customer-facing",
+    "onboarding",
+    "remote-workers",
+    "seasonal",
+    "compliance"
+  ], {
+    message: "Please select a valid category"
+  }),
+  simulationInterval: z.enum([
+    "daily",
+    "weekly",
+    "bi-weekly",
+    "monthly",
+    "quarterly",
+    "custom"
+  ], {
+    message: "Please select a simulation interval"
+  }),
+  simulationFrequency: z.number()
+    .int("Frequency must be a whole number")
+    .min(1, "Frequency must be at least 1")
+    .max(30, "Frequency cannot exceed 30 times per month"),
+});
+
+// 2. Target Selection (Employee Groups) Form Schema
+export const simulationProfileTargetSelectionSchema = z.object({
+  employeeGroups: z.array(z.string())
+    .min(1, "At least one employee group must be selected")
+    .nonempty("Employee groups cannot be empty"),
+});
+
+// 3. Attack Vectors Selection Form Schema
+export const simulationProfileAttackVectorsSchema = z.object({
+  attackVectors: z.array(z.string())
+    .min(1, "At least one attack vector must be selected")
+    .nonempty("Attack vectors cannot be empty"),
+});
+
+// 4. Schedule Form Schema
+// Base schedule schema
+const baseScheduleSchema = z.object({
+  timeOfDay: z.string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Time must be in HH:MM format (24-hour)"),
+  timezone: z.string()
+    .min(1, "Timezone is required"),
+});
+
+// Weekly schedule schema
+const weeklyScheduleSchema = baseScheduleSchema.extend({
+  type: z.literal("weekly"),
+  dayOfWeek: z.array(z.enum([
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday"
+  ])).min(1, "At least one day must be selected"),
+});
+
+// Bi-weekly schedule schema
+const biWeeklyScheduleSchema = baseScheduleSchema.extend({
+  type: z.literal("bi-weekly"),
+  dayOfWeek: z.array(z.enum([
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday"
+  ])).min(1, "At least one day must be selected"),
+});
+
+// Monthly schedule schema
+const monthlyScheduleSchema = baseScheduleSchema.extend({
+  type: z.literal("monthly"),
+  dayOfMonth: z.number()
+    .int("Day must be a whole number")
+    .min(1, "Day must be between 1 and 31")
+    .max(31, "Day must be between 1 and 31"),
+});
+
+// Quarterly schedule schema
+const quarterlyScheduleSchema = baseScheduleSchema.extend({
+  type: z.literal("quarterly"),
+  monthsOfYear: z.array(z.number().int().min(1).max(12))
+    .min(1, "At least one month must be selected")
+    .max(4, "Maximum 4 months can be selected for quarterly schedule"),
+  dayOfMonth: z.number()
+    .int("Day must be a whole number")
+    .min(1, "Day must be between 1 and 31")
+    .max(31, "Day must be between 1 and 31"),
+});
+
+// Custom schedule schema
+const customScheduleSchema = baseScheduleSchema.extend({
+  type: z.literal("custom"),
+  dayOfWeek: z.array(z.enum([
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday"
+  ])).optional(),
+  specificDates: z.array(z.string().regex(
+    /^\d{4}-\d{2}-\d{2}$/,
+    "Date must be in ISO format (YYYY-MM-DD)"
+  )).optional(),
+}).refine(
+  (data) => (data.dayOfWeek && data.dayOfWeek.length > 0) || (data.specificDates && data.specificDates.length > 0),
+  {
+    message: "Either days of week or specific dates must be provided for custom schedule",
+    path: ["dayOfWeek"],
+  }
+);
+
+// Combined schedule schema using discriminated union
+export const simulationProfileScheduleSchema = z.discriminatedUnion("type", [
+  weeklyScheduleSchema,
+  biWeeklyScheduleSchema,
+  monthlyScheduleSchema,
+  quarterlyScheduleSchema,
+  customScheduleSchema,
+]);
+
+// Type exports
+export type SimulationProfileBasicInfoFormData = z.infer<typeof simulationProfileBasicInfoSchema>;
+export type SimulationProfileTargetSelectionFormData = z.infer<typeof simulationProfileTargetSelectionSchema>;
+export type SimulationProfileAttackVectorsFormData = z.infer<typeof simulationProfileAttackVectorsSchema>;
+export type SimulationProfileScheduleFormData = z.infer<typeof simulationProfileScheduleSchema>;
+
+// Combined type for all form steps (useful for multi-step form state management)
+export interface SimulationProfileFormSteps {
+  basicInfo: SimulationProfileBasicInfoFormData;
+  targetSelection: SimulationProfileTargetSelectionFormData;
+  attackVectors: SimulationProfileAttackVectorsFormData;
+  schedule: SimulationProfileScheduleFormData;
+}
+
+// Complete form data type
+export type SimulationProfileCompleteFormData = 
+  SimulationProfileBasicInfoFormData & 
+  SimulationProfileTargetSelectionFormData & 
+  SimulationProfileAttackVectorsFormData & 
+  { schedule: SimulationProfileScheduleFormData };
 
 export default SimulationProfile;
