@@ -74,7 +74,7 @@ export const AttackVectorItem = (
         </div>
       </div>
       
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3 z-20">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-gray-100 opacity-100 group-hover:opacity-0 transition-opacity duration-300 p-3 z-20">
         <p className="text-white text-sm font-semibold truncate">{item.name}</p>
         <p className="text-white/80 text-xs truncate">{item.emailSubject}</p>
       </div>

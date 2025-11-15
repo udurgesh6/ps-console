@@ -6,3 +6,4 @@ export * from './attack-vector';
 export * from './form';
 export * from './course';
 export * from './landing-page';
+export * from './simulation-profile';
