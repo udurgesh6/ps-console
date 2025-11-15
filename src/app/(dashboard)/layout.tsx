@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/auth-context'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Product, PRODUCTS, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from '@/constants/navigation'
+import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from '@/constants/navigation'
 import { Navbar } from '@/components/layouts/dashboard/navbar'
 import { Sidebar } from '@/components/layouts/dashboard/sidebar'
 import { MobileMenu } from '@/components/layouts/dashboard/mobile-menu'
@@ -17,7 +17,7 @@ export default function DashboardLayout({
   const router = useRouter()
   const pathname = usePathname()
   
-  const [activeProduct, setActiveProduct] = useState<Product>('cyber-attack')
+  // const [activeProduct, setActiveProduct] = useState<Product>('cyber-attack')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
 
@@ -32,14 +32,14 @@ export default function DashboardLayout({
   }, [pathname])
 
   // Detect active product from pathname
-  useEffect(() => {
-    const productFromPath = PRODUCTS.find(p => 
-      pathname.includes(`/${p.id}`)
-    )
-    if (productFromPath) {
-      setActiveProduct(productFromPath.id)
-    }
-  }, [pathname])
+  // useEffect(() => {
+  //   const productFromPath = PRODUCTS.find(p => 
+  //     pathname.includes(`/${p.id}`)
+  //   )
+  //   if (productFromPath) {
+  //     setActiveProduct(productFromPath.id)
+  //   }
+  // }, [pathname])
 
   const handleLogout = () => {
     logout()
@@ -58,13 +58,13 @@ export default function DashboardLayout({
     return null
   }
 
-  const currentProduct = PRODUCTS.find(p => p.id === activeProduct) || PRODUCTS[0]
+  // const currentProduct = PRODUCTS.find(p => p.id === activeProduct) || PRODUCTS[0]
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar
-        activeProduct={activeProduct}
-        onProductChange={setActiveProduct}
+        // activeProduct={activeProduct}
+        // onProductChange={setActiveProduct}
         onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         isMobileMenuOpen={isMobileMenuOpen}
         userDetails={userDetails}
@@ -73,14 +73,14 @@ export default function DashboardLayout({
       />
 
       <Sidebar
-        product={currentProduct}
+        // product={currentProduct}
         onExpandChange={setIsSidebarExpanded}
       />
 
       <MobileMenu
         isOpen={isMobileMenuOpen}
-        activeProduct={activeProduct}
-        onProductChange={setActiveProduct}
+        // activeProduct={activeProduct}
+        // onProductChange={setActiveProduct}
         onClose={() => setIsMobileMenuOpen(false)}
       />
 

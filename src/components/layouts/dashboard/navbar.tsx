@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Menu, X, ChevronDown, LogOut } from 'lucide-react'
-import { Product, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from '@/constants/navigation'
+import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from '@/constants/navigation'
 import { User } from '@/types'
 
 export const Navbar = ({ 
@@ -19,8 +19,6 @@ export const Navbar = ({
   onLogout,
   isSidebarHovered = false
 }: { 
-  activeProduct: Product
-  onProductChange: (product: Product) => void
   onMobileMenuToggle: () => void
   isMobileMenuOpen: boolean
   userDetails: User | null
@@ -41,25 +39,6 @@ export const Navbar = ({
         }}
       >
         <div className="flex items-center justify-end h-full px-4 md:px-8">
-          {/* <div className="flex items-center space-x-3">
-            <div className="flex items-center gap-1">
-              {PRODUCTS.map((product) => (
-                <button
-                  key={product.id}
-                  onClick={() => onProductChange(product.id)}
-                  className={cn(
-                    'px-2 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors',
-                    activeProduct === product.id
-                      ? 'text-primary'
-                      : 'text-gray-600 hover:text-gray-900'
-                  )}
-                >
-                  {product.name}
-                </button>
-              ))}
-            </div>
-          </div> */}
-
           <div className="flex items-center space-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

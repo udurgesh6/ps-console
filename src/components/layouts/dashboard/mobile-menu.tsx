@@ -1,50 +1,42 @@
-import { Product, PRODUCTS } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { navigationItems } from "@/constants/navigation";
 
 export const MobileMenu = ({
   isOpen,
-  activeProduct,
-  onProductChange,
   onClose,
 }: {
   isOpen: boolean;
-  activeProduct: Product;
-  onProductChange: (product: Product) => void;
   onClose: () => void;
 }) => {
   const pathname = usePathname();
-  const [expandedProduct, setExpandedProduct] = useState<Product | null>(
-    activeProduct
-  );
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-      setExpandedProduct(activeProduct);
-      const activeProductConfig = PRODUCTS.find((p) => p.id === activeProduct);
+      const activeProductConfig = navigationItems.find((p) => p.id === pathname);
       if (activeProductConfig) {
         setExpandedGroups(
-          activeProductConfig.sidebarGroups.map((g) => g.title)
+          navigationItems.map((g) => g.title)
         );
       }
     }
-  }, [isOpen, activeProduct]);
+  }, [isOpen, pathname]);
 
-  const toggleProduct = (productId: Product) => {
-    if (expandedProduct === productId) {
-      setExpandedProduct(null);
-      setExpandedGroups([]);
-    } else {
-      setExpandedProduct(productId);
-      const product = PRODUCTS.find((p) => p.id === productId);
-      if (product) {
-        setExpandedGroups(product.sidebarGroups.map((g) => g.title));
-      }
-    }
-  };
+  // const toggleProduct = (productId: Product) => {
+  //   if (expandedProduct === productId) {
+  //     setExpandedProduct(null);
+  //     setExpandedGroups([]);
+  //   } else {
+  //     setExpandedProduct(productId);
+  //     const product = PRODUCTS.find((p) => p.id === productId);
+  //     if (product) {
+  //       setExpandedGroups(product.sidebarGroups.map((g) => g.title));
+  //     }
+  //   }
+  // };
 
   const toggleGroup = (title: string) => {
     setExpandedGroups((prev) =>
@@ -52,8 +44,7 @@ export const MobileMenu = ({
     );
   };
 
-  const handleLinkClick = (href: string, productId: Product) => {
-    onProductChange(productId);
+  const handleLinkClick = (href: string) => {
     onClose();
     window.location.href = href;
   };
@@ -64,21 +55,21 @@ export const MobileMenu = ({
     <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50 top-16">
       <div className="fixed inset-y-0 left-0 w-80 bg-white shadow-xl overflow-y-auto top-16">
         <div className="p-4 space-y-2">
-          {PRODUCTS.map((product) => {
-            const isExpanded = expandedProduct === product.id;
+          {navigationItems.map((product) => {
+            const isExpanded = expandedGroups.includes(product.title);
 
             return (
               <div key={product.id} className="space-y-1">
                 <button
-                  onClick={() => toggleProduct(product.id)}
+                  onClick={() => toggleGroup(product.title)}
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-md transition-colors",
-                    activeProduct === product.id
+                    expandedGroups.includes(product.title)
                       ? "bg-gray-100 text-gray-900"
                       : "text-gray-700 hover:bg-gray-50"
                   )}
                 >
-                  <span>{product.name}</span>
+                  <span>{product.title}</span>
                   {isExpanded ? (
                     <ChevronDown size={18} />
                   ) : (
@@ -88,7 +79,7 @@ export const MobileMenu = ({
 
                 {isExpanded && (
                   <div className="ml-4 space-y-1">
-                    {product.sidebarGroups.map((group) => {
+                    {navigationItems.map((group) => {
                       const isGroupExpanded = expandedGroups.includes(
                         group.title
                       );
@@ -113,7 +104,7 @@ export const MobileMenu = ({
                                 <button
                                   key={item.href}
                                   onClick={() =>
-                                    handleLinkClick(item.href, product.id)
+                                    handleLinkClick(item.href)
                                   }
                                   className={cn(
                                     "w-full text-left block px-3 py-2 text-sm rounded-md transition-colors",
