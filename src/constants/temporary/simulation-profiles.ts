@@ -16,6 +16,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "09:00",
       timezone: "America/New_York",
     },
+    isActive: true,
   },
   {
     id: "sp-2",
@@ -32,6 +33,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "10:30",
       timezone: "America/New_York",
     },
+    isActive: true,
   },
   {
     id: "sp-3",
@@ -48,6 +50,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "14:00",
       timezone: "America/New_York",
     },
+    isActive: false
   },
   {
     id: "sp-4",
@@ -65,6 +68,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "09:00",
       timezone: "America/New_York",
     },
+    isActive: true
   },
   {
     id: "sp-5",
@@ -81,6 +85,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "11:00",
       timezone: "America/New_York",
     },
+    isActive: false
   },
   {
     id: "sp-6",
@@ -97,6 +102,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "09:30",
       timezone: "America/New_York",
     },
+    isActive: false
   },
   {
     id: "sp-7",
@@ -113,6 +119,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "08:00",
       timezone: "America/Los_Angeles",
     },
+    isActive: true
   },
   {
     id: "sp-8",
@@ -129,6 +136,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "13:00",
       timezone: "America/Chicago",
     },
+    isActive: false
   },
   {
     id: "sp-9",
@@ -145,6 +153,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "10:00",
       timezone: "America/New_York",
     },
+    isActive: false
   },
   {
     id: "sp-10",
@@ -161,6 +170,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "09:00",
       timezone: "America/New_York",
     },
+    isActive: true
   },
   {
     id: "sp-11",
@@ -177,6 +187,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "10:00",
       timezone: "Asia/Kolkata",
     },
+    isActive: true
   },
   {
     id: "sp-12",

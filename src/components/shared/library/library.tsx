@@ -1,7 +1,7 @@
 "use client"
 
 // @ts-nocheck
-import { useState, useMemo, useCallback, FC } from "react";
+import { useState, useMemo, useCallback, forwardRef, useImperativeHandle, Ref } from "react"; // <-- Ensure Ref is imported
 import { LibraryFilters } from "./library-filters";
 import { LibraryItems } from "./library-items";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -11,7 +11,12 @@ import { LibraryProps } from "@/types";
 import { BulkActions } from "../bulk-actions";
 import { cn } from "@/lib/utils";
 
-export const Library: FC<LibraryProps> = ({
+export interface LibraryHandle {
+  isSelectEnabled: boolean;
+  setIsSelectEnabled: (value: boolean) => void;
+}
+
+export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   showFilters = true,
   showSearch = true,
   showBulkActions = true,
@@ -26,7 +31,8 @@ export const Library: FC<LibraryProps> = ({
   onClose,
   renderItem,
   isSingleSelect = false,
-}) => {
+}, ref: Ref<LibraryHandle>) => {
+
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({});
@@ -34,13 +40,20 @@ export const Library: FC<LibraryProps> = ({
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isSelectEnabled, setIsSelectEnabled] = useState<boolean>(false);
 
+  useImperativeHandle(ref, () => ({
+    isSelectEnabled: isSelectEnabled,
+    setIsSelectEnabled: setIsSelectEnabled,
+  }));
+
   const filteredItems = useMemo(() => {
+    // ... (Your filteredItems logic)
     let result = [...items];
 
     Object.entries(selectedFilters).forEach(([filterKey, selectedValues]) => {
       if (selectedValues.length > 0) {
         result = result.filter((item) => {
           const itemValue = item[filterKey];
+          // Assuming item[filterKey] is a string for comparison with selectedValues
           return selectedValues.includes(itemValue);
         });
       }
@@ -60,6 +73,7 @@ export const Library: FC<LibraryProps> = ({
   }, [items, selectedFilters, searchQuery]);
 
   const handleFilterChange = useCallback((filterKey: string, value: string) => {
+    // ... (Your handleFilterChange logic)
     setSelectedFilters((prev) => {
       const current = prev[filterKey] || [];
       const newValues = current.includes(value)
@@ -70,8 +84,8 @@ export const Library: FC<LibraryProps> = ({
     });
   }, []);
 
-  // FIXED: Changed from useMemo to useCallback
   const toggleItemSelection = useCallback((itemId: string) => {
+    // ... (Your toggleItemSelection logic)
     if (!isSingleSelect) {
       setSelectedItems((prev) =>
         prev.includes(itemId)
@@ -83,15 +97,15 @@ export const Library: FC<LibraryProps> = ({
     }
   }, [isSingleSelect]);
 
-  // FIXED: Changed from useMemo to useCallback
   const handleActionButton = useCallback(() => {
+    // ... (Your handleActionButton logic)
     if (onActionButtonClick) {
-      // const selected = items.filter((item) => selectedItems.includes(item.id));
       onActionButtonClick(items.filter((item) => selectedItems.includes(item.id)));
     }
   }, [onActionButtonClick, selectedItems, items]);
 
   const LibraryContent = () => (
+    // ... (Your LibraryContent component structure)
     <div className="flex h-full bg-white rounded-lg shadow-lg border border-gray-200">
       {showFilters && filterGroups.length > 0 && (
         <LibraryFilters
@@ -165,4 +179,6 @@ export const Library: FC<LibraryProps> = ({
       <LibraryContent />
     </div>
   );
-};
+});
+
+Library.displayName = 'Library';

@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { Library } from "@/components/shared/library/library";
+import { useMemo, useRef } from "react";
+import { Library, LibraryHandle } from "@/components/shared/library/library";
 import { SimulationProfileItem } from "./_components/simulation-profile-item";
 import { SimulationProfile } from "@/types/simulation-profile";
 import { 
@@ -10,22 +10,23 @@ import {
 } from "@/constants/temporary/simulation-profiles";
 
 export default function SimulationProfiles() {
+  const libraryRef = useRef<LibraryHandle>(null);
   const bulkActions = useMemo(
     () => [
+      // {
+      //   label: "Activate",
+      //   onClick: (items) => {
+      //     console.log("Activating profiles:", items);
+      //   },
+      // },
+      // {
+      //   label: "Deactivate",
+      //   onClick: (items) => {
+      //     console.log("Deactivating profiles:", items);
+      //   },
+      // },
       {
-        label: "Activate",
-        onClick: (items) => {
-          console.log("Activating profiles:", items);
-        },
-      },
-      {
-        label: "Deactivate",
-        onClick: (items) => {
-          console.log("Deactivating profiles:", items);
-        },
-      },
-      {
-        label: "Duplicate",
+        label: "Delete",
         onClick: (items) => {
           console.log("Duplicating profiles:", items);
         },
@@ -40,6 +41,7 @@ export default function SimulationProfiles() {
 
   return (
     <Library
+      ref={libraryRef}
       items={dummySimulationProfiles}
       filterGroups={simulationProfileFilterGroups}
       renderItem={renderSimulationProfile}
