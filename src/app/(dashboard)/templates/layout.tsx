@@ -10,10 +10,10 @@ import { useSidebar } from "@/context/sidebar-context"
 import { AddTemplateForm } from "./components/add-template-form"
 
 const templateNavItems: SubNavItem[] = [
-  {
-    title: "Email",
-    href: "/templates",
-  },
+  // {
+  //   title: "Email",
+  //   href: "/templates",
+  // },
   {
     title: "Form",
     href: "/templates/form",

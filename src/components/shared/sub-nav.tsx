@@ -23,8 +23,6 @@ export function SubNav({ items, className }: SubNavTabsProps) {
     items.find((item) => pathname.startsWith(item.href + "/"))?.href ||
     items[0]?.href
 
-  console.log(activeValue)
-
   return (
     <Tabs value={activeValue} className={className}>
       <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0 space-x-4">

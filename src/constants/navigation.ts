@@ -1,4 +1,4 @@
-import { LucideIcon, Sparkles, FileStack, FolderOpen, BarChart3, Users, VectorSquare } from 'lucide-react'
+import { LucideIcon, FolderOpen, BarChart3, Users, VectorSquare, Settings } from 'lucide-react'
 
 export interface SidebarItem {
   label: string
@@ -42,7 +42,7 @@ export const navigationItems: NavigationItem[] = [
     id: 'system-config',
     title: 'System Config',
     items: [
-      { label: 'System Config', href: '/templates', icon: FileStack }
+      { label: 'System Config', href: '/templates/form', icon: Settings }
     ],
     showTitle: false,
     isSystemConfig: true
@@ -60,10 +60,9 @@ export const navigationItems: NavigationItem[] = [
     title: 'Simulation',
     items: [
       { label: 'My Simulations', href: '/simulations', icon: FolderOpen },
-      { label: 'Create With AI', href: '/simulations/create-with-ai', icon: Sparkles },
     ],
     showTitle: false
-  },
+  }
 ]
 
 export const SIDEBAR_WIDTH = 212

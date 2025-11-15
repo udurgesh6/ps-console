@@ -48,12 +48,6 @@ export const pageConfigs: Record<string, PageConfig> = {
     showTitle: true,
     showDescription: false,
   },
-  '/templates': {
-    title: 'Templates',
-    description: 'This is the templates page',
-    showTitle: true,
-    showDescription: false,
-  },
   '/templates/form': {
     title: 'Templates',
     description: 'This is the templates page',
@@ -75,6 +69,12 @@ export const pageConfigs: Record<string, PageConfig> = {
   '/attack-vector/:id': {
     title: 'Attack Vector',
     description: 'This is the attack vector page',
+    showTitle: true,
+    showDescription: false,
+  },
+  '/simulations': {
+    title: 'Simulations',
+    description: 'This is the simulations page',
     showTitle: true,
     showDescription: false,
   },

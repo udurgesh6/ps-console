@@ -1,4 +1,4 @@
-import { AttackVector } from "@/types";
+import { AttackVector, FilterGroup } from "@/types";
 import { availableDomains } from "./available-domains";
 import { landingPages } from "./landing-pages";
 
@@ -411,3 +411,42 @@ export const attackVectorSubCategories: Record<
     { value: "password-spray", label: "Password Spray" },
   ],
 };
+
+
+export const filterGroups: FilterGroup[] = [
+  {
+    title: "Category",
+    key: "category",
+    options: [
+      { label: "Social Engineering", value: "social-engineering", count: 1 },
+      { label: "Phishing", value: "phishing", count: 1 },
+      { label: "Malware", value: "malware", count: 1 },
+      { label: "Credential Harvesting", value: "credential-harvesting", count: 1 },
+    ],
+  },
+  {
+    title: "Type",
+    key: "type",
+    options: [
+      { label: "Click", value: "click", count: 2 },
+      { label: "Submission", value: "submission", count: 2 },
+    ],
+  },
+  {
+    title: "Status",
+    key: "status",
+    options: [
+      { label: "Active", value: "true", count: 3 },
+      { label: "Inactive", value: "false", count: 1 },
+    ],
+  },
+  {
+    title: "Tropicality",
+    key: "tropicality",
+    options: [
+      { label: "Custom", value: "custom", count: 2 },
+      { label: "Diwali", value: "diwali", count: 1 },
+      { label: "Appraisal", value: "appraisal", count: 1 },
+    ],
+  },
+];
