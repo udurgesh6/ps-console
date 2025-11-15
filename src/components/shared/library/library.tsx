@@ -105,8 +105,9 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }, [onActionButtonClick, selectedItems, items]);
 
   const LibraryContent = () => (
-    // ... (Your LibraryContent component structure)
+    // Fixed scrolling behavior: filters scroll independently, action button stays fixed, library items scroll in their zone
     <div className="flex h-full bg-white rounded-lg shadow-lg border border-gray-200">
+      {/* Filters Section - Scrolls independently */}
       {showFilters && filterGroups.length > 0 && (
         <LibraryFilters
           filterGroups={filterGroups}
@@ -118,9 +119,11 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
         />
       )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {!showInModal && showBulkActions && (
-          <div className={cn("bg-white border-b rounded-t-lg border-gray-200 px-6 py-4", selectedItems.length === 0 && "hidden md:block")}>
+      {/* Main Content Area - Contains bulk actions, scrollable items, and fixed action button */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* Bulk Actions - Fixed at top, doesn't scroll */}
+        {showBulkActions && (
+          <div className={cn("flex-shrink-0 bg-white border-b rounded-t-lg border-gray-200 px-6 py-4", selectedItems.length === 0 && "hidden md:block")}>
             <BulkActions
               actions={bulkActions}
               selectedItems={items.filter((item) => selectedItems.includes(item.id))}
@@ -133,18 +136,21 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
           </div>
         )}
 
-        <div className={cn("flex-1 overflow-y-auto p-3 md:p-6", showInModal && "py-4")}>
+        {/* Library Items - Scrollable in its own zone */}
+        <div className={cn("flex-1 overflow-y-auto p-3 md:p-6 min-h-0", showInModal && "py-4")}>
           <LibraryItems
             items={filteredItems}
             selectedItems={selectedItems}
             onToggleSelection={toggleItemSelection}
             renderItem={renderItem}
             isSelectEnabled={isSelectEnabled}
+            showInModal={showInModal}
           />
         </div>
 
+        {/* Action Button - Fixed at bottom, doesn't scroll */}
         {showInModal && showActionButton && (
-          <div className="bg-white w-full flex justify-end border-t border-gray-200 px-6 py-4">
+          <div className="flex-shrink-0 bg-white w-full flex justify-end border-t border-gray-200 px-6 py-4">
             <Button
               onClick={handleActionButton}
               disabled={selectedItems.length === 0}
@@ -163,12 +169,14 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
           showCloseButton={false}
-          className="max-w-7xl sm:max-w-7xl h-[90vh] p-0 pt-5"
+          className="max-w-7xl sm:max-w-7xl h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] p-0 flex flex-col"
         >
           <VisuallyHidden>
             <DialogTitle>Library</DialogTitle>
           </VisuallyHidden>
-          <LibraryContent />
+          <div className="flex-1 min-h-0">
+            <LibraryContent />
+          </div>
         </DialogContent>
       </Dialog>
     );

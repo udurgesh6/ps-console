@@ -1,16 +1,21 @@
 "use client";
 
 import dummySimulationProfiles from "@/constants/temporary/simulation-profiles";
-import { SimulationProfile, SimulationProfileBasicInfoFormData } from "@/types";
+import { SimulationProfile, SimulationProfileAttackVectorsFormData, simulationProfileAttackVectorsSchema, SimulationProfileBasicInfoFormData } from "@/types";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { useEffect, useState } from "react";
 import { Story } from "@/components/shared/story";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, UsersIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { simulationProfileBasicInfoSchema } from "@/types";
 import { SimulationProfileBasicInfoStep } from "../_components/basic-info-step";
+import { SimulationProfileTargetSelectionStep } from "./_components/target-selection-form";
+import { simulationProfileTargetSelectionSchema } from "@/types";
+import { SimulationProfileTargetSelectionFormData } from "@/types";
+import { groups } from "@/constants/temporary/groups";
+import { SimulationProfileAttackVectorsStep } from "./_components/attack-vector-selection-form";
 
 interface SimulationPageProps {
   params: Promise<{ id: string }>;
@@ -55,6 +60,28 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       reValidateMode: "onChange",
     });
 
+  const targetSelectionForm = useForm<SimulationProfileTargetSelectionFormData>(
+    {
+      resolver: zodResolver(simulationProfileTargetSelectionSchema),
+      defaultValues: {
+        employeeGroups: simulation?.employeeGroups || [],
+      },
+      mode: "onTouched",
+      reValidateMode: "onChange",
+    }
+  );
+
+  const attackVectorSelectionForm = useForm<SimulationProfileAttackVectorsFormData>(
+    {
+      resolver: zodResolver(simulationProfileAttackVectorsSchema),
+      defaultValues: {
+        attackVectors: simulation?.attackVectors.map(id => ({ id })) || [],
+      },
+      mode: "onTouched",
+      reValidateMode: "onChange",
+    }
+  );
+
   const simulationSteps = [
     {
       id: "basic-info",
@@ -69,6 +96,35 @@ export default function SimulationPage({ params }: SimulationPageProps) {
         />
       ),
       validation: () => basicSimulationProfileForm.formState.isValid,
+    },
+    {
+      id: "target-selection",
+      icon: <UsersIcon className="h-5 w-5" />,
+      title: "Select Target Groups",
+      description:
+        "Choose employee groups to include in this simulation profile.",
+      content: (
+        <SimulationProfileTargetSelectionStep
+          form={targetSelectionForm}
+          isSubmitting={isNextProcessing}
+          availableGroups={groups}
+        />
+      ),
+      validation: () => targetSelectionForm.formState.isValid,
+    },
+    {
+      id: "attack-vector-selection",
+      icon: <UsersIcon className="h-5 w-5" />,
+      title: "Select Attack Vectors",
+      description:
+        "Choose attack vectors to include in this simulation profile.",
+      content: (
+        <SimulationProfileAttackVectorsStep
+          form={attackVectorSelectionForm}
+          isSubmitting={isNextProcessing}
+        />
+      ),
+      validation: () => attackVectorSelectionForm.formState.isValid,
     },
   ];
 

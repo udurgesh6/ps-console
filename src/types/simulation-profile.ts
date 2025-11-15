@@ -158,8 +158,9 @@ export const simulationProfileTargetSelectionSchema = z.object({
 });
 
 // 3. Attack Vectors Selection Form Schema
+// Updated to work with useFieldArray - each item must be an object with at least an id
 export const simulationProfileAttackVectorsSchema = z.object({
-  attackVectors: z.array(z.string())
+  attackVectors: z.array(z.object({ id: z.string() }))
     .min(1, "At least one attack vector must be selected")
     .nonempty("Attack vectors cannot be empty"),
 });

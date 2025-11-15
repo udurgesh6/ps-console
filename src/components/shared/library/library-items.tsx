@@ -8,6 +8,7 @@ export const LibraryItems: FC<LibraryItemsProps> = memo(({
   onToggleSelection,
   renderItem,
   isSelectEnabled,
+  showInModal,
 }) => {
 
   if (items.length === 0) {
@@ -28,6 +29,7 @@ export const LibraryItems: FC<LibraryItemsProps> = memo(({
           onToggle={() => onToggleSelection(item.id)}
           renderItem={renderItem}
           isSelectEnabled={isSelectEnabled}
+          showInModal={showInModal}
         />
       ))}
     </div>

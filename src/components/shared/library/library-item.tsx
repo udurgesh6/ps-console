@@ -10,7 +10,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export const LibraryItem: FC<LibraryItemProps> = memo(
-  ({ item, isSelected, onToggle, renderItem, isSelectEnabled = false }) => {
+  ({ item, isSelected, onToggle, renderItem, isSelectEnabled = false, showInModal = false }) => {
   
 
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -34,7 +34,7 @@ export const LibraryItem: FC<LibraryItemProps> = memo(
             )}
             onClick={isSelectEnabled ? onToggle : undefined}
           >
-            {renderItem(item as AttackVector, isSelected, isSelectEnabled)}
+            {renderItem(item as AttackVector, isSelected, isSelectEnabled, showInModal)}
 
             <Button
               size="icon"

@@ -7,3 +7,4 @@ export * from './form';
 export * from './course';
 export * from './landing-page';
 export * from './simulation-profile';
+export * from './group';

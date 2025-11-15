@@ -8,7 +8,8 @@ import { useEffect, useRef, useState } from "react";
 export const AttackVectorItem = (
   item: AttackVector,
   isSelected: boolean,
-  isSelectEnabled: boolean
+  isSelectEnabled: boolean,
+  showInModal: boolean
 ) => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -30,7 +31,7 @@ export const AttackVectorItem = (
   }, []);
 
   const onVectorClick = () => {
-    if (isSelectEnabled) {
+    if (isSelectEnabled || showInModal) {
       return;
     }
     router.push(`/attack-vector/${item.id}`);

@@ -85,9 +85,9 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
 
   return (
     <>
-      {/* Desktop: Sidebar (hidden on mobile) */}
-      <div className="hidden rounded-l-lg md:block w-64 bg-white border-r border-gray-200 overflow-y-auto">
-        <div className="p-6">
+      {/* Desktop: Sidebar - Fixed width, scrolls independently when filter content is tall */}
+      <div className="hidden rounded-l-lg md:flex md:flex-col w-64 bg-white border-r border-gray-200 h-full overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6">
           <FilterContent />
         </div>
       </div>

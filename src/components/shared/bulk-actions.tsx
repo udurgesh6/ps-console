@@ -54,7 +54,7 @@ export function BulkActions<TItem>({
               {selectedItems.length} selected{" "}
               {isSelectEnabled && <X className="ml-1 h-4 w-4 cursor-pointer" />}
             </span>
-            {showDivider && <div className="h-4 w-px bg-border" />}
+            {actions.length > 0 && showDivider && <div className="h-4 w-px bg-border" />}
           </>
         )}
         {!isSelectEnabled && setIsSelectEnabled && (
@@ -67,7 +67,7 @@ export function BulkActions<TItem>({
             >
               {isSelectEnabled ? "Cancel" : "Select"}
             </Button>
-            {showDivider && <div className="h-4 w-px bg-border" />}
+            {actions.length > 0 && showDivider && <div className="h-4 w-px bg-border" />}
           </>
         )}
 

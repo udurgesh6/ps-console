@@ -66,7 +66,7 @@ export interface LibraryProps {
   actionButtonText?: string;
   onActionButtonClick?: (selectedItems: LibraryItem[]) => void;
   onClose?: () => void;
-  renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean) => ReactNode;
+  renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean, showInModal: boolean) => ReactNode;
   isSingleSelect?: boolean;
 }
 
@@ -87,16 +87,18 @@ export interface LibraryItemsProps {
   items: LibraryItem[];
   selectedItems: string[];
   onToggleSelection: (itemId: string) => void;
-  renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean) => ReactNode;
+  renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean, showInModal: boolean) => ReactNode;
   isSelectEnabled?: boolean;
+  showInModal?: boolean;
 }
 
 export interface LibraryItemProps {
   item: LibraryItem;
   isSelected: boolean;
   onToggle: () => void;
-  renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean) => ReactNode;
+  renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean, showInModal: boolean) => ReactNode;
   isSelectEnabled?: boolean;
+  showInModal?: boolean;
 }
 
 export interface LibraryFiltersProps {
