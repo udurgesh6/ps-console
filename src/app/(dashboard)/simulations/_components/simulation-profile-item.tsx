@@ -68,7 +68,7 @@ export const SimulationProfileItem = (
         className="absolute cursor-pointer top-3 p-1 right-3 z-20 rounded-full bg-background/80 hover:bg-background shadow-md transition-colors"
         aria-label={item.isActive ? "Pause Simulation" : "Start Simulation"}
       >
-        {item.isActive ? <Pause className="h-4 w-4 text-primary" /> : <Play fill="currentColor" className="h-4 w-4 text-primary" />}
+        {item.isActive ? <Pause className="h-4 w-4 text-primary cursor-pointer" /> : <Play fill="currentColor" className="h-4 w-4 text-primary cursor-pointer" />}
       </Button>}
 
       {!isSelected && (
