@@ -92,7 +92,7 @@ export const Library: FC<LibraryProps> = ({
   }, [onActionButtonClick, selectedItems, items]);
 
   const LibraryContent = () => (
-    <div className="flex h-full bg-white rounded-lg">
+    <div className="flex h-full bg-white rounded-lg shadow-lg border border-gray-200">
       {showFilters && filterGroups.length > 0 && (
         <LibraryFilters
           filterGroups={filterGroups}
@@ -161,7 +161,7 @@ export const Library: FC<LibraryProps> = ({
   }
 
   return (
-    <div className="h-screen">
+    <div className="">
       <LibraryContent />
     </div>
   );
