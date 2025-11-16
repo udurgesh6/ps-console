@@ -17,7 +17,7 @@ export const Tag: FC<TagProps> = ({
     <Badge
       key={id}
       variant="secondary"
-      className="py-1.5 pr-2.5 pl-3 text-sm font-normal"
+      className="py-1.5 pr-2.5 pl-3 text-sm font-normal hover:shadow-sm"
     >
       {name}
       <button onClick={handleRemove} className="py-0">

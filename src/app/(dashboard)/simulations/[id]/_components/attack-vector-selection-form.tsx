@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,8 +15,10 @@ import { SimulationProfileAttackVectorsFormData } from "@/types";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { Tag } from "@/components/shared/tag";
 import { useRouter } from "next/navigation";
-import { FC } from "react";
-import { dummyAttackVectors } from "@/constants/temporary/attack-vectors";
+import {
+  dummyAttackVectors,
+  filterGroups,
+} from "@/constants/temporary/attack-vectors";
 import { AttackVectorItem } from "@/app/(dashboard)/attack-vector/components/attack-vector-item";
 
 interface SimulationProfileAttackVectorsStepProps {
@@ -24,9 +26,10 @@ interface SimulationProfileAttackVectorsStepProps {
   isSubmitting?: boolean;
 }
 
-export const SimulationProfileAttackVectorsStep: FC<
-  SimulationProfileAttackVectorsStepProps
-> = ({ form, isSubmitting = false }) => {
+export const SimulationProfileAttackVectorsStep = ({
+  form,
+  isSubmitting = true,
+}: SimulationProfileAttackVectorsStepProps) => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
@@ -44,53 +47,16 @@ export const SimulationProfileAttackVectorsStep: FC<
     name: "attackVectors",
   });
 
-  const filterGroups = [
-    {
-      title: "Category",
-      key: "category",
-      options: [
-        { label: "Phishing", value: "phishing", count: 0 },
-        { label: "Social Engineering", value: "social-engineering", count: 0 },
-        { label: "Malware", value: "malware", count: 0 },
-        {
-          label: "Credential Harvesting",
-          value: "credential-harvesting",
-          count: 0,
-        },
-      ],
-    },
-    {
-      title: "Type",
-      key: "type",
-      options: [
-        { label: "Click", value: "click", count: 0 },
-        { label: "Submission", value: "submission", count: 0 },
-      ],
-    },
-    {
-      title: "Status",
-      key: "status",
-      options: [
-        { label: "Active", value: "active", count: 0 },
-        { label: "Draft", value: "draft", count: 0 },
-      ],
-    },
-  ];
+  const isSelected = (item: LibraryItem) => {
+    return attackVectorValues.some((page) => page.id === item.id);
+  };
 
   const handleDone = (selectedItems: LibraryItem[]) => {
-    const newSelections = selectedItems.map((item) => item.id);
-
-    // Get currently selected IDs from the form
-    const currentIds = attackVectorValues?.map((item) => item.id) || [];
-
-    // Find IDs that need to be added
+    const newSelections = selectedItems as AttackVector[];
     const vectorsToAppend = newSelections.filter(
-      (newId) => !currentIds.includes(newId)
+      (newItem) => !isSelected(newItem)
     );
-
-    // Append new selections as objects with id field
-    vectorsToAppend.forEach((id) => append({ id }));
-
+    vectorsToAppend.forEach((page) => append(page));
     setShowModal(false);
   };
 
@@ -99,28 +65,8 @@ export const SimulationProfileAttackVectorsStep: FC<
   };
 
   const handleCreateFromScratch = () => {
-    // Navigate to attack vector creation story/flow
     router.push("/attack-vectors/create");
   };
-
-  // Transform attack vectors to LibraryItem format for the Library component
-  // const libraryItems: LibraryItem[] = dummyAttackVectors.map((av) => ({
-  //   id: av.id,
-  //   name: av.name,
-  //   description: av.description,
-  //   category: av.category,
-  //   type: av.type,
-  //   status: av.status,
-  // }));
-
-  // Get full attack vector details for selected items
-  const selectedAttackVectorDetails = selectedAttackVectors
-    .map((field) => {
-      // field is now always an object with id field from useFieldArray
-      const av = dummyAttackVectors.find((vector) => vector.id === field.id);
-      return av;
-    })
-    .filter(Boolean) as AttackVector[];
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -136,7 +82,7 @@ export const SimulationProfileAttackVectorsStep: FC<
             type="button"
             disabled={isSubmitting}
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="h-4 w-4" />
             Create From Scratch
           </Button>
 
@@ -148,7 +94,7 @@ export const SimulationProfileAttackVectorsStep: FC<
                 type="button"
                 disabled={isSubmitting}
               >
-                Select from Attack Vector Library
+                Select From Library
               </Button>
             </DialogTrigger>
 
@@ -175,9 +121,9 @@ export const SimulationProfileAttackVectorsStep: FC<
         </div>
       </div>
 
-      {selectedAttackVectorDetails.length > 0 && (
+      {selectedAttackVectors.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {selectedAttackVectorDetails.map((av, index) => (
+          {selectedAttackVectors.map((av, index) => (
             <Tag
               key={av.id}
               id={av.id}

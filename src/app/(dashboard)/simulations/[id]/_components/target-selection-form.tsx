@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Search, Users, Building2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -22,9 +22,11 @@ interface SimulationProfileTargetSelectionStepProps {
   availableGroups: Group[];
 }
 
-export const SimulationProfileTargetSelectionStep: FC<
-  SimulationProfileTargetSelectionStepProps
-> = ({ form, isSubmitting = false, availableGroups }) => {
+export const SimulationProfileTargetSelectionStep = ({
+  form,
+  isSubmitting = false,
+  availableGroups,
+}: SimulationProfileTargetSelectionStepProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const selectedGroups = form.watch("employeeGroups") || [];
@@ -37,43 +39,51 @@ export const SimulationProfileTargetSelectionStep: FC<
     );
   });
 
-  const totalSelectedEmployees = availableGroups
-    .filter((group) => selectedGroups.includes(group.id))
-    .reduce((sum, group) => sum + group.memberCount, 0);
+  // Calculate total employees from selected Group objects (not IDs)
+  const totalSelectedEmployees = selectedGroups.reduce(
+    (sum, group) => sum + group.memberCount,
+    0
+  );
 
-  const handleGroupToggle = (groupId: string, checked: boolean) => {
+  // Handle group toggle by adding/removing Group objects (not just IDs)
+  const handleGroupToggle = (group: Group, checked: boolean) => {
     const currentGroups = form.getValues("employeeGroups") || [];
     if (checked) {
-      form.setValue("employeeGroups", [...currentGroups, groupId], {
+      // Add the full Group object
+      form.setValue("employeeGroups", [...currentGroups, group], {
         shouldValidate: true,
       });
     } else {
+      // Remove the Group object by ID
       form.setValue(
         "employeeGroups",
-        currentGroups.filter((id) => id !== groupId),
+        currentGroups.filter((g) => g.id !== group.id),
         { shouldValidate: true }
       );
     }
   };
 
   const handleSelectAll = () => {
-    const allIds = filteredGroups.map((group) => group.id);
-    form.setValue("employeeGroups", allIds, { shouldValidate: true });
+    // Set all filtered groups (full objects)
+    form.setValue("employeeGroups", filteredGroups, { shouldValidate: true });
   };
 
   const handleDeselectAll = () => {
     form.setValue("employeeGroups", [], { shouldValidate: true });
   };
 
-  const isAllSelected = selectedGroups.length === filteredGroups.length;
+  // Check if a group is selected by comparing IDs
+  const isGroupSelected = (groupId: string) => {
+    return selectedGroups.some((g) => g.id === groupId);
+  };
+
+  const isAllSelected =
+    filteredGroups.length > 0 &&
+    filteredGroups.every((group) => isGroupSelected(group.id));
 
   return (
     <Form {...form}>
       <div className="space-y-6">
-        {/* <div className="flex items-center justify-end">
-          
-        </div> */}
-
         {/* Search and Actions */}
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
@@ -130,7 +140,7 @@ export const SimulationProfileTargetSelectionStep: FC<
                     </div>
                   ) : (
                     filteredGroups.map((group) => {
-                      const isSelected = selectedGroups.includes(group.id);
+                      const isSelected = isGroupSelected(group.id);
                       return (
                         <Card
                           key={group.id}
@@ -140,7 +150,7 @@ export const SimulationProfileTargetSelectionStep: FC<
                               : "hover:border-gray-300 hover:shadow-sm"
                           }`}
                           onClick={() =>
-                            handleGroupToggle(group.id, !isSelected)
+                            handleGroupToggle(group, !isSelected)
                           }
                         >
                           <CardContent className="p-4">
@@ -148,10 +158,7 @@ export const SimulationProfileTargetSelectionStep: FC<
                               <Checkbox
                                 checked={isSelected}
                                 onCheckedChange={(checked) =>
-                                  handleGroupToggle(
-                                    group.id,
-                                    checked as boolean
-                                  )
+                                  handleGroupToggle(group, checked as boolean)
                                 }
                                 disabled={isSubmitting}
                                 className="mt-1"
@@ -195,25 +202,6 @@ export const SimulationProfileTargetSelectionStep: FC<
             </FormItem>
           )}
         />
-
-        {/* Summary Footer */}
-        {/* {selectedGroups.length > 0 && (
-          <div className="border-t border-gray-200 pt-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Selected Groups Summary</span>
-              <div className="flex items-center gap-4">
-                <span className="font-medium">
-                  {selectedGroups.length}{" "}
-                  {selectedGroups.length === 1 ? "group" : "groups"}
-                </span>
-                <span className="text-gray-400">•</span>
-                <span className="font-semibold text-primary">
-                  {totalSelectedEmployees} total employees
-                </span>
-              </div>
-            </div>
-          </div>
-        )} */}
       </div>
     </Form>
   );

@@ -22,6 +22,25 @@ export interface AttackVector {
     status?: boolean;
 }
 
+export const attackVectorSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    category: z.string(),
+    subCategory: z.string(),
+    type: z.string(),
+    emailHtmlTemplate: z.string(),
+    emailSubject: z.string(),
+    from: z.string(),
+    forms: z.array(formSchema).optional(),
+    landingPages: z.array(landingPageSchema),
+    courses: z.array(courseSchema).optional(),  // Add .optional() here
+    tropicality: z.string().optional(),  // Also make this optional to match interface
+    startDate: z.date().optional(),  // Changed from z.string() to z.date()
+    endDate: z.date().optional(),
+    status: z.boolean().optional(),  // Also make this optional to match interface
+});
+
 export const attackVectorBasicInfoSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),

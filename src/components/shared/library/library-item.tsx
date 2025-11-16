@@ -11,8 +11,6 @@ import { cn } from "@/lib/utils";
 
 export const LibraryItem: FC<LibraryItemProps> = memo(
   ({ item, isSelected, onToggle, renderItem, isSelectEnabled = false, showInModal = false }) => {
-  
-
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     const borderClass = isSelected

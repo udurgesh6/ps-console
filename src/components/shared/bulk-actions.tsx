@@ -25,6 +25,7 @@ interface BulkActionsProps<TItem> {
   setIsSelectEnabled?: (value: boolean) => void;
   isSelectEnabled?: boolean;
   setSelectedItems: (value: TItem[]) => void;
+  showInModal?: boolean;
 }
 
 export function BulkActions<TItem>({
@@ -35,6 +36,7 @@ export function BulkActions<TItem>({
   setIsSelectEnabled,
   isSelectEnabled = true,
   setSelectedItems,
+  showInModal = false,
 }: BulkActionsProps<TItem>) {
   const hasSelection = selectedItems.length > 0;
 
@@ -42,7 +44,7 @@ export function BulkActions<TItem>({
     <div className="flex items-center justify-end gap-2">
       {/* Desktop View */}
       <div className="hidden md:flex items-center gap-2">
-        {isSelectEnabled && setIsSelectEnabled && (
+        {!showInModal && isSelectEnabled && setIsSelectEnabled && (
           <>
             <span
               onClick={() => {
@@ -57,7 +59,7 @@ export function BulkActions<TItem>({
             {actions.length > 0 && showDivider && <div className="h-4 w-px bg-border" />}
           </>
         )}
-        {!isSelectEnabled && setIsSelectEnabled && (
+        {!showInModal && !isSelectEnabled && setIsSelectEnabled && (
           <>
             <Button
               variant={"outline"}

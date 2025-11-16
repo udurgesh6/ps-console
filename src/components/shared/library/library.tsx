@@ -38,7 +38,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   >({});
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [isSelectEnabled, setIsSelectEnabled] = useState<boolean>(false);
+  const [isSelectEnabled, setIsSelectEnabled] = useState<boolean>(showInModal ? true : false);
 
   useImperativeHandle(ref, () => ({
     isSelectEnabled: isSelectEnabled,
@@ -123,7 +123,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Bulk Actions - Fixed at top, doesn't scroll */}
         {showBulkActions && (
-          <div className={cn("flex-shrink-0 bg-white border-b rounded-t-lg border-gray-200 px-6 py-4", selectedItems.length === 0 && "hidden md:block")}>
+          <div className={cn("", !showInModal && "bg-white border-b rounded-t-lg border-gray-200 px-6 py-4", selectedItems.length === 0 && "hidden md:block")}>
             <BulkActions
               actions={bulkActions}
               selectedItems={items.filter((item) => selectedItems.includes(item.id))}
@@ -131,7 +131,8 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
               setIsSelectEnabled={setIsSelectEnabled}
               showDivider={true}
               showEndDivider={false}
-              isSelectEnabled={isSelectEnabled}
+              isSelectEnabled={showInModal ? true : isSelectEnabled}
+              showInModal={showInModal}
             />
           </div>
         )}

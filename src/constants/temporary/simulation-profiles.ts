@@ -1,15 +1,22 @@
 import { SimulationProfile } from "@/types";
+import { groups } from "./groups";
+import { dummyAttackVectors } from "./attack-vectors";
 
 export const dummySimulationProfiles: SimulationProfile[] = [
   {
     id: "sp-1",
     name: "Executive Leadership Training",
-    description: "Targeted phishing simulation for C-level executives and senior management to identify BEC and spear-phishing vulnerabilities",
+    description:
+      "Targeted phishing simulation for C-level executives and senior management to identify BEC and spear-phishing vulnerabilities",
     category: "high-priority",
     simulationInterval: "weekly",
     simulationFrequency: 4,
-    employeeGroups: ["eg-1", "eg-2"],
-    attackVectors: ["av-4", "av-5", "av-9"],
+    employeeGroups: [groups[0], groups[1]],
+    attackVectors: [
+      dummyAttackVectors[0],
+      dummyAttackVectors[1],
+      dummyAttackVectors[2],
+    ],
     schedule: {
       type: "custom",
       dayOfWeek: ["monday", "wednesday"],
@@ -21,12 +28,13 @@ export const dummySimulationProfiles: SimulationProfile[] = [
   {
     id: "sp-2",
     name: "Finance Department Security Awareness",
-    description: "Monthly simulation targeting finance team with wire transfer fraud and invoice scams to prevent financial losses",
+    description:
+      "Monthly simulation targeting finance team with wire transfer fraud and invoice scams to prevent financial losses",
     category: "department-specific",
     simulationInterval: "monthly",
     simulationFrequency: 1,
-    employeeGroups: ["eg-3"],
-    attackVectors: ["av-4", "av-7"],
+    employeeGroups: [groups[2]],
+    attackVectors: [dummyAttackVectors[3], dummyAttackVectors[6]],
     schedule: {
       type: "monthly",
       dayOfMonth: 15,
@@ -38,29 +46,47 @@ export const dummySimulationProfiles: SimulationProfile[] = [
   {
     id: "sp-3",
     name: "IT Department Advanced Threats",
-    description: "Bi-weekly advanced phishing campaigns testing IT staff against sophisticated social engineering and credential harvesting",
+    description:
+      "Bi-weekly advanced phishing campaigns testing IT staff against sophisticated social engineering and credential harvesting",
     category: "technical",
     simulationInterval: "bi-weekly",
     simulationFrequency: 2,
-    employeeGroups: ["eg-4", "eg-5"],
-    attackVectors: ["av-2", "av-3", "av-8", "av-11"],
+    employeeGroups: [groups[3], groups[4]],
+    attackVectors: [
+      dummyAttackVectors[2],
+      dummyAttackVectors[3],
+      dummyAttackVectors[8],
+      dummyAttackVectors[11],
+    ],
     schedule: {
       type: "bi-weekly",
       dayOfWeek: ["tuesday", "thursday"],
       timeOfDay: "14:00",
       timezone: "America/New_York",
     },
-    isActive: false
+    isActive: false,
   },
   {
     id: "sp-4",
     name: "All-Hands Quarterly Assessment",
-    description: "Comprehensive quarterly phishing test for entire organization to measure overall security awareness baseline",
+    description:
+      "Comprehensive quarterly phishing test for entire organization to measure overall security awareness baseline",
     category: "organization-wide",
     simulationInterval: "quarterly",
     simulationFrequency: 0.33,
-    employeeGroups: ["eg-1", "eg-2", "eg-3", "eg-4", "eg-5", "eg-6"],
-    attackVectors: ["av-1", "av-6", "av-10"],
+    employeeGroups: [
+      groups[0],
+      groups[1],
+      groups[2],
+      groups[3],
+      groups[4],
+      groups[5],
+    ],
+    attackVectors: [
+      dummyAttackVectors[0],
+      dummyAttackVectors[5],
+      dummyAttackVectors[10],
+    ],
     schedule: {
       type: "quarterly",
       monthsOfYear: [3, 6, 9, 12],
@@ -68,136 +94,168 @@ export const dummySimulationProfiles: SimulationProfile[] = [
       timeOfDay: "09:00",
       timezone: "America/New_York",
     },
-    isActive: true
+    isActive: true,
   },
   {
     id: "sp-5",
     name: "Customer Service Social Engineering",
-    description: "Weekly vishing and pretexting simulations for customer-facing teams to build resistance against phone-based attacks",
+    description:
+      "Weekly vishing and pretexting simulations for customer-facing teams to build resistance against phone-based attacks",
     category: "customer-facing",
     simulationInterval: "weekly",
     simulationFrequency: 4,
-    employeeGroups: ["eg-6"],
-    attackVectors: ["av-5", "av-9"],
+    employeeGroups: [groups[6]],
+    attackVectors: [dummyAttackVectors[5], dummyAttackVectors[9]],
     schedule: {
       type: "weekly",
       dayOfWeek: ["friday"],
       timeOfDay: "11:00",
       timezone: "America/New_York",
     },
-    isActive: false
+    isActive: false,
   },
   {
     id: "sp-6",
     name: "New Hire Onboarding Security",
-    description: "Basic phishing awareness training for new employees within their first 30 days, run twice monthly",
+    description:
+      "Basic phishing awareness training for new employees within their first 30 days, run twice monthly",
     category: "onboarding",
     simulationInterval: "bi-weekly",
     simulationFrequency: 2,
-    employeeGroups: ["eg-7"],
-    attackVectors: ["av-1", "av-6", "av-10"],
+    employeeGroups: [groups[7]],
+    attackVectors: [
+      dummyAttackVectors[0],
+      dummyAttackVectors[5],
+      dummyAttackVectors[10],
+    ],
     schedule: {
       type: "bi-weekly",
       dayOfWeek: ["monday"],
       timeOfDay: "09:30",
       timezone: "America/New_York",
     },
-    isActive: false
+    isActive: false,
   },
   {
     id: "sp-7",
     name: "Sales Team Travel Scams",
-    description: "Monthly simulations focused on travel and hospitality scams targeting remote and traveling sales personnel",
+    description:
+      "Monthly simulations focused on travel and hospitality scams targeting remote and traveling sales personnel",
     category: "department-specific",
     simulationInterval: "monthly",
     simulationFrequency: 1,
-    employeeGroups: ["eg-8"],
-    attackVectors: ["av-1", "av-4"],
+    employeeGroups: [groups[8]],
+    attackVectors: [dummyAttackVectors[0], dummyAttackVectors[4]],
     schedule: {
       type: "monthly",
       dayOfMonth: 10,
       timeOfDay: "08:00",
       timezone: "America/Los_Angeles",
     },
-    isActive: true
+    isActive: true,
   },
   {
     id: "sp-8",
     name: "Marketing Team Social Media Threats",
-    description: "Bi-weekly simulations testing marketing staff against social media phishing and fake brand impersonation",
+    description:
+      "Bi-weekly simulations testing marketing staff against social media phishing and fake brand impersonation",
     category: "department-specific",
     simulationInterval: "bi-weekly",
     simulationFrequency: 2,
-    employeeGroups: ["eg-9"],
-    attackVectors: ["av-8", "av-10"],
+    employeeGroups: [groups[9]],
+    attackVectors: [dummyAttackVectors[8], dummyAttackVectors[10]],
     schedule: {
       type: "custom",
       dayOfWeek: ["tuesday", "thursday"],
       timeOfDay: "13:00",
       timezone: "America/Chicago",
     },
-    isActive: false
+    isActive: false,
   },
   {
     id: "sp-9",
     name: "HR Credential Harvesting Defense",
-    description: "Weekly simulations for HR team focusing on fake job applications and resume-based malware attacks",
+    description:
+      "Weekly simulations for HR team focusing on fake job applications and resume-based malware attacks",
     category: "high-priority",
     simulationInterval: "weekly",
     simulationFrequency: 4,
-    employeeGroups: ["eg-10"],
-    attackVectors: ["av-3", "av-8", "av-11"],
+    employeeGroups: [groups[10]],
+    attackVectors: [
+      dummyAttackVectors[3],
+      dummyAttackVectors[8],
+      dummyAttackVectors[11],
+    ],
     schedule: {
       type: "weekly",
       dayOfWeek: ["wednesday"],
       timeOfDay: "10:00",
       timezone: "America/New_York",
     },
-    isActive: false
+    isActive: false,
   },
   {
     id: "sp-10",
     name: "Remote Workers Security Baseline",
-    description: "Monthly comprehensive testing for remote employees covering VPN scams, fake IT support, and cloud service phishing",
+    description:
+      "Monthly comprehensive testing for remote employees covering VPN scams, fake IT support, and cloud service phishing",
     category: "remote-workers",
     simulationInterval: "monthly",
     simulationFrequency: 1,
-    employeeGroups: ["eg-11"],
-    attackVectors: ["av-5", "av-6", "av-7", "av-9"],
+    employeeGroups: [groups[11]],
+    attackVectors: [
+      dummyAttackVectors[5],
+      dummyAttackVectors[6],
+      dummyAttackVectors[7],
+      dummyAttackVectors[9],
+    ],
     schedule: {
       type: "monthly",
       dayOfMonth: 5,
       timeOfDay: "09:00",
       timezone: "America/New_York",
     },
-    isActive: true
+    isActive: true,
   },
   {
     id: "sp-11",
     name: "Seasonal Campaign - Diwali Special",
-    description: "Special seasonal phishing simulation during Diwali festival period targeting all employees with culturally relevant scenarios",
+    description:
+      "Special seasonal phishing simulation during Diwali festival period targeting all employees with culturally relevant scenarios",
     category: "seasonal",
     simulationInterval: "custom",
     simulationFrequency: 1,
-    employeeGroups: ["eg-1", "eg-2", "eg-3", "eg-4", "eg-5", "eg-6"],
-    attackVectors: ["av-12"],
+    employeeGroups: [
+      groups[0],
+      groups[1],
+      groups[2],
+      groups[3],
+      groups[4],
+      groups[5],
+    ],
+    attackVectors: [dummyAttackVectors[12]],
     schedule: {
       type: "custom",
       specificDates: ["2024-11-01", "2024-11-02", "2024-11-03"],
       timeOfDay: "10:00",
       timezone: "Asia/Kolkata",
     },
-    isActive: true
+    isActive: true,
   },
   {
     id: "sp-12",
     name: "Compliance Team Regulatory Phishing",
-    description: "Quarterly high-stakes simulations for compliance officers testing against fake regulatory notices and audit requests",
+    description:
+      "Quarterly high-stakes simulations for compliance officers testing against fake regulatory notices and audit requests",
     category: "compliance",
     simulationInterval: "quarterly",
     simulationFrequency: 0.33,
-    employeeGroups: ["eg-12"],
-    attackVectors: ["av-2", "av-7", "av-9"],
+    employeeGroups: [groups[12]],
+    attackVectors: [
+      dummyAttackVectors[2],
+      dummyAttackVectors[7],
+      dummyAttackVectors[9],
+    ],
     schedule: {
       type: "quarterly",
       monthsOfYear: [1, 4, 7, 10],

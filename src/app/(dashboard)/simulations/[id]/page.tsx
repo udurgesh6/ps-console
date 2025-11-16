@@ -71,17 +71,15 @@ export default function SimulationPage({ params }: SimulationPageProps) {
     }
   );
 
-  const attackVectorSelectionForm = useForm<SimulationProfileAttackVectorsFormData>(
-    {
-      resolver: zodResolver(simulationProfileAttackVectorsSchema),
-      defaultValues: {
-        attackVectors: simulation?.attackVectors.map(id => ({ id })) || [],
-      },
-      mode: "onTouched",
-      reValidateMode: "onChange",
-    }
-  );
-
+  const attackVectorSelectionForm = useForm<SimulationProfileAttackVectorsFormData>({
+    resolver: zodResolver(simulationProfileAttackVectorsSchema),
+    defaultValues: {
+      attackVectors: simulation?.attackVectors || [],
+    },
+    mode: "onTouched",
+    reValidateMode: "onChange",
+  });
+  
   const simulationSteps = [
     {
       id: "basic-info",

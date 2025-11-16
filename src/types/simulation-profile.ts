@@ -1,4 +1,6 @@
 import z from "zod";
+import { AttackVector, attackVectorSchema } from "./attack-vector";
+import { Group, groupSchema } from "./group";
 
 export type SimulationInterval = 
   | "daily" 
@@ -88,8 +90,8 @@ export interface SimulationProfile {
   category: SimulationCategory;
   simulationInterval: SimulationInterval;
   simulationFrequency: number; // Number of times per month
-  employeeGroups: string[]; // Array of employee group IDs
-  attackVectors: string[]; // Array of attack vector IDs
+  employeeGroups: Group[]; // Array of employee group IDs
+  attackVectors: AttackVector[]; // Array of attack vector IDs
   schedule: Schedule;
   isActive?: boolean; // Optional: whether the profile is currently active
   createdAt?: Date;
@@ -152,17 +154,12 @@ export const simulationProfileBasicInfoSchema = z.object({
 
 // 2. Target Selection (Employee Groups) Form Schema
 export const simulationProfileTargetSelectionSchema = z.object({
-  employeeGroups: z.array(z.string())
+  employeeGroups: z.array(groupSchema)
     .min(1, "At least one employee group must be selected")
-    .nonempty("Employee groups cannot be empty"),
 });
 
-// 3. Attack Vectors Selection Form Schema
-// Updated to work with useFieldArray - each item must be an object with at least an id
 export const simulationProfileAttackVectorsSchema = z.object({
-  attackVectors: z.array(z.object({ id: z.string() }))
-    .min(1, "At least one attack vector must be selected")
-    .nonempty("Attack vectors cannot be empty"),
+    attackVectors: z.array(attackVectorSchema).min(1, "At least one attack vector is required"),
 });
 
 // 4. Schedule Form Schema

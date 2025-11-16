@@ -1,6 +1,7 @@
 import {FC, memo} from 'react';
 import { LibraryItem } from './library-item';
 import { LibraryItemsProps } from '@/types';
+import { cn } from '@/lib/utils';
 
 export const LibraryItems: FC<LibraryItemsProps> = memo(({
   items,
@@ -20,7 +21,7 @@ export const LibraryItems: FC<LibraryItemsProps> = memo(({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6">
+    <div className={cn("grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6", showInModal && "md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4")}>
       {items.map((item) => (
         <LibraryItem
           key={item.id}
