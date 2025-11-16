@@ -244,6 +244,8 @@ const customScheduleSchema = baseScheduleSchema.extend({
   }
 );
 
+export type ScheduleTypeValue = "weekly" | "bi-weekly" | "monthly" | "quarterly" | "custom";
+
 // Combined schedule schema using discriminated union
 export const simulationProfileScheduleSchema = z.discriminatedUnion("type", [
   weeklyScheduleSchema,

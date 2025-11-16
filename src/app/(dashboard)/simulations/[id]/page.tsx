@@ -1,7 +1,7 @@
 "use client";
 
 import dummySimulationProfiles from "@/constants/temporary/simulation-profiles";
-import { SimulationProfile, SimulationProfileAttackVectorsFormData, simulationProfileAttackVectorsSchema, SimulationProfileBasicInfoFormData } from "@/types";
+import { SimulationProfile, SimulationProfileAttackVectorsFormData, simulationProfileAttackVectorsSchema, SimulationProfileBasicInfoFormData, SimulationProfileScheduleFormData, simulationProfileScheduleSchema } from "@/types";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { useEffect, useState } from "react";
@@ -10,12 +10,13 @@ import { InfoIcon, UsersIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { simulationProfileBasicInfoSchema } from "@/types";
-import { SimulationProfileBasicInfoStep } from "../_components/basic-info-step";
+import { SimulationProfileBasicInfoStep } from "./_components/basic-info-step";
 import { SimulationProfileTargetSelectionStep } from "./_components/target-selection-form";
 import { simulationProfileTargetSelectionSchema } from "@/types";
 import { SimulationProfileTargetSelectionFormData } from "@/types";
 import { groups } from "@/constants/temporary/groups";
 import { SimulationProfileAttackVectorsStep } from "./_components/attack-vector-selection-form";
+import { SimulationProfileScheduleStep } from "./_components/schedule-form";
 
 interface SimulationPageProps {
   params: Promise<{ id: string }>;
@@ -79,6 +80,18 @@ export default function SimulationPage({ params }: SimulationPageProps) {
     mode: "onTouched",
     reValidateMode: "onChange",
   });
+
+  const scheduleForm = useForm<SimulationProfileScheduleFormData>({
+    resolver: zodResolver(simulationProfileScheduleSchema),
+    defaultValues: simulation?.schedule || {
+      type: "weekly",
+      timeOfDay: "",
+      timezone: "Indian/Standard",
+      dayOfWeek: [],
+    },
+    mode: "onTouched",
+    reValidateMode: "onChange",
+  });
   
   const simulationSteps = [
     {
@@ -123,6 +136,20 @@ export default function SimulationPage({ params }: SimulationPageProps) {
         />
       ),
       validation: () => attackVectorSelectionForm.formState.isValid,
+    },
+    {
+      id: "schedule",
+      icon: <UsersIcon className="h-5 w-5" />,
+      title: "Select Schedule",
+      description:
+        "Choose a schedule for this simulation profile.",
+      content: (
+        <SimulationProfileScheduleStep
+          form={scheduleForm}
+          isSubmitting={isNextProcessing}
+        />
+      ),
+      validation: () => scheduleForm.formState.isValid,
     },
   ];
 
