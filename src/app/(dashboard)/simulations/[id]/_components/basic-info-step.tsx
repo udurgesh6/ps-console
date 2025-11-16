@@ -3,7 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
+// import { Slider } from "@/components/ui/slider";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { SimulationProfileBasicInfoFormData } from "@/types";
 
@@ -101,7 +101,7 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="simulationInterval"
               render={({ field }) => (
@@ -129,12 +129,12 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </div>
         </div>
 
         {/* Simulation Frequency Slider Section */}
-        <div className="border-t border-gray-200 pt-6">
+        {/* <div className="border-t border-gray-200 pt-6">
           <FormField
             control={form.control}
             name="simulationFrequency"
@@ -164,16 +164,11 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
                     defaultValue={[15]}
                   />
                 </FormControl>
-                {/* <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>1</span>
-                  <span>15</span>
-                  <span>30</span>
-                </div> */}
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
       </div>
     </Form>
   );

@@ -54,8 +54,8 @@ export default function SimulationPage({ params }: SimulationPageProps) {
         name: simulation?.name || "",
         description: simulation?.description || "",
         category: simulation?.category || undefined,
-        simulationFrequency: simulation?.simulationFrequency || 15,
-        simulationInterval: simulation?.simulationInterval || "monthly",
+        // simulationFrequency: simulation?.simulationFrequency || 15,
+        // simulationInterval: simulation?.simulationInterval || "monthly",
       },
       mode: "onTouched",
       reValidateMode: "onChange",
@@ -76,10 +76,11 @@ export default function SimulationPage({ params }: SimulationPageProps) {
     resolver: zodResolver(simulationProfileAttackVectorsSchema),
     defaultValues: {
       attackVectors: simulation?.attackVectors || [],
+      letAIDecideAttackVectors: simulation?.letAIDecideAttackVectors || false,
     },
     mode: "onTouched",
     reValidateMode: "onChange",
-  });
+});
 
   const scheduleForm = useForm<SimulationProfileScheduleFormData>({
     resolver: zodResolver(simulationProfileScheduleSchema),

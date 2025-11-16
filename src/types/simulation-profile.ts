@@ -98,6 +98,7 @@ export interface SimulationProfile {
   updatedAt?: Date;
   lastRunDate?: Date;
   nextRunDate?: Date;
+  letAIDecideAttackVectors?: boolean;
 }
 
 // Employee Group reference type
@@ -136,20 +137,20 @@ export const simulationProfileBasicInfoSchema = z.object({
   ], {
     message: "Please select a valid category"
   }),
-  simulationInterval: z.enum([
-    "daily",
-    "weekly",
-    "bi-weekly",
-    "monthly",
-    "quarterly",
-    "custom"
-  ], {
-    message: "Please select a simulation interval"
-  }),
-  simulationFrequency: z.number()
-    .int("Frequency must be a whole number")
-    .min(1, "Frequency must be at least 1")
-    .max(30, "Frequency cannot exceed 30 times per month"),
+  // simulationInterval: z.enum([
+  //   "daily",
+  //   "weekly",
+  //   "bi-weekly",
+  //   "monthly",
+  //   "quarterly",
+  //   "custom"
+  // ], {
+  //   message: "Please select a simulation interval"
+  // }),
+  // simulationFrequency: z.number()
+  //   .int("Frequency must be a whole number")
+  //   .min(1, "Frequency must be at least 1")
+  //   .max(30, "Frequency cannot exceed 30 times per month"),
 });
 
 // 2. Target Selection (Employee Groups) Form Schema
@@ -159,8 +160,22 @@ export const simulationProfileTargetSelectionSchema = z.object({
 });
 
 export const simulationProfileAttackVectorsSchema = z.object({
-    attackVectors: z.array(attackVectorSchema).min(1, "At least one attack vector is required"),
-});
+    attackVectors: z.array(attackVectorSchema),
+    letAIDecideAttackVectors: z.boolean().optional(),
+}).refine(
+    (data) => {
+        // If letAIDecideAttackVectors is true, attackVectors can be empty
+        if (data.letAIDecideAttackVectors === true) {
+            return true;
+        }
+        // Otherwise, attackVectors must have at least one item
+        return data.attackVectors.length >= 1;
+    },
+    {
+        message: "At least one attack vector is required",
+        path: ["attackVectors"], // This puts the error on the attackVectors field
+    }
+);
 
 // 4. Schedule Form Schema
 // Base schedule schema
