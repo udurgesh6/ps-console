@@ -9,7 +9,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Targeted phishing simulation for C-level executives and senior management to identify BEC and spear-phishing vulnerabilities",
     category: "high-priority",
-    simulationInterval: "weekly",
+    simulationInterval: 4,
     simulationFrequency: 4,
     employeeGroups: [groups[0], groups[1]],
     attackVectors: [
@@ -31,7 +31,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Monthly simulation targeting finance team with wire transfer fraud and invoice scams to prevent financial losses",
     category: "department-specific",
-    simulationInterval: "monthly",
+    simulationInterval: 1,
     simulationFrequency: 1,
     employeeGroups: [groups[2]],
     attackVectors: [dummyAttackVectors[3], dummyAttackVectors[6]],
@@ -49,7 +49,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Bi-weekly advanced phishing campaigns testing IT staff against sophisticated social engineering and credential harvesting",
     category: "technical",
-    simulationInterval: "bi-weekly",
+    simulationInterval: 2,
     simulationFrequency: 2,
     employeeGroups: [groups[3], groups[4]],
     attackVectors: [
@@ -72,7 +72,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Comprehensive quarterly phishing test for entire organization to measure overall security awareness baseline",
     category: "organization-wide",
-    simulationInterval: "quarterly",
+    simulationInterval: 3,
     simulationFrequency: 0.33,
     employeeGroups: [
       groups[0],
@@ -102,7 +102,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Weekly vishing and pretexting simulations for customer-facing teams to build resistance against phone-based attacks",
     category: "customer-facing",
-    simulationInterval: "weekly",
+    simulationInterval: 4,
     simulationFrequency: 4,
     employeeGroups: [groups[6]],
     attackVectors: [dummyAttackVectors[5], dummyAttackVectors[9]],
@@ -120,7 +120,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Basic phishing awareness training for new employees within their first 30 days, run twice monthly",
     category: "onboarding",
-    simulationInterval: "bi-weekly",
+    simulationInterval: 2,
     simulationFrequency: 2,
     employeeGroups: [groups[7]],
     attackVectors: [
@@ -142,7 +142,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Monthly simulations focused on travel and hospitality scams targeting remote and traveling sales personnel",
     category: "department-specific",
-    simulationInterval: "monthly",
+    simulationInterval: 1,
     simulationFrequency: 1,
     employeeGroups: [groups[8]],
     attackVectors: [dummyAttackVectors[0], dummyAttackVectors[4]],
@@ -160,7 +160,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Bi-weekly simulations testing marketing staff against social media phishing and fake brand impersonation",
     category: "department-specific",
-    simulationInterval: "bi-weekly",
+    simulationInterval: 2,
     simulationFrequency: 2,
     employeeGroups: [groups[9]],
     attackVectors: [dummyAttackVectors[8], dummyAttackVectors[10]],
@@ -178,7 +178,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Weekly simulations for HR team focusing on fake job applications and resume-based malware attacks",
     category: "high-priority",
-    simulationInterval: "weekly",
+    simulationInterval: 5,
     simulationFrequency: 4,
     employeeGroups: [groups[10]],
     attackVectors: [
@@ -200,7 +200,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Monthly comprehensive testing for remote employees covering VPN scams, fake IT support, and cloud service phishing",
     category: "remote-workers",
-    simulationInterval: "monthly",
+    simulationInterval: 1,
     simulationFrequency: 1,
     employeeGroups: [groups[11]],
     attackVectors: [
@@ -223,7 +223,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Special seasonal phishing simulation during Diwali festival period targeting all employees with culturally relevant scenarios",
     category: "seasonal",
-    simulationInterval: "custom",
+    simulationInterval: 6,
     simulationFrequency: 1,
     employeeGroups: [
       groups[0],
@@ -248,7 +248,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     description:
       "Quarterly high-stakes simulations for compliance officers testing against fake regulatory notices and audit requests",
     category: "compliance",
-    simulationInterval: "quarterly",
+    simulationInterval: 3,
     simulationFrequency: 0.33,
     employeeGroups: [groups[12]],
     attackVectors: [

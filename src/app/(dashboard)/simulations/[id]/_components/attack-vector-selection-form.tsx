@@ -82,47 +82,37 @@ export const SimulationProfileAttackVectorsStep = ({
 
   return (
     <div className="flex flex-col gap-y-4">
-      <div className="space-y-6 py-8 border-2 border-dashed rounded-lg bg-card text-card-foreground shadow-sm flex flex-col items-center justify-center">
-        <h3 className="text-xl font-medium tracking-tight">
-          ⚡ Select Attack Vectors
-        </h3>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl px-4">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2">
           {/* Let AI Decide Option */}
           <button
             type="button"
             onClick={handleLetAIDecide}
             disabled={isSubmitting}
             className={cn(
-              "relative p-6 rounded-lg border-2 transition-all duration-200 cursor-pointer",
+              "w-full p-4 border-2 transition-all duration-200",
               "hover:border-primary hover:shadow-md",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex flex-col items-center gap-3 text-center",
+              "flex items-center gap-3",
               letAIDecide
                 ? "border-primary bg-primary/5 shadow-md"
                 : "border-border bg-background"
             )}
           >
-            {letAIDecide && (
-              <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                <Check className="h-4 w-4 text-primary-foreground" />
-              </div>
-            )}
-            <div className={cn(
-              "h-12 w-12 rounded-full flex items-center justify-center",
-              letAIDecide ? "bg-primary" : "bg-primary/10"
-            )}>
-              <Sparkles className={cn(
-                "h-6 w-6",
-                letAIDecide ? "text-primary-foreground" : "text-primary"
-              )} />
+            <div
+              className={cn(
+                "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                letAIDecide ? "bg-primary" : "bg-primary/10"
+              )}
+            >
+              <Sparkles
+                className={cn(
+                  "h-5 w-5",
+                  letAIDecide ? "text-primary-foreground" : "text-primary"
+                )}
+              />
             </div>
-            <div>
-              <h4 className="font-semibold mb-1">Let AI Decide</h4>
-              <p className="text-sm text-muted-foreground">
-                AI will automatically select the best attack vectors
-              </p>
-            </div>
+            <span className="font-medium text-left">Let AI Decide</span>
           </button>
 
           {/* Select From Library Option */}
@@ -131,35 +121,33 @@ export const SimulationProfileAttackVectorsStep = ({
             onClick={handleSelectFromLibrary}
             disabled={isSubmitting}
             className={cn(
-              "relative p-6 rounded-lg border-2 transition-all duration-200 cursor-pointer",
+              "w-full p-4 border-2 transition-all duration-200",
               "hover:border-primary hover:shadow-md",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex flex-col items-center gap-3 text-center",
+              "flex items-center gap-3",
               !letAIDecide && selectedAttackVectors.length > 0
                 ? "border-primary bg-primary/5 shadow-md"
                 : "border-border bg-background"
             )}
           >
-            {!letAIDecide && selectedAttackVectors.length > 0 && (
-              <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                <Check className="h-4 w-4 text-primary-foreground" />
-              </div>
-            )}
-            <div className={cn(
-              "h-12 w-12 rounded-full flex items-center justify-center",
-              !letAIDecide && selectedAttackVectors.length > 0 ? "bg-primary" : "bg-primary/10"
-            )}>
-              <LibraryIcon className={cn(
-                "h-6 w-6",
-                !letAIDecide && selectedAttackVectors.length > 0 ? "text-primary-foreground" : "text-primary"
-              )} />
+            <div
+              className={cn(
+                "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                !letAIDecide && selectedAttackVectors.length > 0
+                  ? "bg-primary"
+                  : "bg-primary/10"
+              )}
+            >
+              <LibraryIcon
+                className={cn(
+                  "h-5 w-5",
+                  !letAIDecide && selectedAttackVectors.length > 0
+                    ? "text-primary-foreground"
+                    : "text-primary"
+                )}
+              />
             </div>
-            <div>
-              <h4 className="font-semibold mb-1">Select From Library</h4>
-              <p className="text-sm text-muted-foreground">
-                Manually choose attack vectors from the library
-              </p>
-            </div>
+            <span className="font-medium text-left">Select From Library</span>
           </button>
         </div>
       </div>
@@ -171,7 +159,8 @@ export const SimulationProfileAttackVectorsStep = ({
           <div className="flex-1">
             <p className="text-sm font-medium">AI-Powered Selection Enabled</p>
             <p className="text-xs text-muted-foreground">
-              Attack vectors will be automatically selected based on your simulation profile
+              Attack vectors will be automatically selected based on your
+              simulation profile
             </p>
           </div>
         </div>

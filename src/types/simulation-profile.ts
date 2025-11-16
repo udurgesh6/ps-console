@@ -83,22 +83,35 @@ export type Schedule =
   | QuarterlySchedule 
   | CustomSchedule;
 
+// Helper function to calculate max frequency based on interval
+export const calculateMaxFrequency = (intervalDays: number): number => {
+  return Math.ceil(30 / intervalDays);
+};
+
 export interface SimulationProfile {
   id: string;
   name: string;
   description: string;
   category: SimulationCategory;
-  simulationInterval: SimulationInterval;
-  simulationFrequency: number; // Number of times per month
-  employeeGroups: Group[]; // Array of employee group IDs
-  attackVectors: AttackVector[]; // Array of attack vector IDs
-  schedule: Schedule;
-  isActive?: boolean; // Optional: whether the profile is currently active
+  employeeGroups: Group[];
+  attackVectors: AttackVector[];
+  isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   lastRunDate?: Date;
   nextRunDate?: Date;
   letAIDecideAttackVectors?: boolean;
+  isAutonomous?: boolean;
+  
+  // Autonomous scheduling fields - single values
+  simulationInterval?: number; // 1-28 days between simulations
+  simulationFrequency?: number; // Number of simulations per month (max depends on interval)
+  startDate?: Date;
+  endDate?: Date;
+  timezone?: string;
+  
+  // Manual scheduling field
+  schedule?: Schedule;
 }
 
 // Employee Group reference type
@@ -137,20 +150,6 @@ export const simulationProfileBasicInfoSchema = z.object({
   ], {
     message: "Please select a valid category"
   }),
-  // simulationInterval: z.enum([
-  //   "daily",
-  //   "weekly",
-  //   "bi-weekly",
-  //   "monthly",
-  //   "quarterly",
-  //   "custom"
-  // ], {
-  //   message: "Please select a simulation interval"
-  // }),
-  // simulationFrequency: z.number()
-  //   .int("Frequency must be a whole number")
-  //   .min(1, "Frequency must be at least 1")
-  //   .max(30, "Frequency cannot exceed 30 times per month"),
 });
 
 // 2. Target Selection (Employee Groups) Form Schema
@@ -259,16 +258,95 @@ const customScheduleSchema = baseScheduleSchema.extend({
   }
 );
 
-export type ScheduleTypeValue = "weekly" | "bi-weekly" | "monthly" | "quarterly" | "custom";
-
-// Combined schedule schema using discriminated union
-export const simulationProfileScheduleSchema = z.discriminatedUnion("type", [
+// Manual schedule - discriminated union of all schedule types
+const manualScheduleSchema = z.discriminatedUnion("type", [
   weeklyScheduleSchema,
   biWeeklyScheduleSchema,
   monthlyScheduleSchema,
   quarterlyScheduleSchema,
   customScheduleSchema,
 ]);
+
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+const autonomousScheduleSchema = z.object({
+  isAutonomous: z.literal(true),
+  simulationInterval: z.number()
+    .int("Must be a whole number")
+    .min(1, "Interval must be at least 1 day")
+    .max(28, "Interval cannot exceed 28 days"),
+  simulationFrequency: z.number()
+    .int("Must be a whole number")
+    .min(1, "Frequency must be at least 1 per month"),
+  startDate: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in ISO format (YYYY-MM-DD)")
+    .refine((date) => new Date(date) >= new Date(new Date().setHours(0, 0, 0, 0)), {
+      message: "Start date cannot be in the past",
+    }),
+  endDate: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in ISO format (YYYY-MM-DD)")
+    .refine((date) => new Date(date) >= new Date(new Date().setHours(0, 0, 0, 0)), {
+      message: "End date cannot be in the past",
+    }),
+  startTime: z.string()
+    .regex(timeRegex, "Time must be in HH:MM format (24-hour)")
+    .refine((time) => time !== "", {
+      message: "Start time is required",
+    }),
+  endTime: z.string()
+    .regex(timeRegex, "Time must be in HH:MM format (24-hour)")
+    .refine((time) => time !== "", {
+      message: "End time is required",
+    }),
+  timezone: z.string()
+    .min(1, "Timezone is required"),
+})
+.refine(
+  (data) => new Date(data.endDate) > new Date(data.startDate),
+  {
+    message: "End date must be after start date",
+    path: ["endDate"],
+  }
+)
+.refine(
+  (data) => {
+    const maxFreq = calculateMaxFrequency(data.simulationInterval);
+    return data.simulationFrequency <= maxFreq;
+  },
+  {
+    message: "Frequency exceeds maximum allowed for the selected interval",
+    path: ["simulationFrequency"],
+  }
+)
+.refine(
+  (data) => {
+    // Convert time strings to minutes for comparison
+    const [startHours, startMinutes] = data.startTime.split(':').map(Number);
+    const [endHours, endMinutes] = data.endTime.split(':').map(Number);
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    
+    return endTotalMinutes > startTotalMinutes;
+  },
+  {
+    message: "End time must be after start time",
+    path: ["endTime"],
+  }
+);
+
+// Non-autonomous schedule wrapper
+const nonAutonomousScheduleSchema = z.object({
+  isAutonomous: z.literal(false),
+  schedule: manualScheduleSchema,
+});
+
+// Combined simulation profile schedule schema
+export const simulationProfileScheduleSchema = z.discriminatedUnion("isAutonomous", [
+  autonomousScheduleSchema,
+  nonAutonomousScheduleSchema,
+]);
+
+export type ScheduleTypeValue = "weekly" | "bi-weekly" | "monthly" | "quarterly" | "custom";
 
 // Type exports
 export type SimulationProfileBasicInfoFormData = z.infer<typeof simulationProfileBasicInfoSchema>;

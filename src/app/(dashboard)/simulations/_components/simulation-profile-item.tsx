@@ -135,7 +135,7 @@ export const SimulationProfileItem = (
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-muted-foreground truncate">
-                {getIntervalDisplay(item.simulationInterval)}
+                {getIntervalDisplay(item.simulationInterval?.toString() || "")}
               </p>
             </div>
           </div>
@@ -168,31 +168,31 @@ export const SimulationProfileItem = (
         <div className="pt-3 border-t border-gray-100">
           <div className="flex items-center gap-1 text-xs">
             <span className="text-gray-500">
-              {item.schedule.type === "weekly" &&
-                item.schedule.dayOfWeek?.length && (
+              {item.schedule?.type === "weekly" &&
+                item.schedule?.dayOfWeek?.length && (
                   <>
                     Every{" "}
-                    {item.schedule.dayOfWeek
+                    {item.schedule?.dayOfWeek
                       .map((d) => d.charAt(0).toUpperCase() + d.slice(1, 3))
                       .join(", ")}
                   </>
                 )}
-              {item.schedule.type === "monthly" && item.schedule.dayOfMonth && (
+              {item.schedule?.type === "monthly" && item.schedule?.dayOfMonth && (
                 <>Day {item.schedule.dayOfMonth} of month</>
               )}
-              {item.schedule.type === "quarterly" && <>Quarterly</>}
-              {item.schedule.type === "bi-weekly" &&
-                item.schedule.dayOfWeek?.length && (
+              {item.schedule?.type === "quarterly" && <>Quarterly</>}
+              {item.schedule?.type === "bi-weekly" &&
+                item.schedule?.dayOfWeek?.length && (
                   <>
                     Bi-weekly{" "}
-                    {item.schedule.dayOfWeek
+                    {item.schedule?.dayOfWeek
                       .map((d) => d.charAt(0).toUpperCase() + d.slice(1, 3))
                       .join(", ")}
                   </>
                 )}
-              {item.schedule.type === "custom" && <>Custom schedule</>}
+              {item.schedule?.type === "custom" && <>Custom schedule</>}
             </span>
-            <span className="text-gray-500">@ {item.schedule.timeOfDay}</span>
+            <span className="text-gray-500">@ {item.schedule?.timeOfDay}</span>
           </div>
         </div>
       </div>

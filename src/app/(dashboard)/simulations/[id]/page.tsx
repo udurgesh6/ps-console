@@ -1,7 +1,14 @@
 "use client";
 
 import dummySimulationProfiles from "@/constants/temporary/simulation-profiles";
-import { SimulationProfile, SimulationProfileAttackVectorsFormData, simulationProfileAttackVectorsSchema, SimulationProfileBasicInfoFormData, SimulationProfileScheduleFormData, simulationProfileScheduleSchema } from "@/types";
+import {
+  SimulationProfile,
+  SimulationProfileAttackVectorsFormData,
+  simulationProfileAttackVectorsSchema,
+  SimulationProfileBasicInfoFormData,
+  SimulationProfileScheduleFormData,
+  simulationProfileScheduleSchema,
+} from "@/types";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { useEffect, useState } from "react";
@@ -59,6 +66,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       },
       mode: "onTouched",
       reValidateMode: "onChange",
+      shouldFocusError: false,
     });
 
   const targetSelectionForm = useForm<SimulationProfileTargetSelectionFormData>(
@@ -69,31 +77,52 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       },
       mode: "onTouched",
       reValidateMode: "onChange",
+      shouldFocusError: false,
     }
   );
 
-  const attackVectorSelectionForm = useForm<SimulationProfileAttackVectorsFormData>({
-    resolver: zodResolver(simulationProfileAttackVectorsSchema),
-    defaultValues: {
-      attackVectors: simulation?.attackVectors || [],
-      letAIDecideAttackVectors: simulation?.letAIDecideAttackVectors || false,
-    },
-    mode: "onTouched",
-    reValidateMode: "onChange",
-});
+  const attackVectorSelectionForm =
+    useForm<SimulationProfileAttackVectorsFormData>({
+      resolver: zodResolver(simulationProfileAttackVectorsSchema),
+      defaultValues: {
+        attackVectors: simulation?.attackVectors || [],
+        letAIDecideAttackVectors: simulation?.letAIDecideAttackVectors || false,
+      },
+      mode: "onTouched",
+      reValidateMode: "onChange",
+      shouldFocusError: false,
+    });
 
   const scheduleForm = useForm<SimulationProfileScheduleFormData>({
     resolver: zodResolver(simulationProfileScheduleSchema),
-    defaultValues: simulation?.schedule || {
-      type: "weekly",
-      timeOfDay: "",
-      timezone: "Indian/Standard",
-      dayOfWeek: [],
-    },
+    defaultValues: simulation?.isAutonomous
+      ? {
+          isAutonomous: true,
+          simulationInterval: simulation.simulationInterval ?? 7,
+          simulationFrequency: simulation.simulationFrequency ?? 4,
+          startDate: simulation.startDate
+            ? simulation.startDate.toISOString().split("T")[0]
+            : "",
+          endDate: simulation.endDate
+            ? simulation.endDate.toISOString().split("T")[0]
+            : "",
+          timezone: simulation.timezone ?? "Asia/Kolkata",
+        }
+      : {
+          isAutonomous: false,
+          schedule: simulation?.schedule ?? {
+            type: "weekly",
+            timeOfDay: "",
+            timezone: "Asia/Kolkata",
+            dayOfWeek: [],
+          },
+        },
     mode: "onTouched",
     reValidateMode: "onChange",
+    // CRITICAL FIX: Disable scroll to error
+    shouldFocusError: false,
   });
-  
+
   const simulationSteps = [
     {
       id: "basic-info",
@@ -142,8 +171,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       id: "schedule",
       icon: <UsersIcon className="h-5 w-5" />,
       title: "Select Schedule",
-      description:
-        "Choose a schedule for this simulation profile.",
+      description: "Choose a schedule for this simulation profile.",
       content: (
         <SimulationProfileScheduleStep
           form={scheduleForm}
