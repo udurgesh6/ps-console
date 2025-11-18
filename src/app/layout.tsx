@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Providers from "@/components/providers/query-client-provider";
+import { ProgressBarProvider } from "@/components/providers/progress-bar-provider";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { SidebarProvider } from "@/context/sidebar-context";
@@ -26,9 +27,11 @@ export default function RootLayout({
       >
         <ToastProvider>
           <Providers>
-            <SidebarProvider>
-              {children}
-            </SidebarProvider>
+            <ProgressBarProvider>
+              <SidebarProvider>
+                {children}
+              </SidebarProvider>
+            </ProgressBarProvider>
             <Toaster
               position="top-right"
               toastOptions={{

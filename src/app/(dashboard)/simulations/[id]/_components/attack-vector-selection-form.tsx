@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sparkles, Library as LibraryIcon } from "lucide-react";
+import { Sparkles, Library as LibraryIcon, X } from "lucide-react";
 import { Library } from "@/components/shared/library";
 import { AttackVector, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { SimulationProfileAttackVectorsFormData } from "@/types";
 import { useFieldArray, useWatch } from "react-hook-form";
-import { Tag } from "@/components/shared/tag";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   dummyAttackVectors,
   filterGroups,
@@ -168,15 +169,75 @@ export const SimulationProfileAttackVectorsStep = ({
 
       {!letAIDecide && selectedAttackVectors.length > 0 && (
         <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
-            {selectedAttackVectors.map((av, index) => (
-              <Tag
-                key={av.id}
-                id={av.id}
-                name={av.name}
-                handleRemove={() => handleRemoveAttackVector(index)}
-              />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {selectedAttackVectors.map((av, index) => {
+              const AttackVectorPreviewCard = () => {
+                const containerRef = useRef<HTMLDivElement>(null);
+                const [scale, setScale] = useState(0.25);
+
+                useEffect(() => {
+                  const updateScale = () => {
+                    if (containerRef.current) {
+                      const containerWidth = containerRef.current.offsetWidth;
+                      const emailWidth = 600;
+                      const calculatedScale = (containerWidth / emailWidth) * 0.9;
+                      setScale(Math.min(calculatedScale, 0.4));
+                    }
+                  };
+
+                  updateScale();
+                  window.addEventListener('resize', updateScale);
+                  return () => window.removeEventListener('resize', updateScale);
+                }, []);
+
+                return (
+                  <div key={av.id} className="relative group">
+                    <Card className="cursor-default py-0 relative aspect-square rounded-lg transition-all hover:shadow-md group overflow-hidden border border-primary">
+                      <div 
+                        ref={containerRef}
+                        className="w-full h-full bg-gray-50 relative overflow-hidden rounded-lg flex items-start justify-center pt-4"
+                      >
+                        <div
+                          style={{
+                            transform: `scale(${scale})`,
+                            transformOrigin: 'top center',
+                            width: '600px',
+                            minHeight: '800px',
+                          }}
+                        >
+                          <iframe
+                            className="w-full h-full border-0 pointer-events-none bg-white shadow-sm"
+                            style={{
+                              width: '600px',
+                              height: '800px',
+                            }}
+                            srcDoc={av.emailHtmlTemplate}
+                            sandbox=""
+                            title={`Email preview for ${av.name}`}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-3 z-20">
+                        <p className="text-white text-sm font-semibold truncate">{av.name}</p>
+                        <p className="text-white/80 text-xs truncate">{av.emailSubject}</p>
+                      </div>
+                    </Card>
+
+                    {/* Remove Button */}
+                    <Button
+                      size="sm"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 opacity-100 transition-opacity duration-200 z-30"
+                      onClick={() => handleRemoveAttackVector(index)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              };
+
+              return <AttackVectorPreviewCard key={av.id} />;
+            })}
           </div>
         </div>
       )}

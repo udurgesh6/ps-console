@@ -36,15 +36,15 @@ export default function Trends() {
 
   const keyMetrics = [
     {
-      title: "Click Rate",
-      value: "-24.7%",
-      icon: TrendingDown,
+      title: "Open Rate",
+      value: "+43.6%",
+      icon: TrendingUp,
       description: "6-month improvement",
     },
     {
-      title: "Report Rate",
-      value: "+43.6%",
-      icon: TrendingUp,
+      title: "Click Rate",
+      value: "-24.7%",
+      icon: TrendingDown,
       description: "6-month improvement",
     },
     {
@@ -122,7 +122,7 @@ export default function Trends() {
               x: "month",
               lines: [
                 { key: "clickRate", color: "#ef4444", name: "Click Rate %" },
-                { key: "reportRate", color: "#10b981", name: "Report Rate %" },
+                { key: "openRate", color: "#10b981", name: "Report Rate %" },
                 { key: "riskScore", color: "#3b82f6", name: "Risk Score %" },
               ],
             }}

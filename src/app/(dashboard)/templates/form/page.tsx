@@ -3,6 +3,7 @@
 import { Library } from "@/components/shared/library";
 import { sampleFormTemplates } from "@/constants/temporary/forms";
 import { useState } from "react";
+import { FormItem } from "../../attack-vector/[id]/_components/attack-vector-steps/form-item";
 
 export default function FormTemplates() {
   const [showModal, setShowModal] = useState(false);
@@ -32,15 +33,7 @@ export default function FormTemplates() {
     {
       label: 'Delete',
       onClick: (items) => console.log('Delete form templates:', items),
-    },
-    {
-      label: 'Export',
-      onClick: (items) => console.log('Export form templates:', items),
-    },
-    {
-      label: 'Duplicate',
-      onClick: (items) => console.log('Duplicate form templates:', items),
-    },
+    }
   ];
 
   const handleDone = (selectedItems) => {
@@ -63,6 +56,7 @@ export default function FormTemplates() {
       actionButtonText="Done"
       onActionButtonClick={handleDone}
       onClose={() => setShowModal(false)}
+      renderItem={FormItem}
     />
   );
 }

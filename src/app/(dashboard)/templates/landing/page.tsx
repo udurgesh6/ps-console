@@ -3,6 +3,7 @@
 import { Library } from "@/components/shared/library";
 import { useState } from "react";
 import { landingPages } from "@/constants/temporary/landing-pages";
+import { LandingPageItem } from "../../attack-vector/[id]/_components/attack-vector-steps/landing-page-item";
 
 export default function LandingTemplates() {
   const [showModal, setShowModal] = useState(false);
@@ -33,14 +34,14 @@ export default function LandingTemplates() {
       label: 'Delete',
       onClick: (items) => console.log('Delete landing templates:', items),
     },
-    {
-      label: 'Export',
-      onClick: (items) => console.log('Export landing templates:', items),
-    },
-    {
-      label: 'Preview',
-      onClick: (items) => console.log('Preview landing templates:', items),
-    },
+    // {
+    //   label: 'Export',
+    //   onClick: (items) => console.log('Export landing templates:', items),
+    // },
+    // {
+    //   label: 'Preview',
+    //   onClick: (items) => console.log('Preview landing templates:', items),
+    // },
   ];
 
   const handleDone = (selectedItems) => {
@@ -63,6 +64,7 @@ export default function LandingTemplates() {
       actionButtonText="Done"
       onActionButtonClick={handleDone}
       onClose={() => setShowModal(false)}
+      renderItem={LandingPageItem}
     />
   );
 }
