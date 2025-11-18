@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { scopeHtmlTemplate } from "@/lib/scope-html-template";
 import { availableDomains } from "@/constants/temporary/available-domains";
+import toast from "react-hot-toast";
 
 interface EmailPreviewModalProps {
   open: boolean;
@@ -43,15 +44,15 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
   templateType = null,
   onUseTemplate,
 }) => {
-
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Editable fields
   const [emailPrefix, setEmailPrefix] = useState("");
   const [emailDomain, setEmailDomain] = useState("");
   const [subject, setSubject] = useState(initialSubject);
   const [htmlContent, setHtmlContent] = useState(htmlTemplate);
   const [usingTemplate, setIsUsingTemplate] = useState(false);
+  const [sendingPreview, setIsSendingPreview] = useState(false);
 
   // Parse initial from email
   useEffect(() => {
@@ -75,40 +76,47 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
   const handleUseTemplate = async () => {
     setIsUsingTemplate(true);
     try {
-    await new Promise((resolve) => setTimeout(resolve, 2000)); 
-    if (onUseTemplate) {
-      const fromEmail = emailDomain.startsWith("@") 
-        ? `${emailPrefix}${emailDomain}`
-        : `${emailPrefix}@${emailDomain}`;
-      
-      onUseTemplate({
-        from: fromEmail,
-        subject: subject,
-        html: htmlContent,
-      });
-    }
-    onClose();
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (onUseTemplate) {
+        const fromEmail = emailDomain.startsWith("@")
+          ? `${emailPrefix}${emailDomain}`
+          : `${emailPrefix}@${emailDomain}`;
+
+        onUseTemplate({
+          from: fromEmail,
+          subject: subject,
+          html: htmlContent,
+        });
+      }
+      onClose();
     } catch (error) {
-      console.error('Error using template:', error);
+      console.error("Error using template:", error);
     } finally {
       setIsUsingTemplate(false);
     }
   };
 
-  const handleSendPreview = () => {
-    // Handle send preview logic here
-    console.log('Sending preview...');
+  const handleSendPreview = async () => {
+    setIsSendingPreview(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    toast("Preview sent successfully !", {
+      style: {
+        background: "#111",
+        color: "#fff",
+      },
+    });
+    setIsSendingPreview(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent 
+      <DialogContent
         showCloseButton={false}
         className="p-0 gap-0 overflow-hidden flex flex-col"
         style={{
           maxWidth: isExpanded ? "80vw" : "48rem",
           height: isExpanded ? "80vh" : "90vh",
-          transition: "all 300ms ease-in-out"
+          transition: "all 300ms ease-in-out",
         }}
       >
         {/* Header */}
@@ -116,7 +124,7 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
           <DialogTitle className="!text-base !font-semibold !text-muted-foreground !m-0 !p-0">
             {title}
           </DialogTitle>
-          
+
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -126,7 +134,7 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
             >
               <Bot className="w-4 h-4 text-gray-600" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="icon"
@@ -135,7 +143,7 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
             >
               <Languages className="w-4 h-4 text-gray-600" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="icon"
@@ -149,9 +157,9 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
                 <Maximize2 className="w-4 h-4 text-gray-600" />
               )}
             </Button>
-            
+
             <div className="w-px h-4 bg-gray-300 mx-2" />
-            
+
             <Button
               variant="ghost"
               size="icon"
@@ -169,7 +177,10 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
           <div className="px-6 border-b bg-gray-50/50">
             {/* From Field */}
             <div className="flex flex-row items-center gap-4 pb-3 pt-3">
-              <Label htmlFor="from-field" className="text-sm font-medium text-muted-foreground min-w-[60px]">
+              <Label
+                htmlFor="from-field"
+                className="text-sm font-medium text-muted-foreground min-w-[60px]"
+              >
                 From
               </Label>
               <div className="flex flex-1 items-center">
@@ -180,10 +191,7 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
                   placeholder="e.g., info"
                   className="w-28 border-0 border-b-2 shadow-none rounded-none border-dashed px-0"
                 />
-                <Select
-                  value={emailDomain}
-                  onValueChange={setEmailDomain}
-                >
+                <Select value={emailDomain} onValueChange={setEmailDomain}>
                   <SelectTrigger className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0">
                     <SelectValue placeholder="@Select domain" />
                   </SelectTrigger>
@@ -205,7 +213,10 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
 
             {/* Subject Field */}
             <div className="flex items-center gap-4 py-3">
-              <Label htmlFor="subject-field" className="text-sm font-medium text-muted-foreground min-w-[60px]">
+              <Label
+                htmlFor="subject-field"
+                className="text-sm font-medium text-muted-foreground min-w-[60px]"
+              >
                 Subject
               </Label>
               <Input
@@ -224,45 +235,45 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
           <ScrollArea className="h-full w-full">
             <div className="p-6">
               {htmlContent ? (
-                  <div 
-                    className="email-template-preview min-h-[400px] rounded-lg"
-                    style={{ 
-                      contain: 'style layout',
-                      isolation: 'isolate'
-                    }}
-                    dangerouslySetInnerHTML={{
-                      __html: scopeHtmlTemplate(htmlContent),
-                    }}
-                  />
-                ) : (
-                  <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg flex items-center justify-center text-center text-gray-500">
-                    <p>No template available</p>
-                  </div>
-                )
-              }
+                <div
+                  className="email-template-preview min-h-[400px] rounded-lg"
+                  style={{
+                    contain: "style layout",
+                    isolation: "isolate",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: scopeHtmlTemplate(htmlContent),
+                  }}
+                />
+              ) : (
+                <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg flex items-center justify-center text-center text-gray-500">
+                  <p>No template available</p>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
-
-        {/* Footer */}
-        {templateType === "email" && (
-          <div className="px-6 py-4 border-t bg-white flex justify-between items-center">
+        <div className="px-6 py-4 border-t bg-white flex justify-end items-center gap-2">
+          {templateType === "email" && (
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={handleSendPreview}
+              disabled={sendingPreview}
               className="text-sm text-gray-500"
             >
+              {sendingPreview ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : null}
               Send me a preview
             </Button>
-            <Button
-              onClick={handleUseTemplate}
-              className="text-sm"
-            >
-              {usingTemplate ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Use Template
-            </Button>
-          </div>
-        )}
+          )}
+          <Button onClick={handleUseTemplate} className="text-sm">
+            {usingTemplate ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : null}
+            Use Template
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

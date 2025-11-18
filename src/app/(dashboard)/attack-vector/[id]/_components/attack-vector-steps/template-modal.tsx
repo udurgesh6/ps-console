@@ -24,6 +24,7 @@ interface TemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onGenerate: (result: GenerateResult) => void;
+  type?: 'email' | 'landing';
 }
 
 interface FormData {
@@ -34,6 +35,7 @@ export const TemplateModal: FC<TemplateModalProps> = ({
   isOpen,
   onClose,
   onGenerate,
+  type = 'email',
 }) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
@@ -66,8 +68,51 @@ export const TemplateModal: FC<TemplateModalProps> = ({
       // Simulating API call with delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Mock suggestions data
-      const mockSuggestions: Suggestion[] = [
+      // Mock suggestions data based on type
+      const mockSuggestions: Suggestion[] = type === 'landing' ? [
+        {
+          id: '1',
+          icon: 'S',
+          text: 'Create a SaaS product landing page for a new productivity tool...',
+          fullText:
+            'Create a SaaS product landing page for a new productivity tool with modern design and clear call-to-action buttons.',
+        },
+        {
+          id: '2',
+          icon: 'E',
+          text: 'Design an event registration page for a cybersecurity conference...',
+          fullText:
+            'Design an event registration page for a cybersecurity conference with speaker highlights and agenda.',
+        },
+        {
+          id: '3',
+          icon: 'P',
+          text: 'Build a product showcase page for a mobile app with features...',
+          fullText:
+            'Build a product showcase page for a mobile app with features overview and download links.',
+        },
+        {
+          id: '4',
+          icon: 'B',
+          text: 'Create a business landing page for a consulting firm with...',
+          fullText:
+            'Create a business landing page for a consulting firm with testimonials and service offerings.',
+        },
+        {
+          id: '5',
+          icon: '🎯',
+          text: 'Design a marketing campaign page for a limited-time offer...',
+          fullText:
+            'Design a marketing campaign page for a limited-time offer with countdown timer and urgency elements.',
+        },
+        {
+          id: '6',
+          icon: '📱',
+          text: 'Build a mobile-first landing page for an app launch with...',
+          fullText:
+            'Build a mobile-first landing page for an app launch with app store badges and feature highlights.',
+        },
+      ] : [
         {
           id: '1',
           icon: 'B',
@@ -136,8 +181,55 @@ export const TemplateModal: FC<TemplateModalProps> = ({
       // Simulating API call for generation
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Mock generated result
-      const result: GenerateResult = {
+      // Mock generated result based on type
+      const result: GenerateResult = type === 'landing' ? {
+        subject: 'Generated Landing Page',
+        from: 'Generated Landing Page',
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Generated Landing Page</title>
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+                  .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                  h1 { color: #333; text-align: center; margin-bottom: 20px; font-size: 2.5rem; }
+                  p { color: #666; line-height: 1.6; text-align: center; font-size: 1.1rem; margin-bottom: 20px; }
+                  .cta-button { display: inline-block; background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; margin-top: 20px; font-weight: bold; transition: background 0.3s; }
+                  .cta-button:hover { background: #0056b3; }
+                  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 40px 0; }
+                  .feature { text-align: center; padding: 20px; border: 1px solid #eee; border-radius: 6px; }
+                  .feature h3 { color: #333; margin-bottom: 10px; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Welcome to Our Amazing Product</h1>
+                  <p>This is a sample landing page generated based on your prompt. It includes modern styling and clear call-to-action elements.</p>
+                  <div class="features">
+                      <div class="feature">
+                          <h3>Feature 1</h3>
+                          <p>Amazing functionality that will help you achieve your goals.</p>
+                      </div>
+                      <div class="feature">
+                          <h3>Feature 2</h3>
+                          <p>Powerful tools designed to make your life easier.</p>
+                      </div>
+                      <div class="feature">
+                          <h3>Feature 3</h3>
+                          <p>Seamless integration with your existing workflow.</p>
+                      </div>
+                  </div>
+                  <div style="text-align: center;">
+                      <a href="#" class="cta-button">Get Started Now</a>
+                  </div>
+              </div>
+          </body>
+          </html>
+        `,
+      } : {
         subject: 'AirBnb Discount Scam',
         from: 'phish-sheriff@phish-sheriff.co',
         html: dummyAttackVectors[0].emailHtmlTemplate,
@@ -163,7 +255,7 @@ export const TemplateModal: FC<TemplateModalProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            What template do you want to create?
+            {type === 'landing' ? 'What landing page do you want to create?' : 'What template do you want to create?'}
           </DialogTitle>
         </DialogHeader>
 
@@ -180,7 +272,7 @@ export const TemplateModal: FC<TemplateModalProps> = ({
                     message: 'Prompt must be at least 10 characters',
                   },
                 })}
-                placeholder="An email from Linkedin informing users about a ..."
+                placeholder={type === 'landing' ? 'A landing page for a SaaS product with modern design...' : 'An email from Linkedin informing users about a ...'}
                 className="min-h-[120px] resize-none"
                 disabled={isGenerating}
               />

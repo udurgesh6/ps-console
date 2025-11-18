@@ -5,39 +5,41 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Library as LibraryIcon } from "lucide-react";
+import { Sparkles, Library as LibraryIcon } from "lucide-react";
 import { Library } from "@/components/shared/library";
 import { landingPages } from "@/constants/temporary/landing-pages";
 import { LandingPage, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorLandingPageSelectorFormData } from "@/types/attack-vector";
-import { useFieldArray, useWatch } from "react-hook-form";
-import { SidebarSheet } from "@/components/shared/sidebar-sheet";
-import { useSidebar } from "@/context/sidebar-context";
-import { AddLandingPageForm } from "@/app/(dashboard)/templates/components/add-landing-page";
+import { useFieldArray } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { LandingPageItem } from "./landing-page-item";
 import { LandingPagePreview } from "./landing-page-preview";
+import { TemplateModal } from "./template-modal";
+import { EmailPreviewModal } from "@/app/(dashboard)/templates/components/email-preview-modal";
 
 interface LandingPageSelectorProps {
   form: UseFormReturn<AttackVectorLandingPageSelectorFormData>;
 }
 
+interface GeneratedTemplateResult {
+  subject: string;
+  from: string;
+  html: string;
+}
+
 export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
-  const { openSidebar, setOpenSidebar, closeSidebar } = useSidebar();
 
   const [showModal, setShowModal] = useState(false);
+  const [isCreateWithAIModalOpen, setIsCreateWithAIModalOpen] = useState(false);
+  const [generatedTemplate, setGeneratedTemplate] = useState<GeneratedTemplateResult | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   const {
     fields: selectedPages,
     append,
     remove,
   } = useFieldArray({
-    control: form.control,
-    name: "landingPages",
-  });
-
-  const formValues = useWatch({
     control: form.control,
     name: "landingPages",
   });
@@ -63,32 +65,52 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
     },
   ];
 
-  const isSelected = (item: LibraryItem) => {
-    return formValues.some((page) => page.id === item.id);
-  };
-
   const handleDone = (selectedItems: LibraryItem[]) => {
     const newSelections = selectedItems as LandingPage[];
 
-    const pagesToAppend = newSelections.filter(
-      (newItem) => !isSelected(newItem)
-    );
-
-    pagesToAppend.forEach((page) => append(page));
+    if (newSelections.length > 0) {
+      // Replace the existing item with the new selection
+      const newPage = newSelections[0]; // Take the first selected item
+      
+      // Remove all existing items and add the new one
+      while (selectedPages.length > 0) {
+        remove(0);
+      }
+      append(newPage);
+    }
 
     setShowModal(false);
   };
 
-  const handleRemovePage = (index: number) => {
-    remove(index);
+  const handleReplacePage = (newPage: LandingPage) => {
+    // Replace the existing item with the new one
+    remove(0);
+    append(newPage);
   };
 
-  const handleCreateTemplate = async () => {
-    // TODO: Replace with actual API call
+  const handleCreateWithAI = () => {
+    setIsCreateWithAIModalOpen(true);
   };
 
-  const handleCreateFromScratch = () => {
-    setOpenSidebar("add-template");
+  const handleGenerate = (result: GeneratedTemplateResult) => {
+    setGeneratedTemplate(result);
+    setIsPreviewModalOpen(true);
+  };
+
+  const handleUseTemplate = (data: { from: string; subject: string; html: string }) => {
+    // Create a new landing page from the generated template
+    const newLandingPage: LandingPage = {
+      id: `generated-${Date.now()}`,
+      name: data.subject || "Generated Landing Page",
+      description: "AI-generated landing page",
+      category: "generated",
+      htmlTemplate: data.html,
+    };
+    
+    // Replace the existing item with the new generated one
+    handleReplacePage(newLandingPage);
+    setIsPreviewModalOpen(false);
+    setGeneratedTemplate(null);
   };
 
   const handleSelectFromLibrary = () => {
@@ -100,15 +122,15 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
       <div className="flex flex-col gap-y-4">
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2">
-            {/* Create From Scratch Option */}
+            {/* Create With AI Option */}
             <button
               type="button"
-              onClick={handleCreateFromScratch}
+              onClick={handleCreateWithAI}
               className={cn(
                 "w-full cursor-pointer p-4 border-2 transition-all duration-200",
                 "hover:border-primary hover:shadow-md",
                 "flex items-center gap-3",
-                openSidebar === "add-template"
+                isCreateWithAIModalOpen
                   ? "border-primary bg-primary/5 shadow-md"
                   : "border-border bg-background"
               )}
@@ -116,19 +138,19 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
               <div
                 className={cn(
                   "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
-                  openSidebar === "add-template" ? "bg-primary" : "bg-primary/10"
+                  isCreateWithAIModalOpen ? "bg-primary" : "bg-primary/10"
                 )}
               >
-                <Plus
+                <Sparkles
                   className={cn(
                     "h-5 w-5",
-                    openSidebar === "add-template"
+                    isCreateWithAIModalOpen
                       ? "text-primary-foreground"
                       : "text-primary"
                   )}
                 />
               </div>
-              <span className="font-medium text-left">Create From Scratch</span>
+              <span className="font-medium text-left">Create With AI</span>
             </button>
 
             {/* Select From Library Option */}
@@ -166,7 +188,7 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
           </div>
         </div>
 
-        {/* Selected Pages Tags */}
+        {/* Selected Page Preview */}
         {selectedPages.length > 0 && (
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
@@ -174,7 +196,7 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
                 <LandingPagePreview
                   key={page.id}
                   item={page}
-                  onRemove={() => handleRemovePage(index)}
+                  onRemove={() => remove(index)}
                 />
               ))}
             </div>
@@ -202,23 +224,30 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
             onActionButtonClick={handleDone}
             onClose={() => setShowModal(false)}
             renderItem={LandingPageItem}
-            isSingleSelect
+            isSingleSelect={true}
           />
         </DialogContent>
       </Dialog>
 
-      {/* Sidebar Sheet for Create From Scratch */}
-      <SidebarSheet
-        open={openSidebar === "add-template"}
-        onOpenChange={(open) => !open && closeSidebar()}
-        title="Create New Template"
-        description="Create a new template for your phishing simulations."
-      >
-        <AddLandingPageForm
-          onSubmit={handleCreateTemplate}
-          onCancel={closeSidebar}
-        />
-      </SidebarSheet>
+      {/* AI Template Generation Modal */}
+      <TemplateModal
+        isOpen={isCreateWithAIModalOpen}
+        onClose={() => setIsCreateWithAIModalOpen(false)}
+        onGenerate={handleGenerate}
+        type="landing"
+      />
+      
+      {/* Landing Page Preview Modal */}
+      <EmailPreviewModal
+        open={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        htmlTemplate={generatedTemplate?.html}
+        title="Landing Page Preview"
+        from={generatedTemplate?.from || "Generated Landing Page"}
+        subject={generatedTemplate?.subject || "Landing Page Title"}
+        templateType="landing"
+        onUseTemplate={handleUseTemplate}
+      />
     </>
   );
 };

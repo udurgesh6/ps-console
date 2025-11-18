@@ -206,7 +206,6 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
                   showInModal={true}
                   isOpen={showModal}
                   filterGroups={filterGroups}
-                  bulkActions={bulkActions}
                   items={courses}
                   actionButtonText="Add Selected"
                   onActionButtonClick={handleDone}
