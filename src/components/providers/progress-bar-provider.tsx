@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import NProgress from "nprogress";
 
@@ -11,7 +11,8 @@ NProgress.configure({
   minimum: 0.08,
 });
 
-export function ProgressBarProvider({ children }: { children: React.ReactNode }) {
+// Internal component that uses useSearchParams
+function ProgressBarHandler() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -40,5 +41,17 @@ export function ProgressBarProvider({ children }: { children: React.ReactNode })
     };
   }, [pathname, searchParams]);
 
-  return <>{children}</>;
+  return null;
+}
+
+// Main provider component with Suspense boundary
+export function ProgressBarProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <ProgressBarHandler />
+      </Suspense>
+      {children}
+    </>
+  );
 }
