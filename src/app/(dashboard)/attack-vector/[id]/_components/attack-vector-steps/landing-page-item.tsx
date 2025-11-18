@@ -75,7 +75,7 @@ export const LandingPageItem = (
         </div>
       </div>
       
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-4 z-20 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-black/80 p-4 z-20 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
         <p className="text-white text-sm font-semibold truncate">{item.name}</p>
         {item.description && (
           <p className="text-white/80 text-xs truncate mt-1">{item.description}</p>

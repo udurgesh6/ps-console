@@ -16,6 +16,7 @@ import { Tag } from "@/components/shared/tag";
 import { SidebarSheet } from "@/components/shared/sidebar-sheet";
 import { useSidebar } from "@/context/sidebar-context";
 import { AddCourseForm } from "@/app/(dashboard)/templates/components/add-course";
+import { CourseItem } from "./course-item";
 
 // Dummy course data
 export const courses: Course[] = [
@@ -130,20 +131,20 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
     },
   ];
 
-  const bulkActions = [
-    {
-      label: "Delete",
-      onClick: (items) => console.log("Delete courses:", items),
-    },
-    {
-      label: "Export",
-      onClick: (items) => console.log("Export courses:", items),
-    },
-    {
-      label: "Preview",
-      onClick: (items) => console.log("Preview courses:", items),
-    },
-  ];
+  // const bulkActions = [
+  //   {
+  //     label: "Delete",
+  //     onClick: (items) => console.log("Delete courses:", items),
+  //   },
+  //   {
+  //     label: "Export",
+  //     onClick: (items) => console.log("Export courses:", items),
+  //   },
+  //   {
+  //     label: "Preview",
+  //     onClick: (items) => console.log("Preview courses:", items),
+  //   },
+  // ];
 
   const isSelected = (item: LibraryItem) => {
     return formValues.some((course) => course.id === item.id);
@@ -211,6 +212,7 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
                   onActionButtonClick={handleDone}
                   onClose={() => setShowModal(false)}
                   isSingleSelect
+                  renderItem={CourseItem}
                 />
               </DialogContent>
             </Dialog>
