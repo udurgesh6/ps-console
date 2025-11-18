@@ -143,37 +143,7 @@ export const EmailTemplateEditor = ({
   return (
     <Form {...form}>
       <div className="bg-white rounded-lg">
-        <div className="flex items-center justify-end mb-4">
-          <div className="flex items-center gap-3">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2">
-                    <Code className="w-4 h-4" />
-                    <Switch
-                      checked={isPreviewMode}
-                      onCheckedChange={handleTogglePreview}
-                      disabled={isPreviewDisabled()}
-                      className="cursor-pointer"
-                    />
-                    <Eye className="w-4 h-4" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isPreviewMode ? (
-                    <p>Switch to Edit Mode</p>
-                  ) : isValidating ? (
-                    <p>Validating HTML...</p>
-                  ) : isPreviewDisabled() ? (
-                    <p>{htmlError || "Please enter valid HTML to preview"}</p>
-                  ) : (
-                    <p>Switch to Preview Mode</p>
-                  )}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
+        <div className="flex items-center justify-end mb-4"></div>
 
         <div className="py-0 pb-6 border-b">
           <div className="space-y-3">
@@ -209,9 +179,7 @@ export const EmailTemplateEditor = ({
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
-                          <SelectTrigger
-                            className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0"
-                          >
+                          <SelectTrigger className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0">
                             <SelectValue
                               placeholder="@Select domain"
                               className="rounded-0"
@@ -256,7 +224,38 @@ export const EmailTemplateEditor = ({
         <div className="py-6">
           {isPreviewMode ? (
             <div>
-              <Label className="block mb-2">Preview</Label>
+              <div className="flex flex-row items-center justify-between mb-2">
+                <Label className="text-sm font-medium">Preview</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2">
+                        <Code className="w-4 h-4" />
+                        <Switch
+                          checked={isPreviewMode}
+                          onCheckedChange={handleTogglePreview}
+                          disabled={isPreviewDisabled()}
+                          className="cursor-pointer"
+                        />
+                        <Eye className="w-4 h-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {isPreviewMode ? (
+                        <p>Switch to Edit Mode</p>
+                      ) : isValidating ? (
+                        <p>Validating HTML...</p>
+                      ) : isPreviewDisabled() ? (
+                        <p>
+                          {htmlError || "Please enter valid HTML to preview"}
+                        </p>
+                      ) : (
+                        <p>Switch to Preview Mode</p>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <div
                 ref={contentEditableRef}
                 contentEditable={false}
@@ -277,7 +276,40 @@ export const EmailTemplateEditor = ({
               name="htmlContent"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>HTML Content</FormLabel>
+                  <div className="flex flex-row justify-between items-center">
+                    <FormLabel>HTML Content</FormLabel>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-2">
+                            <Code className="w-4 h-4" />
+                            <Switch
+                              checked={isPreviewMode}
+                              onCheckedChange={handleTogglePreview}
+                              disabled={isPreviewDisabled()}
+                              className="cursor-pointer"
+                            />
+                            <Eye className="w-4 h-4" />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {isPreviewMode ? (
+                            <p>Switch to Edit Mode</p>
+                          ) : isValidating ? (
+                            <p>Validating HTML...</p>
+                          ) : isPreviewDisabled() ? (
+                            <p>
+                              {htmlError ||
+                                "Please enter valid HTML to preview"}
+                            </p>
+                          ) : (
+                            <p>Switch to Preview Mode</p>
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+
                   <FormControl>
                     <Textarea
                       placeholder="Enter HTML content..."
