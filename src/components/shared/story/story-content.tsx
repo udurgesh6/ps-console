@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { StoryContentProps } from "./types";
 import { Header } from "../header";
-import { Description } from "../description";
+// import { Description } from "../description";
 
 export const StoryContent: React.FC<StoryContentProps> = ({
   step,
@@ -14,14 +14,14 @@ export const StoryContent: React.FC<StoryContentProps> = ({
   return (
     <div className={cn("flex-1", className)}>
       <div className="">
-        <div className="border-b border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="border-b border-gray-200 px-6 py-4">
+          <div className="flex flex-row items-center gap-2 mb-1">
             {step.icon}
             <Header title={step.title} />
           </div>
-          {step.description && (
+          {/* {step.description && (
             <Description description={step.description} />
-          )}
+          )} */}
         </div>
 
         <div className="bg-white rounded-lg px-6 py-4">

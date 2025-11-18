@@ -170,7 +170,11 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
           showCloseButton={false}
-          className="max-w-7xl sm:max-w-7xl h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] p-0 flex flex-col"
+          className="h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] p-0 flex flex-col"
+          style={{
+          maxWidth: "90vw",
+          transition: "all 300ms ease-in-out"
+        }}
         >
           <VisuallyHidden>
             <DialogTitle>Library</DialogTitle>

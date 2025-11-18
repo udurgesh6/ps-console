@@ -1,23 +1,23 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Library as LibraryIcon } from "lucide-react";
 import { Library } from "@/components/shared/library";
 import { landingPages } from "@/constants/temporary/landing-pages";
 import { LandingPage, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorLandingPageSelectorFormData } from "@/types/attack-vector";
 import { useFieldArray, useWatch } from "react-hook-form";
-import { Tag } from "@/components/shared/tag";
 import { SidebarSheet } from "@/components/shared/sidebar-sheet";
 import { useSidebar } from "@/context/sidebar-context";
 import { AddLandingPageForm } from "@/app/(dashboard)/templates/components/add-landing-page";
+import { cn } from "@/lib/utils";
+import { LandingPageItem } from "./landing-page-item";
+import { LandingPagePreview } from "./landing-page-preview";
 
 interface LandingPageSelectorProps {
   form: UseFormReturn<AttackVectorLandingPageSelectorFormData>;
@@ -63,21 +63,6 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
     },
   ];
 
-  const bulkActions = [
-    {
-      label: "Delete",
-      onClick: (items) => console.log("Delete landing templates:", items),
-    },
-    {
-      label: "Export",
-      onClick: (items) => console.log("Export landing templates:", items),
-    },
-    {
-      label: "Preview",
-      onClick: (items) => console.log("Preview landing templates:", items),
-    },
-  ];
-
   const isSelected = (item: LibraryItem) => {
     return formValues.some((page) => page.id === item.id);
   };
@@ -100,66 +85,129 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
 
   const handleCreateTemplate = async () => {
     // TODO: Replace with actual API call
-  }
+  };
+
+  const handleCreateFromScratch = () => {
+    setOpenSidebar("add-template");
+  };
+
+  const handleSelectFromLibrary = () => {
+    setShowModal(true);
+  };
 
   return (
     <>
       <div className="flex flex-col gap-y-4">
-        <div className="space-y-6 py-8 border-2 border-dashed rounded-lg bg-card text-card-foreground shadow-sm flex flex-col items-center justify-center">
-          <h3 className="text-xl font-medium tracking-tight">
-            ✨ Select Landing Page Source
-          </h3>
-          <div className="flex flex-col items-center justify-center sm:flex-row gap-4">
-            <Button className="w-full sm:w-auto" variant="default" onClick={() => setOpenSidebar("add-template")}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create From Scratch
-            </Button>
-
-            <Dialog open={showModal} onOpenChange={setShowModal}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto" variant="outline">
-                  Select from Template Library
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Template Library</DialogTitle>
-                </DialogHeader>
-                <Library
-                  title="Template Library"
-                  showFilters={true}
-                  showSearch={true}
-                  showBulkActions={true}
-                  showActionButton={true}
-                  showInModal={true}
-                  isOpen={showModal}
-                  filterGroups={filterGroups}
-                  bulkActions={bulkActions}
-                  items={landingPages}
-                  actionButtonText="Add Selected"
-                  onActionButtonClick={handleDone}
-                  onClose={() => setShowModal(false)}
-                  isSingleSelect
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2">
+            {/* Create From Scratch Option */}
+            <button
+              type="button"
+              onClick={handleCreateFromScratch}
+              className={cn(
+                "w-full cursor-pointer p-4 border-2 transition-all duration-200",
+                "hover:border-primary hover:shadow-md",
+                "flex items-center gap-3",
+                openSidebar === "add-template"
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-background"
+              )}
+            >
+              <div
+                className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                  openSidebar === "add-template" ? "bg-primary" : "bg-primary/10"
+                )}
+              >
+                <Plus
+                  className={cn(
+                    "h-5 w-5",
+                    openSidebar === "add-template"
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                  )}
                 />
-              </DialogContent>
-            </Dialog>
+              </div>
+              <span className="font-medium text-left">Create From Scratch</span>
+            </button>
+
+            {/* Select From Library Option */}
+            <button
+              type="button"
+              onClick={handleSelectFromLibrary}
+              className={cn(
+                "w-full cursor-pointer p-4 border-2 transition-all duration-200",
+                "hover:border-primary hover:shadow-md",
+                "flex items-center gap-3",
+                selectedPages.length > 0
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-background"
+              )}
+            >
+              <div
+                className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                  selectedPages.length > 0 ? "bg-primary" : "bg-primary/10"
+                )}
+              >
+                <LibraryIcon
+                  className={cn(
+                    "h-5 w-5",
+                    selectedPages.length > 0
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                  )}
+                />
+              </div>
+              <span className="font-medium text-left">
+                Select from Template Library
+              </span>
+            </button>
           </div>
         </div>
 
+        {/* Selected Pages Tags */}
         {selectedPages.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {selectedPages.map((page, index) => (
-              <Tag
-                key={page.id}
-                id={page.id}
-                name={page.name}
-                handleRemove={() => handleRemovePage(index)}
-              />
-            ))}
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {selectedPages.map((page, index) => (
+                <LandingPagePreview
+                  key={page.id}
+                  item={page}
+                  onRemove={() => handleRemovePage(index)}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
+
+      {/* Library Modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Template Library</DialogTitle>
+          </DialogHeader>
+          <Library
+            title="Template Library"
+            showFilters={true}
+            showSearch={true}
+            showBulkActions={true}
+            showActionButton={true}
+            showInModal={true}
+            isOpen={showModal}
+            filterGroups={filterGroups}
+            items={landingPages}
+            actionButtonText="Add Selected"
+            onActionButtonClick={handleDone}
+            onClose={() => setShowModal(false)}
+            renderItem={LandingPageItem}
+            isSingleSelect
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Sidebar Sheet for Create From Scratch */}
       <SidebarSheet
         open={openSidebar === "add-template"}
         onOpenChange={(open) => !open && closeSidebar()}
