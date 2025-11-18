@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sparkles, Library as LibraryIcon, Check } from "lucide-react";
+import { Sparkles, Library as LibraryIcon } from "lucide-react";
 import { Library } from "@/components/shared/library";
 import { AttackVector, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";

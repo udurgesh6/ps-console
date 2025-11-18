@@ -24,18 +24,28 @@ import {
 } from "@/components/ui/tooltip";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Eye, Code } from "lucide-react";
+import { Eye, Code, Sparkles } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorEmailHtmlTemplateFormData } from "@/types";
 import { scopeHtmlTemplate } from "@/lib/scope-html-template";
 import { useWatch } from "react-hook-form";
 import { availableDomains } from "@/constants/temporary/available-domains";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { TemplateModal } from "./template-modal";
+import { EmailPreviewModal } from "@/app/(dashboard)/templates/components/email-preview-modal";
 
 interface EmailTemplateEditorProps {
   form: UseFormReturn<AttackVectorEmailHtmlTemplateFormData>;
   isSubmitting: boolean;
   htmlError: string;
   setHtmlError: (error: string) => void;
+}
+
+interface GeneratedTemplateResult {
+  subject: string;
+  from: string;
+  html: string;
 }
 
 export const EmailTemplateEditor = ({
@@ -47,6 +57,13 @@ export const EmailTemplateEditor = ({
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [editableContent, setEditableContent] = useState("");
   const [isValidating, setIsValidating] = useState(false);
+
+  const [isCreateWithAIModalOpen, setIsCreateWithAIModalOpen] = useState(false);
+  const [generatedTemplate, setGeneratedTemplate] =
+    useState<GeneratedTemplateResult | null>(null);
+
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+
   const contentEditableRef = useRef<HTMLDivElement>(null);
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastValidatedContentRef = useRef<string>("");
@@ -140,201 +157,246 @@ export const EmailTemplateEditor = ({
     return !watchedHtmlContent.trim() || !!htmlError || isValidating;
   };
 
+  const handleGenerate = (result: GeneratedTemplateResult) => {
+    setGeneratedTemplate(result);
+    setIsPreviewModalOpen(true);
+    console.log("Generated Template:", result);
+  };
+
+  const handleUseTemplate = (data: { from: string; subject: string; html: string }) => {
+    const [prefix, domain] = data.from.split('@');
+    
+    form.setValue('emailPrefix', prefix);
+    form.setValue('emailFromDomain', domain ? `@${domain}` : '');
+    form.setValue('subject', data.subject);
+    form.setValue('htmlContent', data.html);
+    
+    setIsPreviewModalOpen(false);
+    setIsPreviewMode(true)
+    
+    console.log('Template applied to form:', data);
+  };
+
   return (
-    <Form {...form}>
-      <div className="bg-white rounded-lg">
-        <div className="flex items-center justify-end mb-4"></div>
-
-        <div className="py-0 pb-6 border-b">
-          <div className="space-y-3">
-            <FormItem className="flex flex-row items-center gap-4">
-              <FormLabel className="w-16">From</FormLabel>{" "}
-              <div className="flex flex-1 items-center">
-                <FormField
-                  control={form.control}
-                  name="emailPrefix"
-                  render={({ field }) => (
-                    <FormItem className="w-28">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          disabled={isSubmitting}
-                          placeholder="e.g., info"
-                          className="border-0 border-b-2 shadow-none rounded-none border-dashed px-0"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="emailFromDomain"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Select
-                          disabled={isSubmitting}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0">
-                            <SelectValue
-                              placeholder="@Select domain"
-                              className="rounded-0"
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-0">
-                            {availableDomains.map((domain) => (
-                              <SelectItem key={domain} value={domain}>
-                                {domain}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </FormItem>
-            <FormField
-              control={form.control}
-              name="subject"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center gap-4">
-                  <FormLabel className="w-16">Subject</FormLabel>{" "}
-                  <FormControl>
-                    <Input
-                      placeholder="Enter email subject..."
-                      {...field}
-                      className="flex-1 pl-0 border-0 border-b-2 shadow-none rounded-none border-dashed"
-                      disabled={isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <>
+      <Form {...form}>
+        <div className="bg-white rounded-lg">
+          <div className="flex items-center justify-end mb-4 gap-2 h-4">
+            <Button size="sm" variant="outline">
+              Upload
+            </Button>
+            <Separator orientation="vertical" />
+            <Button size="sm" onClick={() => setIsCreateWithAIModalOpen(true)}>
+              <Sparkles /> Create With AI
+            </Button>
           </div>
-        </div>
 
-        <div className="py-6">
-          {isPreviewMode ? (
-            <div>
-              <div className="flex flex-row items-center justify-between mb-2">
-                <Label className="text-sm font-medium">Preview</Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2">
-                        <Code className="w-4 h-4" />
-                        <Switch
-                          checked={isPreviewMode}
-                          onCheckedChange={handleTogglePreview}
-                          disabled={isPreviewDisabled()}
-                          className="cursor-pointer"
-                        />
-                        <Eye className="w-4 h-4" />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {isPreviewMode ? (
-                        <p>Switch to Edit Mode</p>
-                      ) : isValidating ? (
-                        <p>Validating HTML...</p>
-                      ) : isPreviewDisabled() ? (
-                        <p>
-                          {htmlError || "Please enter valid HTML to preview"}
-                        </p>
-                      ) : (
-                        <p>Switch to Preview Mode</p>
-                      )}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div
-                ref={contentEditableRef}
-                contentEditable={false}
-                className="email-template-preview min-h-[400px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                dangerouslySetInnerHTML={{
-                  __html: scopeHtmlTemplate(editableContent),
-                }}
-                suppressContentEditableWarning
-                style={{
-                  contain: "style layout",
-                  isolation: "isolate",
-                }}
+          <div className="pb-6 border-b">
+            <div className="space-y-3">
+              <FormItem className="flex flex-row items-center gap-4">
+                <FormLabel className="w-16">From</FormLabel>{" "}
+                <div className="flex flex-1 items-center">
+                  <FormField
+                    control={form.control}
+                    name="emailPrefix"
+                    render={({ field }) => (
+                      <FormItem className="w-28">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            disabled={isSubmitting}
+                            placeholder="e.g., info"
+                            className="border-0 border-b-2 shadow-none rounded-none border-dashed px-0"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="emailFromDomain"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Select
+                            disabled={isSubmitting}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0">
+                              <SelectValue
+                                placeholder="@Select domain"
+                                className="rounded-0"
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-0">
+                              {availableDomains.map((domain) => (
+                                <SelectItem key={domain} value={domain}>
+                                  {domain}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </FormItem>
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-4">
+                    <FormLabel className="w-16">Subject</FormLabel>{" "}
+                    <FormControl>
+                      <Input
+                        placeholder="Enter email subject..."
+                        {...field}
+                        className="flex-1 pl-0 border-0 border-b-2 shadow-none rounded-none border-dashed"
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-          ) : (
-            <FormField
-              control={form.control}
-              name="htmlContent"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex flex-row justify-between items-center">
-                    <FormLabel>HTML Content</FormLabel>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex items-center gap-2">
-                            <Code className="w-4 h-4" />
-                            <Switch
-                              checked={isPreviewMode}
-                              onCheckedChange={handleTogglePreview}
-                              disabled={isPreviewDisabled()}
-                              className="cursor-pointer"
-                            />
-                            <Eye className="w-4 h-4" />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {isPreviewMode ? (
-                            <p>Switch to Edit Mode</p>
-                          ) : isValidating ? (
-                            <p>Validating HTML...</p>
-                          ) : isPreviewDisabled() ? (
-                            <p>
-                              {htmlError ||
-                                "Please enter valid HTML to preview"}
-                            </p>
-                          ) : (
-                            <p>Switch to Preview Mode</p>
-                          )}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+          </div>
 
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter HTML content..."
-                      className={`font-mono text-sm h-[300px] resize-y ${
-                        htmlError
-                          ? "border-red-500 focus-visible:border-0 focus-visible:ring-1 focus-visible:ring-red-500"
-                          : ""
-                      }`}
-                      {...field}
-                      disabled={isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  {/* {isValidating && (
+          <div className="py-6">
+            {isPreviewMode ? (
+              <div>
+                <div className="flex flex-row items-center justify-between mb-2">
+                  <Label className="text-sm font-medium">Preview</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-2">
+                          <Code className="w-4 h-4" />
+                          <Switch
+                            checked={isPreviewMode}
+                            onCheckedChange={handleTogglePreview}
+                            disabled={isPreviewDisabled()}
+                            className="cursor-pointer"
+                          />
+                          <Eye className="w-4 h-4" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {isPreviewMode ? (
+                          <p>Switch to Edit Mode</p>
+                        ) : isValidating ? (
+                          <p>Validating HTML...</p>
+                        ) : isPreviewDisabled() ? (
+                          <p>
+                            {htmlError || "Please enter valid HTML to preview"}
+                          </p>
+                        ) : (
+                          <p>Switch to Preview Mode</p>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div
+                  ref={contentEditableRef}
+                  contentEditable={false}
+                  className="email-template-preview min-h-[400px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  dangerouslySetInnerHTML={{
+                    __html: scopeHtmlTemplate(editableContent),
+                  }}
+                  suppressContentEditableWarning
+                  style={{
+                    contain: "style layout",
+                    isolation: "isolate",
+                  }}
+                />
+              </div>
+            ) : (
+              <FormField
+                control={form.control}
+                name="htmlContent"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex flex-row justify-between items-center">
+                      <FormLabel>HTML Content</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              <Code className="w-4 h-4" />
+                              <Switch
+                                checked={isPreviewMode}
+                                onCheckedChange={handleTogglePreview}
+                                disabled={isPreviewDisabled()}
+                                className="cursor-pointer"
+                              />
+                              <Eye className="w-4 h-4" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {isPreviewMode ? (
+                              <p>Switch to Edit Mode</p>
+                            ) : isValidating ? (
+                              <p>Validating HTML...</p>
+                            ) : isPreviewDisabled() ? (
+                              <p>
+                                {htmlError ||
+                                  "Please enter valid HTML to preview"}
+                              </p>
+                            ) : (
+                              <p>Switch to Preview Mode</p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter HTML content..."
+                        className={`font-mono text-sm h-[300px] resize-y ${
+                          htmlError
+                            ? "border-red-500 focus-visible:border-0 focus-visible:ring-1 focus-visible:ring-red-500"
+                            : ""
+                        }`}
+                        {...field}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    {/* {isValidating && (
                     <p className="text-sm text-blue-500 mt-2">Validating...</p>
                   )} */}
-                  {!isValidating && htmlError && (
-                    <p className="text-sm text-red-500 mt-2">{htmlError}</p>
-                  )}
-                </FormItem>
-              )}
-            />
-          )}
+                    {!isValidating && htmlError && (
+                      <p className="text-sm text-red-500 mt-2">{htmlError}</p>
+                    )}
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
         </div>
-      </div>
-    </Form>
+      </Form>
+      <TemplateModal
+        isOpen={isCreateWithAIModalOpen}
+        onClose={() => setIsCreateWithAIModalOpen(false)}
+        onGenerate={handleGenerate}
+      />
+      <EmailPreviewModal
+        open={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        htmlTemplate={generatedTemplate?.html}
+        title="Email Template Preview"
+        from={generatedTemplate?.from || "Email From"}
+        subject={generatedTemplate?.subject || "Email Subject"}
+        templateType="email"
+        onUseTemplate={handleUseTemplate}
+      />
+    </>
   );
 };

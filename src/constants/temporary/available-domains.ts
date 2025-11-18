@@ -5,4 +5,5 @@ export const availableDomains = [
     "@phish-sheriff-llc.com",
     "@phish-sheriff-inc.com",
     "@phish-sheriff-org.com",
+    "@phish-sheriff.co",
   ];

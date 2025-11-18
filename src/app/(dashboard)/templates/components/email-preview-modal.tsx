@@ -1,20 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, Languages, Maximize2, Minimize2, X, ChevronDown, Check } from "lucide-react";
+import { Bot, Languages, Loader2, Maximize2, Minimize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { scopeHtmlTemplate } from "@/lib/scope-html-template";
+import { availableDomains } from "@/constants/temporary/available-domains";
 
 interface EmailPreviewModalProps {
   open: boolean;
@@ -22,46 +24,80 @@ interface EmailPreviewModalProps {
   htmlTemplate?: string;
   title?: string;
   subject?: string;
+  from?: string;
   templateType?: "email" | "form" | "landing" | null;
+  onUseTemplate?: (data: {
+    from: string;
+    subject: string;
+    html: string;
+  }) => void;
 }
-
-// Dummy email options for the dropdown
-const dummyEmails = [
-  "john.doe@company.com",
-  "jane.smith@company.com",
-  "admin@company.com",
-  "support@company.com",
-  "marketing@company.com",
-  "sales@company.com"
-];
 
 export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
   open,
   onClose,
-  htmlTemplate,
+  htmlTemplate = "",
   title = "Email Preview",
-  subject = "Email Subject",
-  templateType = null
-  }) => {
+  subject: initialSubject = "Email Subject",
+  from: initialFrom = "",
+  templateType = null,
+  onUseTemplate,
+}) => {
+
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  // Editable fields
+  const [emailPrefix, setEmailPrefix] = useState("");
+  const [emailDomain, setEmailDomain] = useState("");
+  const [subject, setSubject] = useState(initialSubject);
+  const [htmlContent, setHtmlContent] = useState(htmlTemplate);
+  const [usingTemplate, setIsUsingTemplate] = useState(false);
 
-  const handleEmailToggle = (email: string) => {
-    setSelectedEmails(prev => 
-      prev.includes(email) 
-        ? prev.filter(e => e !== email)
-        : [...prev, email]
-    );
-  };
+  // Parse initial from email
+  useEffect(() => {
+    if (initialFrom) {
+      const [prefix, domain] = initialFrom.split("@");
+      setEmailPrefix(prefix || "");
+      setEmailDomain(domain ? `@${domain}` : "");
+    }
+  }, [initialFrom]);
 
-  const removeEmail = (email: string) => {
-    setSelectedEmails(prev => prev.filter(e => e !== email));
+  // Update HTML content when htmlTemplate prop changes
+  useEffect(() => {
+    setHtmlContent(htmlTemplate);
+  }, [htmlTemplate]);
+
+  // Update subject when initialSubject prop changes
+  useEffect(() => {
+    setSubject(initialSubject);
+  }, [initialSubject]);
+
+  const handleUseTemplate = async () => {
+    setIsUsingTemplate(true);
+    try {
+    await new Promise((resolve) => setTimeout(resolve, 2000)); 
+    if (onUseTemplate) {
+      const fromEmail = emailDomain.startsWith("@") 
+        ? `${emailPrefix}${emailDomain}`
+        : `${emailPrefix}@${emailDomain}`;
+      
+      onUseTemplate({
+        from: fromEmail,
+        subject: subject,
+        html: htmlContent,
+      });
+    }
+    onClose();
+    } catch (error) {
+      console.error('Error using template:', error);
+    } finally {
+      setIsUsingTemplate(false);
+    }
   };
 
   const handleSendPreview = () => {
     // Handle send preview logic here
-    console.log('Sending preview to:', selectedEmails);
+    console.log('Sending preview...');
   };
 
   return (
@@ -75,8 +111,11 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
           transition: "all 300ms ease-in-out"
         }}
       >
+        {/* Header */}
         <div className="flex flex-row items-center justify-between px-6 py-3 border-b bg-white flex-shrink-0">
-          <DialogTitle className="!text-base !font-semibold !text-muted-foreground !m-0 !p-0">{title}</DialogTitle>
+          <DialogTitle className="!text-base !font-semibold !text-muted-foreground !m-0 !p-0">
+            {title}
+          </DialogTitle>
           
           <div className="flex items-center gap-2">
             <Button
@@ -126,131 +165,104 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
         </div>
 
         {/* Email Form Fields */}
-        {templateType === "email" && <div className="px-6 border-b bg-gray-50/50">
-          {/* From Field */}
-          <div className="flex flex-row items-center gap-4 pb-3">
-            <Label htmlFor="from-field" className="text-sm font-medium text-muted-foreground mt-2 min-w-[60px]">
-              From
-            </Label>
-            <div className="flex-1">
-              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-                <DropdownMenuTrigger asChild className="!px-0">
-                  <Button
-                    variant="ghost"
-                    className="justify-between h-auto min-h-[40px] pb-1 px-0 border-0 border-b-2 border-dashed border-gray-300 rounded-none bg-transparent hover:bg-transparent focus:bg-transparent"
-                    id="from-field"
-                  >
-                    <div className="flex flex-wrap gap-1 flex-1">
-                      {selectedEmails.length === 0 ? (
-                        <span className="text-muted-foreground">Select email addresses...</span>
-                      ) : selectedEmails.length === 1 ? (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs px-2 py-1"
-                        >
-                          {selectedEmails[0]}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeEmail(selectedEmails[0]);
-                            }}
-                            className="ml-1 hover:text-destructive"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </Badge>
-                      ) : (
-                        <>
-                          <Badge
-                            variant="secondary"
-                            className="text-xs px-2 py-1"
-                          >
-                            {selectedEmails[0]}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeEmail(selectedEmails[0]);
-                              }}
-                              className="ml-1 hover:text-destructive"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </Badge>
-                          <span className="text-sm text-muted-foreground px-2 py-1">
-                            and {selectedEmails.length - 1} other{selectedEmails.length > 2 ? "s" : ""}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <ChevronDown className="w-4 h-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full min-w-[400px]" align="start">
-                  {dummyEmails.map((email) => (
-                    <DropdownMenuItem
-                      key={email}
-                      onClick={() => handleEmailToggle(email)}
-                      className="flex items-center justify-between cursor-pointer"
-                    >
-                      <span>{email}</span>
-                      {selectedEmails.includes(email) && (
-                        <Check className="w-4 h-4 text-primary" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+        {templateType === "email" && (
+          <div className="px-6 border-b bg-gray-50/50">
+            {/* From Field */}
+            <div className="flex flex-row items-center gap-4 pb-3 pt-3">
+              <Label htmlFor="from-field" className="text-sm font-medium text-muted-foreground min-w-[60px]">
+                From
+              </Label>
+              <div className="flex flex-1 items-center">
+                <Input
+                  id="from-field"
+                  value={emailPrefix}
+                  onChange={(e) => setEmailPrefix(e.target.value)}
+                  placeholder="e.g., info"
+                  className="w-28 border-0 border-b-2 shadow-none rounded-none border-dashed px-0"
+                />
+                <Select
+                  value={emailDomain}
+                  onValueChange={setEmailDomain}
+                >
+                  <SelectTrigger className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0">
+                    <SelectValue placeholder="@Select domain" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDomains.map((domain) => (
+                      <SelectItem key={domain} value={domain}>
+                        {domain}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div className="-mx-6">
+              <Separator />
+            </div>
+
+            {/* Subject Field */}
+            <div className="flex items-center gap-4 py-3">
+              <Label htmlFor="subject-field" className="text-sm font-medium text-muted-foreground min-w-[60px]">
+                Subject
+              </Label>
+              <Input
+                id="subject-field"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Enter email subject..."
+                className="flex-1 pl-0 border-0 border-b-2 shadow-none rounded-none border-dashed"
+              />
             </div>
           </div>
+        )}
 
-          {/* Separator */}
-          <div className="-mx-6">
-            <Separator className="" />
-          </div>
-
-          {/* Subject Field */}
-          <div className="flex items-center gap-4 py-2">
-            <Label className="text-sm font-medium text-muted-foreground min-w-[60px]">
-              Subject
-            </Label>
-            <div className="flex-1 px-0 py-2 bg-transparent font-medium text-sm text-gray-900">
-              {subject}
-            </div>
-          </div>
-        </div>}
-
+        {/* Content Area */}
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-full w-full">
-            {htmlTemplate ? (
-              <div className="p-6">
-                <div 
-                  className="email-template-preview" 
-                  style={{ 
-                    contain: 'style layout',
-                    isolation: 'isolate'
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: scopeHtmlTemplate(htmlTemplate),
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="p-6 text-center text-gray-500">
-                <p>No template available</p>
-              </div>
-            )}
+            <div className="p-6">
+              {htmlContent ? (
+                  <div 
+                    className="email-template-preview min-h-[400px] rounded-lg"
+                    style={{ 
+                      contain: 'style layout',
+                      isolation: 'isolate'
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: scopeHtmlTemplate(htmlContent),
+                    }}
+                  />
+                ) : (
+                  <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg flex items-center justify-center text-center text-gray-500">
+                    <p>No template available</p>
+                  </div>
+                )
+              }
+            </div>
           </ScrollArea>
         </div>
 
-        {templateType === "email" && <div className="px-6 py-4 border-t bg-white flex justify-end">
-          <Button
-            variant="ghost"
-            onClick={handleSendPreview}
-            className="text-sm text-gray-500"
-          >
-            Send me a preview
-          </Button>
-        </div>}
+        {/* Footer */}
+        {templateType === "email" && (
+          <div className="px-6 py-4 border-t bg-white flex justify-between items-center">
+            <Button
+              variant="ghost"
+              onClick={handleSendPreview}
+              className="text-sm text-gray-500"
+            >
+              Send me a preview
+            </Button>
+            <Button
+              onClick={handleUseTemplate}
+              className="text-sm"
+            >
+              {usingTemplate ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Use Template
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
