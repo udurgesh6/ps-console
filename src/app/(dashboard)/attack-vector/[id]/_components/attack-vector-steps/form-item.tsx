@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { LibraryItem } from "@/types";
 import { useEffect, useRef, useState } from "react";
 
-export const LandingPageItem = (
+export const FormItem = (
   item: LibraryItem,
   isSelected: boolean,
   isSelectEnabled: boolean,
@@ -19,8 +19,8 @@ export const LandingPageItem = (
     const updateScale = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
-        const pageWidth = 1200; // Typical landing page width
-        const calculatedScale = (containerWidth / pageWidth) * 0.9;
+        const formWidth = 600; // Typical form width
+        const calculatedScale = (containerWidth / formWidth) * 0.9;
         setScale(Math.min(calculatedScale, 0.35));
       }
     };
@@ -30,16 +30,16 @@ export const LandingPageItem = (
     return () => window.removeEventListener('resize', updateScale);
   }, []);
 
-  const onPageClick = () => {
+  const onFormClick = () => {
     if (isSelectEnabled || showInModal) {
       return;
     }
-    router.push(`/templates/landing-page/${item.id}`);
+    router.push(`/templates/form/${item.id}`);
   };
 
   return (
-   <Card
-      onClick={onPageClick}
+    <Card
+      onClick={onFormClick}
       className={`cursor-pointer py-0 relative aspect-square rounded-lg transition-all hover:shadow-md group overflow-hidden ${
         isSelected 
           ? "border-2 border-primary" 
@@ -58,19 +58,19 @@ export const LandingPageItem = (
           style={{
             transform: `scale(${scale})`,
             transformOrigin: 'top center',
-            width: '600px',
-            minHeight: '800px',
+            width: '400px',
+            minHeight: '600px',
           }}
         >
           <iframe
             className="w-full h-full border-0 pointer-events-none bg-white shadow-sm"
             style={{
-              width: '600px',
-              height: '800px',
+              width: '400px',
+              height: '600px',
             }}
             srcDoc={item.htmlTemplate}
             sandbox=""
-            title={`Landing page preview for ${item.name}`}
+            title={`Form preview for ${item.name}`}
           />
         </div>
       </div>

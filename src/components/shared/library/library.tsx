@@ -31,6 +31,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   onClose,
   renderItem,
   isSingleSelect = false,
+  showMaxItems = 4,
 }, ref: Ref<LibraryHandle>) => {
 
   const [selectedFilters, setSelectedFilters] = useState<
@@ -146,6 +147,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
             renderItem={renderItem}
             isSelectEnabled={isSelectEnabled}
             showInModal={showInModal}
+            showMaxItems={showMaxItems}
           />
         </div>
 

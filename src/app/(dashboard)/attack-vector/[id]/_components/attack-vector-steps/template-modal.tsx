@@ -24,7 +24,7 @@ interface TemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onGenerate: (result: GenerateResult) => void;
-  type?: 'email' | 'landing';
+  type?: 'email' | 'landing' ;
 }
 
 interface FormData {

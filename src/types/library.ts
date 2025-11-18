@@ -68,6 +68,7 @@ export interface LibraryProps {
   onClose?: () => void;
   renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean, showInModal: boolean) => ReactNode;
   isSingleSelect?: boolean;
+  showMaxItems?: number;
 }
 
 export interface LibrarySearchProps {
@@ -90,6 +91,7 @@ export interface LibraryItemsProps {
   renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean, showInModal: boolean) => ReactNode;
   isSelectEnabled?: boolean;
   showInModal?: boolean;
+  showMaxItems?: number;
 }
 
 export interface LibraryItemProps {

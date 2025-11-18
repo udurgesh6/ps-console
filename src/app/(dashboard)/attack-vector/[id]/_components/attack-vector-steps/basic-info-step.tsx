@@ -53,7 +53,7 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium" required>Description</FormLabel>
+                <FormLabel className="text-sm font-medium">Description</FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}

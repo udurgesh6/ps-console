@@ -50,6 +50,7 @@ export default function SimulationProfiles() {
       showBulkActions={true}
       showActionButton={false}
       bulkActions={bulkActions}
+      showMaxItems={3}
     />
   );
 }

@@ -43,7 +43,7 @@ export const attackVectorSchema = z.object({
 
 export const attackVectorBasicInfoSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+  description: z.string().optional(),
   category: z.string().nonempty("Category is required"),
   subCategory: z.string().nonempty("Subcategory is required"),
   type: z.string().nonempty("Type is required"),

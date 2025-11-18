@@ -24,14 +24,14 @@ import {
 } from "@/components/ui/tooltip";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Eye, Code, Sparkles } from "lucide-react";
+import { useParams } from "next/navigation";
+import { Eye, Code, Sparkles, Upload } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorEmailHtmlTemplateFormData } from "@/types";
 import { scopeHtmlTemplate } from "@/lib/scope-html-template";
 import { useWatch } from "react-hook-form";
 import { availableDomains } from "@/constants/temporary/available-domains";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { TemplateModal } from "./template-modal";
 import { EmailPreviewModal } from "@/app/(dashboard)/templates/components/email-preview-modal";
 
@@ -54,7 +54,13 @@ export const EmailTemplateEditor = ({
   htmlError,
   setHtmlError,
 }: EmailTemplateEditorProps) => {
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const params = useParams();
+  const id = params?.id as string;
+  
+  const [isPreviewMode, setIsPreviewMode] = useState<boolean>(() => {
+    return id !== "new";
+  });
+
   const [editableContent, setEditableContent] = useState("");
   const [isValidating, setIsValidating] = useState(false);
 
@@ -63,8 +69,10 @@ export const EmailTemplateEditor = ({
     useState<GeneratedTemplateResult | null>(null);
 
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const contentEditableRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastValidatedContentRef = useRef<string>("");
 
@@ -177,15 +185,71 @@ export const EmailTemplateEditor = ({
     console.log('Template applied to form:', data);
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'text/html' && !file.name.endsWith('.html')) {
+      setHtmlError('Please select a valid HTML file');
+      return;
+    }
+
+    setIsUploading(true);
+    setHtmlError('');
+
+    try {
+      const content = await file.text();
+      
+      // Validate the HTML content before setting it
+      const validationResult = await validateHtmlOnServer(content);
+      
+      if (validationResult.valid) {
+        form.setValue('htmlContent', content);
+        setIsPreviewMode(true);
+        setHtmlError('');
+      } else {
+        const firstError = validationResult.errors[0];
+        const errorMessage = `Invalid HTML: ${firstError.message}`;
+        setHtmlError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Error processing file:', error);
+      setHtmlError('Failed to read or validate the HTML file');
+    } finally {
+      setIsUploading(false);
+      // Reset the input so the same file can be selected again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <>
       <Form {...form}>
         <div className="bg-white rounded-lg">
-          <div className="flex items-center justify-end mb-4 gap-2 h-4">
-            <Button size="sm" variant="outline">
-              Upload
+          <div className="flex items-center justify-end mb-6 gap-2 h-4 pt-4">
+            <Input
+              ref={fileInputRef}
+              type="file"
+              accept=".html,text/html"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleUploadClick}
+              disabled={isUploading}
+            >
+              <Upload className="w-4 h-4 mr-1" />
+              {isUploading ? 'Uploading...' : 'Upload'}
             </Button>
-            <Separator orientation="vertical" />
+            <div className="h-4 w-px bg-border" />
             <Button size="sm" onClick={() => setIsCreateWithAIModalOpen(true)}>
               <Sparkles /> Create With AI
             </Button>

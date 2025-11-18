@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Library as LibraryIcon, Plus } from "lucide-react";
 import { Library } from "@/components/shared/library";
 import { Form, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorFormsSelectorFormData } from "@/types/attack-vector";
-import { useFieldArray, useWatch } from "react-hook-form";
-import { Tag } from "@/components/shared/tag";
+import { useFieldArray } from "react-hook-form";
+import { cn } from "@/lib/utils";
+import { FormItem } from "./form-item";
+import { FormPreview } from "./form-preview";
 import { SidebarSheet } from "@/components/shared/sidebar-sheet";
 import { useSidebar } from "@/context/sidebar-context";
 import { sampleFormTemplates } from "@/constants/temporary/forms";
@@ -33,11 +33,6 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
     append,
     remove,
   } = useFieldArray({
-    control: form.control,
-    name: "forms",
-  });
-
-  const formValues = useWatch({
     control: form.control,
     name: "forms",
   });
@@ -63,39 +58,44 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
     }
   ];
 
-  const bulkActions = [
-    {
-      label: 'Delete',
-      onClick: (items) => console.log('Delete form templates:', items),
-    },
-    {
-      label: 'Export',
-      onClick: (items) => console.log('Export form templates:', items),
-    },
-    {
-      label: 'Duplicate',
-      onClick: (items) => console.log('Duplicate form templates:', items),
-    },
-  ];
-
-  const isSelected = (item: LibraryItem) => {
-    return formValues.some((page) => page.id === item.id);
-  };
+  // const bulkActions = [
+  //   {
+  //     label: 'Delete',
+  //     onClick: (items) => console.log('Delete form templates:', items),
+  //   },
+  //   {
+  //     label: 'Export',
+  //     onClick: (items) => console.log('Export form templates:', items),
+  //   },
+  //   {
+  //     label: 'Duplicate',
+  //     onClick: (items) => console.log('Duplicate form templates:', items),
+  //   },
+  // ];
 
   const handleDone = (selectedItems: LibraryItem[]) => {
     const newSelections = selectedItems as Form[];
 
-    const pagesToAppend = newSelections.filter(
-      (newItem) => !isSelected(newItem)
-    );
-
-    pagesToAppend.forEach((page) => append(page));
+    if (newSelections.length > 0) {
+      // Replace the existing item with the new selection
+      const newForm = newSelections[0]; // Take the first selected item
+      
+      // Remove all existing items and add the new one
+      while (selectedForms.length > 0) {
+        remove(0);
+      }
+      append(newForm);
+    }
 
     setShowModal(false);
   };
 
-  const handleRemoveForm = (index: number) => {
-    remove(index);
+  const handleSelectFromLibrary = () => {
+    setShowModal(true);
+  };
+
+  const handleCreateFromScratch = () => {
+    setOpenSidebar("add-template");
   };
 
   const handleCreateTemplate = async () => {
@@ -105,61 +105,128 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
   return (
     <>
       <div className="flex flex-col gap-y-4">
-        <div className="space-y-6 py-8 border-2 border-dashed rounded-lg bg-card text-card-foreground shadow-sm flex flex-col items-center justify-center">
-          <h3 className="text-xl font-medium tracking-tight">
-            ✨ Select Form Source
-          </h3>
-          <div className="flex flex-col items-center justify-center sm:flex-row gap-4">
-            <Button className="w-full sm:w-auto" variant="default" onClick={() => setOpenSidebar("add-template")}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create From Scratch
-            </Button>
-
-            <Dialog open={showModal} onOpenChange={setShowModal}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto" variant="outline">
-                  Select from Template Library
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Template Library</DialogTitle>
-                </DialogHeader>
-                <Library
-                  title="Template Library"
-                  showFilters={true}
-                  showSearch={true}
-                  showBulkActions={true}
-                  showActionButton={true}
-                  showInModal={true}
-                  isOpen={showModal}
-                  filterGroups={filterGroups}
-                  bulkActions={bulkActions}
-                  items={sampleFormTemplates}
-                  actionButtonText="Add Selected"
-                  onActionButtonClick={handleDone}
-                  onClose={() => setShowModal(false)}
-                  isSingleSelect
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2">
+            {/* Create From Scratch Option */}
+            <button
+              type="button"
+              onClick={handleCreateFromScratch}
+              className={cn(
+                "w-full rounded-l-lg cursor-pointer p-4 border-2 transition-all duration-200",
+                "hover:border-primary hover:shadow-md",
+                "flex items-center gap-3",
+                openSidebar === "add-template"
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-background"
+              )}
+            >
+              <div
+                className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                  openSidebar === "add-template" ? "bg-primary" : "bg-primary/10"
+                )}
+              >
+                <Plus
+                  className={cn(
+                    "h-5 w-5",
+                    openSidebar === "add-template"
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                  )}
                 />
-              </DialogContent>
-            </Dialog>
+              </div>
+              <span className="font-medium text-left">Create from Scratch</span>
+            </button>
+
+            {/* Select From Library Option */}
+            <button
+              type="button"
+              onClick={handleSelectFromLibrary}
+              className={cn(
+                "w-full rounded-r-lg cursor-pointer p-4 border-2 transition-all duration-200",
+                "hover:border-primary hover:shadow-md",
+                "flex items-center gap-3",
+                selectedForms.length > 0
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-background"
+              )}
+            >
+              <div
+                className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                  selectedForms.length > 0 ? "bg-primary" : "bg-primary/10"
+                )}
+              >
+                <LibraryIcon
+                  className={cn(
+                    "h-5 w-5",
+                    selectedForms.length > 0
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                  )}
+                />
+              </div>
+              <span className="font-medium text-left">
+                Select from Template Library
+              </span>
+            </button>
           </div>
         </div>
 
-        {selectedForms.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {selectedForms.map((form, index) => (
-              <Tag
-                key={form.id}
-                id={form.id}
-                name={form.name}
-                handleRemove={() => handleRemoveForm(index)}
-              />
-            ))}
+        {/* Selected Form Preview */}
+        {selectedForms.length > 0 ? (
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {selectedForms.map((formItem, index) => (
+                <FormPreview
+                  key={formItem.id}
+                  item={formItem}
+                  onRemove={() => remove(index)}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed border-gray-200 rounded-lg bg-gray-50/50">
+            <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+              <LibraryIcon className="w-8 h-8 text-primary" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No Forms Selected
+            </h3>
+            <p className="text-gray-500 mb-6 max-w-xl">
+              Choose forms for your attack vector. You can create new
+              forms or select from your existing library.
+            </p>
           </div>
         )}
       </div>
+      {/* Library Modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Template Library</DialogTitle>
+          </DialogHeader>
+          <Library
+            title="Template Library"
+            showFilters={true}
+            showSearch={true}
+            showBulkActions={true}
+            showActionButton={true}
+            showInModal={true}
+            isOpen={showModal}
+            filterGroups={filterGroups}
+            items={sampleFormTemplates}
+            actionButtonText="Add Selected"
+            onActionButtonClick={handleDone}
+            onClose={() => setShowModal(false)}
+            renderItem={FormItem}
+            isSingleSelect={true}
+          />
+        </DialogContent>
+      </Dialog>
+
+
       <SidebarSheet
         open={openSidebar === "add-template"}
         onOpenChange={(open) => !open && closeSidebar()}
