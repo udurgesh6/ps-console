@@ -22,6 +22,10 @@ const templateNavItems: SubNavItem[] = [
     title: "Landing",
     href: "/templates/landing",
   },
+  {
+    title: "Courses",
+    href: "/templates/courses",
+  },
 ];
 
 export default function TemplatesLayout({

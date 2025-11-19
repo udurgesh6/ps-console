@@ -61,7 +61,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
   // Redirect if trying to edit non-existent vector
   useEffect(() => {
     if (!isNewVector && !attackVector) {
-      router.push("/dashboard/attack-vector");
+      router.push("/attack-vector");
     }
   }, [attackVector, router, isNewVector]);
 
@@ -285,7 +285,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
       data
     );
     // Redirect back to list after completion
-    router.push("/dashboard/attack-vector");
+    router.push("attack-vector");
   };
 
   return (

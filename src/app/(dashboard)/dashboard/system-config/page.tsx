@@ -3,7 +3,7 @@
 export default function SystemConfig() {
     return (
         <div>
-            <h1>System Config</h1>
+            <h1>In Beta</h1>
         </div>
     )
 }
