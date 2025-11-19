@@ -90,6 +90,18 @@ export const pageConfigs: Record<string, PageConfig> = {
     showTitle: true,
     showDescription: false,
   },
+  "/system-config/members": {
+    title: "System Config",
+    description: "This is the system config members page",
+    showTitle: true,
+    showDescription: false,
+  },
+  "/system-config/notifications": {
+    title: "System Config",
+    description: "This is the system config notifications page",
+    showTitle: true,
+    showDescription: false,
+  },
   "/awareness": {
     title: "Awareness",
     description: "This is the awareness page",
