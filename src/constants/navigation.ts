@@ -1,4 +1,4 @@
-import { LucideIcon, FolderOpen, BarChart3, Users, VectorSquare, Settings, Library } from 'lucide-react'
+import { LucideIcon, FolderOpen, BarChart3, Users, VectorSquare, Settings, Library, FileBadge } from 'lucide-react'
 
 export interface SidebarItem {
   label: string
@@ -69,6 +69,14 @@ export const navigationItems: NavigationItem[] = [
     title: 'Simulation',
     items: [
       { label: 'Simulations', href: '/simulations', icon: FolderOpen },
+    ],
+    showTitle: false
+  },
+  {
+    id: 'awareness',
+    title: 'Awareness',
+    items: [
+      { label: 'Awareness', href: '/awareness', icon: FileBadge },
     ],
     showTitle: false
   }
