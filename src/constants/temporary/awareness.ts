@@ -17,8 +17,8 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
             courses.find(c => c.id === "physical-security")!,
             courses.find(c => c.id === "information-security")!,
         ],
-        startDate: new Date("2024-01-01"),
-        endDate: new Date("2024-03-31"),
+        startDate: new Date("2025-01-01"),
+        endDate: new Date("2025-03-31"),
         employeeGroups: [
             groups.find(g => g.id === "eg-1")!,
             groups.find(g => g.id === "eg-2")!,
@@ -38,8 +38,8 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
             courses.find(c => c.id === "ceo-fraud")!,
             courses.find(c => c.id === "phishing")!,
         ],
-        startDate: new Date("2024-02-01"),
-        endDate: new Date("2024-05-31"),    
+        startDate: new Date("2025-02-01"),
+        endDate: new Date("2026-05-31"),    
         employeeGroups: [
             groups.find(g => g.id === "eg-3")!,
             groups.find(g => g.id === "eg-4")!,
@@ -55,8 +55,8 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
             courses.find(c => c.id === "generative-ai")!,
             courses.find(c => c.id === "dark-ai")!,
         ],
-        startDate: new Date("2024-03-01"),
-        endDate: new Date("2024-06-30"),
+        startDate: new Date("2025-03-01"),
+        endDate: new Date("2025-06-30"),
         employeeGroups: [
             groups.find(g => g.id === "eg-5")!,
             groups.find(g => g.id === "eg-6")!,
@@ -93,8 +93,8 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
             courses.find(c => c.id === "clickjacking")!,
             courses.find(c => c.id === "adware-in-the-workplace")!,
         ],
-        startDate: new Date("2024-04-01"),
-        endDate: new Date("2024-07-31"),
+        startDate: new Date("2025-04-01"),
+        endDate: new Date("2025-12-31"),
         employeeGroups: [
             groups.find(g => g.id === "eg-9")!,
             groups.find(g => g.id === "eg-10")!,
@@ -105,13 +105,13 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         name: "Scam Awareness & Fraud Prevention",
         description: "Training program focused on identifying and preventing digital scams including CEO fraud and digital arrest scams.",
         category: "security",
-        isActive: false,
+        isActive: true,
         courses: [
             courses.find(c => c.id === "ceo-fraud")!,
             courses.find(c => c.id === "digital-arrest")!,
         ],
-        startDate: new Date("2024-02-15"),
-        endDate: new Date("2024-04-30"),
+        startDate: new Date("2025-02-15"),
+        endDate: new Date("2025-12-31"),
         employeeGroups: [
             groups.find(g => g.id === "eg-5")!,
             groups.find(g => g.id === "eg-6")!,
@@ -130,8 +130,8 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
             courses.find(c => c.id === "information-security")!,
             courses.find(c => c.id === "physical-security")!,
         ],
-        startDate: new Date("2024-05-01"),
-        endDate: new Date("2024-08-31"),
+        startDate: new Date("2025-05-01"),
+        endDate: new Date("2025-12-31"),
         employeeGroups: [
             groups.find(g => g.id === "eg-1")!,
             groups.find(g => g.id === "eg-2")!
@@ -151,8 +151,8 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
             courses.find(c => c.id === "digital-arrest")!,
             courses.find(c => c.id === "one-time-password")!,
         ],
-        startDate: new Date("2024-04-01"),
-        endDate: new Date("2024-06-30"),
+        startDate: new Date("2025-04-01"),
+        endDate: new Date("2026-12-31"),
         employeeGroups: [
             groups.find(g => g.id === "eg-5")!,
             groups.find(g => g.id === "eg-6")!,

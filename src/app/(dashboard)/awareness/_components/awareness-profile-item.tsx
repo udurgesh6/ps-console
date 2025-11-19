@@ -39,9 +39,9 @@ export const AwarenessProfileItem = (
 
     if (days < 0) return { text: "Ended", color: "text-gray-500" };
     if (days === 0) return { text: "Ends today", color: "text-orange-600" };
-    if (days <= 7) return { text: `${days}d left`, color: "text-orange-600" };
-    if (days <= 30) return { text: `${days}d left`, color: "text-blue-600" };
-    return { text: `${days}d left`, color: "text-green-600" };
+    if (days <= 7) return { text: `${days} d`, color: "text-orange-600" };
+    if (days <= 30) return { text: `${days} d`, color: "text-blue-600" };
+    return { text: `${days} d`, color: "text-green-600" };
   };
 
   const getDuration = () => {
@@ -156,11 +156,11 @@ export const AwarenessProfileItem = (
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full ${
-                item.isActive ? "bg-green-500 animate-pulse" : "bg-gray-300"
+                daysRemaining.text === "Ended" ? "bg-gray-300" : "bg-green-500 animate-pulse"
               }`}
             />
             <span className="text-xs font-medium">
-              {item.isActive ? "Active Campaign" : "Inactive Campaign"}
+              {daysRemaining.text === "Ended" ? "Ended Campaign" : "Active Campaign"}
             </span>
           </div>
         </div>
