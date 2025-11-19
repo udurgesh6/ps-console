@@ -18,7 +18,7 @@ export const CourseItem = (
     if (isSelectEnabled || showInModal) {
       return;
     }
-    router.push(`/templates/course/${item.id}`);
+    // router.push(`/templates/course/${item.id}`);
   };
 
   return (

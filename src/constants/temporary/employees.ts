@@ -144,8 +144,8 @@ export const employees: Employee[] = [
   },
   {
     id: "15",
-    name: "Aditya Rao",
-    email: "aditya.rao@example.com",
+    name: "Aditya Sawant",
+    email: "aditya.sawant@example.com",
     role: "System Administrator",
     status: "active",
     department: "IT",

@@ -3,11 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Globe, Users, BarChart2 } from "lucide-react";
 import { ChartHeading } from "@/components/charts/chart-heading";
 import { DetailCard } from "@/components/shared/detail-card";
+import { dummySimulationProfiles } from "@/constants/temporary/simulation-profiles";
 
 const threatsData = [
     {
         id: 1,
-        name: "Business Email Compromise",
+        name: dummySimulationProfiles[0].name,
         severity: "High",
         trend: "increasing",
         detected: 127,
@@ -15,7 +16,7 @@ const threatsData = [
     },
     {
         id: 2,
-        name: "Credential Phishing",
+        name: dummySimulationProfiles[1].name,
         severity: "Medium",
         trend: "stable",
         detected: 89,
@@ -23,7 +24,7 @@ const threatsData = [
     },
     {
         id: 3,
-        name: "Malicious Attachments",
+        name: dummySimulationProfiles[2].name,
         severity: "High",
         trend: "decreasing",
         detected: 45,
@@ -41,13 +42,13 @@ export const ThreatIntel = () => {
             // Note the use of different icons and labels here, demonstrating flexibility
             { icon: Users, label: `${threat.detected} detected`, iconClassName: "text-orange-500" },
             { icon: Shield, label: `${threat.blocked} blocked`, iconClassName: "text-green-500" },
-            { icon: BarChart2, label: `Trend: ${threat.trend}`, iconClassName: "text-purple-500" },
+            { icon: BarChart2, label: `${threat.trend.charAt(0).toUpperCase() + threat.trend.slice(1)}`, iconClassName: "text-purple-500" },
         ]
     }));
 
     return (
         <Card>
-            <ChartHeading title="Threat Intelligence" icon={Shield} />
+            <ChartHeading title="Active Simulation" icon={Shield} />
             <CardContent>
                 <div className="space-y-4">
                     {threats.map((threat) => (

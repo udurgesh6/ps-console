@@ -7,24 +7,26 @@ import { RiskChart } from "@/components/charts/risk-chart";
 import { AiEngineStatus } from "./_components/ai-engine-status";
 import { RecentSimulations } from "./_components/recent-simulations";
 import { ThreatIntel } from "./_components/threat-intel";
+import { employees } from "@/constants/temporary/employees";
+import { dummySimulationProfiles } from "@/constants/temporary/simulation-profiles";
 
 export default function Dashboard() {
   const keyMetrics = [
     {
       title: "Total Users",
-      value: "2,847",
+      value: String(employees.length),
       icon: Users,
       description: "+12% from last month",
     },
     {
       title: "Active Simulations",
-      value: "187",
+      value: String(dummySimulationProfiles.length),
       icon: Mail,
       description: "23 scheduled today",
     },
     {
-      title: "High Risk Users",
-      value: "342",
+      title: "High Risk Employees",
+      value: String(employees.filter((employee) => employee.riskLevel === "high").length),
       icon: AlertTriangle,
       description: "-8% improvement",
     },
