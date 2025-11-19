@@ -100,7 +100,7 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
   const handleUseTemplate = (data: { from: string; subject: string; html: string }) => {
     // Create a new landing page from the generated template
     const newLandingPage: LandingPage = {
-      id: `generated-${Date.now()}`,
+      id: `generated-${crypto.randomUUID()}`,
       name: data.subject || "Generated Landing Page",
       description: "AI-generated landing page",
       category: "generated",

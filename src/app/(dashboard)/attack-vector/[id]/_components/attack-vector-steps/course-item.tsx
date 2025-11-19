@@ -12,6 +12,8 @@ export const CourseItem = (
   const router = useRouter();
   const course = item as Course;
 
+  console.log(course)
+
   const onCourseClick = () => {
     if (isSelectEnabled || showInModal) {
       return;

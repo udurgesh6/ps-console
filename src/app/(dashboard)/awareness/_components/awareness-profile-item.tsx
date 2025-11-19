@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Calendar, BookOpen, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format, differenceInDays } from "date-fns";
+import { useState, useEffect } from "react";
 
 export const AwarenessProfileItem = (
   item,
@@ -12,6 +13,12 @@ export const AwarenessProfileItem = (
   isSelectEnabled = false
 ) => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  // Calculate date-dependent values only on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -24,6 +31,8 @@ export const AwarenessProfileItem = (
   };
 
   const getDaysRemaining = () => {
+    if (!mounted) return { text: "...", color: "text-gray-500" };
+    
     const today = new Date();
     const end = new Date(item.endDate);
     const days = differenceInDays(end, today);
@@ -36,10 +45,17 @@ export const AwarenessProfileItem = (
   };
 
   const getDuration = () => {
+    if (!mounted) return "...";
+    
     const start = new Date(item.startDate);
     const end = new Date(item.endDate);
     const months = Math.round(differenceInDays(end, start) / 30);
     return `${months} ${months === 1 ? "month" : "months"}`;
+  };
+
+  const getFormattedDate = (date: Date) => {
+    if (!mounted) return "...";
+    return format(new Date(date), "MMM dd, yyyy");
   };
 
   const onProfileClick = () => {
@@ -58,23 +74,6 @@ export const AwarenessProfileItem = (
         isSelected ? "ring-2 ring-primary ring-offset-2" : ""
       } ${!item.isActive ? "opacity-60" : ""}`}
     >
-      {/* Status Toggle Button */}
-      {/* {!isSelectEnabled && (
-        <Button
-          onClick={onToggleStatus}
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 right-4 z-20 h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm"
-          aria-label={item.isActive ? "Deactivate" : "Activate"}
-        >
-          {item.isActive ? (
-            <Power className="h-4 w-4 text-green-600" />
-          ) : (
-            <PowerOff className="h-4 w-4 text-gray-400" />
-          )}
-        </Button>
-      )} */}
-
       {/* Hover Overlay */}
       {!isSelected && (
         <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
@@ -141,13 +140,13 @@ export const AwarenessProfileItem = (
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Start Date</span>
             <span className="font-medium">
-              {format(new Date(item.startDate), "MMM dd, yyyy")}
+              {getFormattedDate(item.startDate)}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">End Date</span>
             <span className="font-medium">
-              {format(new Date(item.endDate), "MMM dd, yyyy")}
+              {getFormattedDate(item.endDate)}
             </span>
           </div>
         </div>

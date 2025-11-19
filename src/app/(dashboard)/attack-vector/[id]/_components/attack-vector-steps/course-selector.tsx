@@ -18,82 +18,83 @@ import { useSidebar } from "@/context/sidebar-context";
 import { AddCourseForm } from "@/app/(dashboard)/templates/components/add-course";
 import { CourseItem } from "./course-item";
 import { cn } from "@/lib/utils";
+import { courseFilterGroups, dummyCourses } from "@/constants/temporary/courses";
 
 // Dummy course data
-export const courses: Course[] = [
-  {
-    id: "1",
-    name: "Introduction to Cybersecurity",
-    description:
-      "Learn the fundamentals of cybersecurity including threat detection, risk assessment, and basic security protocols.",
-    category: "security",
-    level: "beginner",
-    thumbnail:
-      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400",
-    slug: "intro-to-cybersecurity",
-    updated_at: "2024-11-01T10:00:00Z",
-  },
-  {
-    id: "2",
-    name: "Advanced Phishing Recognition",
-    description:
-      "Master the art of identifying sophisticated phishing attempts and social engineering tactics used by attackers.",
-    category: "phishing",
-    level: "advanced",
-    thumbnail:
-      "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400",
-    slug: "advanced-phishing-recognition",
-    updated_at: "2024-10-28T14:30:00Z",
-  },
-  {
-    id: "3",
-    name: "Password Security Best Practices",
-    description:
-      "Comprehensive guide to creating, managing, and securing passwords across all your digital assets.",
-    category: "security",
-    level: "beginner",
-    thumbnail:
-      "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400",
-    slug: "password-security-best-practices",
-    updated_at: "2024-11-05T09:15:00Z",
-  },
-  {
-    id: "4",
-    name: "Data Privacy and Compliance",
-    description:
-      "Understanding GDPR, CCPA, and other data privacy regulations. Learn how to protect sensitive information.",
-    category: "compliance",
-    level: "intermediate",
-    thumbnail:
-      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400",
-    slug: "data-privacy-compliance",
-    updated_at: "2024-10-20T16:45:00Z",
-  },
-  {
-    id: "5",
-    name: "Social Engineering Defense",
-    description:
-      "Recognize and defend against manipulation tactics used in social engineering attacks.",
-    category: "phishing",
-    level: "intermediate",
-    thumbnail:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400",
-    slug: "social-engineering-defense",
-    updated_at: "2024-11-03T11:20:00Z",
-  },
-  {
-    id: "6",
-    name: "Incident Response Training",
-    description:
-      "Learn how to respond effectively to security incidents, contain threats, and recover from breaches.",
-    category: "security",
-    level: "advanced",
-    thumbnail:
-      "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=400",
-    slug: "incident-response-training",
-    updated_at: "2024-10-15T13:00:00Z",
-  },
-];
+// export const courses: Course[] = [
+//   {
+//     id: "1",
+//     name: "Introduction to Cybersecurity",
+//     description:
+//       "Learn the fundamentals of cybersecurity including threat detection, risk assessment, and basic security protocols.",
+//     category: "security",
+//     level: "beginner",
+//     thumbnail:
+//       "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400",
+//     slug: "intro-to-cybersecurity",
+//     updated_at: "2024-11-01T10:00:00Z",
+//   },
+//   {
+//     id: "2",
+//     name: "Advanced Phishing Recognition",
+//     description:
+//       "Master the art of identifying sophisticated phishing attempts and social engineering tactics used by attackers.",
+//     category: "phishing",
+//     level: "advanced",
+//     thumbnail:
+//       "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400",
+//     slug: "advanced-phishing-recognition",
+//     updated_at: "2024-10-28T14:30:00Z",
+//   },
+//   {
+//     id: "3",
+//     name: "Password Security Best Practices",
+//     description:
+//       "Comprehensive guide to creating, managing, and securing passwords across all your digital assets.",
+//     category: "security",
+//     level: "beginner",
+//     thumbnail:
+//       "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400",
+//     slug: "password-security-best-practices",
+//     updated_at: "2024-11-05T09:15:00Z",
+//   },
+//   {
+//     id: "4",
+//     name: "Data Privacy and Compliance",
+//     description:
+//       "Understanding GDPR, CCPA, and other data privacy regulations. Learn how to protect sensitive information.",
+//     category: "compliance",
+//     level: "intermediate",
+//     thumbnail:
+//       "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400",
+//     slug: "data-privacy-compliance",
+//     updated_at: "2024-10-20T16:45:00Z",
+//   },
+//   {
+//     id: "5",
+//     name: "Social Engineering Defense",
+//     description:
+//       "Recognize and defend against manipulation tactics used in social engineering attacks.",
+//     category: "phishing",
+//     level: "intermediate",
+//     thumbnail:
+//       "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400",
+//     slug: "social-engineering-defense",
+//     updated_at: "2024-11-03T11:20:00Z",
+//   },
+//   {
+//     id: "6",
+//     name: "Incident Response Training",
+//     description:
+//       "Learn how to respond effectively to security incidents, contain threats, and recover from breaches.",
+//     category: "security",
+//     level: "advanced",
+//     thumbnail:
+//       "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=400",
+//     slug: "incident-response-training",
+//     updated_at: "2024-10-15T13:00:00Z",
+//   },
+// ];
 
 // Form data type
 export interface AttackVectorCourseSelectorFormData {
@@ -123,27 +124,6 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
     name: "courses",
   });
 
-  const filterGroups = [
-    {
-      title: "Category",
-      key: "category",
-      options: [
-        { label: "Security", value: "security", count: 3 },
-        { label: "Phishing", value: "phishing", count: 2 },
-        { label: "Compliance", value: "compliance", count: 1 },
-      ],
-    },
-    {
-      title: "Level",
-      key: "level",
-      options: [
-        { label: "Beginner", value: "beginner", count: 2 },
-        { label: "Intermediate", value: "intermediate", count: 2 },
-        { label: "Advanced", value: "advanced", count: 2 },
-      ],
-    },
-  ];
-
   // const bulkActions = [
   //   {
   //     label: "Delete",
@@ -160,7 +140,7 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
   // ];
 
   const isSelected = (item: LibraryItem) => {
-    return formValues.some((course) => course.id === item.id);
+    return formValues?.some((course) => course?.id === item.id) ?? false;
   };
 
   const handleDone = (selectedItems: LibraryItem[]) => {
@@ -343,8 +323,8 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
             showActionButton={true}
             showInModal={true}
             isOpen={showModal}
-            filterGroups={filterGroups}
-            items={courses}
+            filterGroups={courseFilterGroups}
+            items={dummyCourses}
             actionButtonText="Add Selected"
             onActionButtonClick={handleDone}
             onClose={() => setShowModal(false)}

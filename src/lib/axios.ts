@@ -1,10 +1,11 @@
 // lib/axios.ts
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
-import { getBaseApiUrl } from "../config/constants";
+import { API_CONFIG } from "../config/constants";
 import type { ApiErrorResponse } from "@/types/api";
 
-const baseURL = getBaseApiUrl();
+// Use environment variable or fallback to development URL to avoid hydration mismatch
+const baseURL = process.env.NEXT_PUBLIC_API_URL || API_CONFIG.DEVELOPMENT_BASE_URL;
 // @ts-nocheck
 export const apiClient = axios.create({
   baseURL,
