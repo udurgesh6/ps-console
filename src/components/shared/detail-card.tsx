@@ -12,8 +12,8 @@ export const DetailCard = ({ details }) => {
     }[badgeVariant] || "bg-gray-100 text-gray-700 border-gray-200";
 
     return (
-        <div className="border border-slate-200 rounded-xl p-4 hover:shadow-lg transition-shadow bg-white">
-            <div className="flex items-start justify-between mb-3">
+        <div className="border border-slate-200 rounded-xl p-4 py-2 hover:shadow-lg transition-shadow bg-white">
+            <div className="flex items-start justify-between mb-1">
                 <div className="flex-1 min-w-0 pr-4">
                     <h4 className="font-semibold text-slate-900 truncate">{name}</h4>
                     {type && <p className="text-sm text-slate-600 truncate mt-0.5">{type}</p>}

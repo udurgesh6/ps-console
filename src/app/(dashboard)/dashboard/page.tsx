@@ -61,13 +61,13 @@ export default function Dashboard() {
             <RiskChart />
           </CardContent>
         </Card>
-        <AiEngineStatus />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentSimulations />
+        {/* <AiEngineStatus /> */}
         <ThreatIntel />
       </div>
+
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentSimulations />
+      </div> */}
     </div>
   );
 }

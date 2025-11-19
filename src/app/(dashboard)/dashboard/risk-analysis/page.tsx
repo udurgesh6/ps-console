@@ -2,7 +2,7 @@
 
 import { ChartHeading } from "@/components/charts/chart-heading";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, PieChart as PieChartIcon, BarChart3, GitBranch } from "lucide-react";
 import { PieChart } from "@/components/charts/pie-chart";
 import { Tooltip } from "recharts";
 import { ScatterChart } from "@/components/charts/scatter-chart";
@@ -84,13 +84,17 @@ export default function RiskAnalysis() {
     <div className="gap-6 flex flex-col">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <ChartHeading title="Risk Distribution" icon={TrendingUp} />
+          <ChartHeading title="Risk Distribution" icon={PieChartIcon} />
           <CardContent>
             <PieChart data={riskDistribution} />
           </CardContent>
         </Card>
+        <HighRiskUsers />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RiskFactorAnalysis />
         <Card>
-          <ChartHeading title="Risk Score vs Click Rate" icon={TrendingUp} />
+          <ChartHeading title="Risk Score vs Click Rate" icon={GitBranch} />
           <CardContent>
             <ScatterChart
               data={userRiskScatter}
@@ -121,18 +125,14 @@ export default function RiskAnalysis() {
           </CardContent>
         </Card>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RiskFactorAnalysis />
-        <HighRiskUsers />
-      </div>
-      <Summary
+      {/* <Summary
         icon={TrendingUp}
         summaryTitle1="Achievements"
         summary1={achievements}
         summaryTitle2="Improvements"
         summary2={improvements}
         recommendedAction={recommendedAction}
-      />
+      /> */}
     </div>
   );
 }

@@ -168,7 +168,7 @@ export default function Trends() {
         </Card>
       </div>
 
-      <Card>
+      {/* <Card>
         <ChartHeading title="Trend Insights & Predictions" icon={TrendingUp} />
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
@@ -246,16 +246,16 @@ export default function Trends() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
-      <Summary
+      {/* <Summary
         icon={TrendingUp}
         summaryTitle1="Achievements"
         summary1={achievements}
         summaryTitle2="Improvements"
         summary2={improvements}
         recommendedAction={recommendedAction}
-      />
+      /> */}
     </div>
   );
 }

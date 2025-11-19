@@ -56,7 +56,7 @@ export const ThreatIntel = () => {
                     ))}
                 </div>
                 
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                {/* <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="flex items-center space-x-2 mb-2">
                         <Globe className="h-4 w-4 text-blue-600" />
                         <span className="text-sm font-medium text-blue-900">Global Threat Feed</span>
@@ -64,7 +64,7 @@ export const ThreatIntel = () => {
                     <p className="text-xs text-blue-700">
                         Live updates from 50+ threat intelligence sources worldwide
                     </p>
-                </div>
+                </div> */}
             </CardContent>
         </Card>
     );

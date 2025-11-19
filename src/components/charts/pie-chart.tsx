@@ -11,20 +11,21 @@ export interface IPieData {
   value: number;
   color: string;
   [key: string]: unknown;
+  showInfo?: boolean;
 }
 
 export const PieChart = ({ data }: { data: IPieData[] }) => {
   return (
     <>
-      <div className="h-64 w-full">
+      <div className="h-96 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <RePieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={40}
-              outerRadius={80}
+              innerRadius={60}
+              outerRadius={120}
               paddingAngle={5}
               dataKey="value"
             >
@@ -37,7 +38,7 @@ export const PieChart = ({ data }: { data: IPieData[] }) => {
           </RePieChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-2" style={{ display: data[0].showInfo ? "block" : "none" }}>
         {data.map((item) => (
           <div key={item.name} className="flex items-center justify-between">
             <div className="flex items-center space-x-2">

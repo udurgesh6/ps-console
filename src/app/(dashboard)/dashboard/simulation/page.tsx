@@ -213,7 +213,7 @@ export default function Simulation() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card>
           <ChartHeading title="Security Awareness Progress" icon={Shield} />
           <CardContent className="space-y-4">
@@ -233,16 +233,16 @@ export default function Simulation() {
           stats={responseTimeStats}
         />
         <CampaignEffectiveness />
-      </div>
+      </div> */}
 
-      <Summary
+      {/* <Summary
         icon={TrendingUp}
         summaryTitle1="Achievements"
         summary1={achievements}
         summaryTitle2="Improvements"
         summary2={improvements}
         recommendedAction={recommendedAction}
-      />
+      /> */}
     </div>
   );
 }

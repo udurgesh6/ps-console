@@ -170,6 +170,7 @@ export default function Departments() {
 
   return (
     <div className="gap-6 flex flex-col">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <ChartHeading
           title="Department Click Rate Comparison"
@@ -210,16 +211,17 @@ export default function Departments() {
           />
         </CardContent>
       </Card>
+      </div>
       <AllDepartments />
       <Recommendations />
-      <Summary
+      {/* <Summary
         icon={TrendingUp}
         summaryTitle1="Achievements"
         summary1={achievements}
         summaryTitle2="Improvements"
         summary2={improvements}
         recommendedAction={recommendedAction}
-      />
+      /> */}
     </div>
   );
 }
