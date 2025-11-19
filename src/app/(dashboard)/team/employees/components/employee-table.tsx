@@ -21,58 +21,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-export type Employee = {
-  id: string
-  name: string
-  email: string
-  role: string
-  status: "active" | "inactive"
-  department: string
-}
-
-const employees: Employee[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    role: "Developer",
-    status: "active",
-    department: "Engineering",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "Designer",
-    status: "active",
-    department: "Design",
-  },
-  {
-    id: "3",
-    name: "Bob Johnson",
-    email: "bob@example.com",
-    role: "Manager",
-    status: "inactive",
-    department: "Management",
-  },
-  {
-    id: "4",
-    name: "Alice Williams",
-    email: "alice@example.com",
-    role: "Developer",
-    status: "active",
-    department: "Engineering",
-  },
-  {
-    id: "5",
-    name: "Charlie Brown",
-    email: "charlie@example.com",
-    role: "Designer",
-    status: "active",
-    department: "Design",
-  },
-]
+import { Employee } from "@/types"
+import { employees } from "@/constants/temporary/employees"
 
 export const EmployeesTable = () => {
   const columns: ColumnDef<Employee>[] = [

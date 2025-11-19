@@ -3,31 +3,32 @@
 import { TopStats } from "@/components/dashboard/top-stats"
 import { Users, UserCheck, FolderKanban, Shield } from "lucide-react"
 import { GroupsTable } from "./components/groups-table"
+import { groups } from "@/constants/temporary/groups"
 
 export default function Groups() {
   const topStats = [
     {
       icon: FolderKanban,
       title: "Total Groups",
-      value: "12",
+      value: groups.length,
       colorScheme: "green" as const,
     },
     {
       icon: Users,
       title: "Total Members",
-      value: "87",
+      value: new Set(groups.flatMap(group => group.members.map(member => member.id))).size,
       colorScheme: "blue" as const,
     },
     {
       icon: UserCheck,
       title: "Active Groups",
-      value: "10",
+      value: groups.filter((group) => group.status === "active").length,
       colorScheme: "purple" as const,
     },
     {
       icon: Shield,
-      title: "Permission Groups",
-      value: "5",
+      title: "High Risk Groups",
+      value: groups.filter((group) => group.riskLevel === "high").length,
       colorScheme: "yellow" as const,
     },
   ]

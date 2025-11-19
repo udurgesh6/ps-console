@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PageHeader } from "@/components/shared/page-header"
+import { employees } from "@/constants/temporary/employees"
 
 const employeeNavItems: SubNavItem[] = [
   {
@@ -137,13 +138,6 @@ export default function TeamLayout({
     }
   }
 
-  // Mock data for available employees (replace with actual data)
-  const mockEmployees = [
-    { id: "1", name: "John Doe", position: "Software Engineer" },
-    { id: "2", name: "Jane Smith", position: "Product Manager" },
-    { id: "3", name: "Bob Johnson", position: "Designer" },
-  ]
-
   return (
     <>
       <div className="flex flex-col space-y-4">
@@ -197,7 +191,7 @@ export default function TeamLayout({
         <CreateGroupForm
           onSubmit={handleCreateGroup}
           onCancel={closeSidebar}
-          availableEmployees={mockEmployees}
+          availableEmployees={employees}
         />
       </SidebarSheet>
 

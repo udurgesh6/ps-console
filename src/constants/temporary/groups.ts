@@ -1,4 +1,5 @@
 import { Group } from "@/types";
+import { employees } from "./employees";
 
 export const groups: Group[] = [
   {
@@ -9,7 +10,8 @@ export const groups: Group[] = [
     department: "Engineering",
     status: "active",
     createdAt: "2024-01-15",
-    members: ["John Doe", "Alice Williams", "Charlie Brown"],
+    members: employees.filter((employee) => employee.department === "Engineering"),
+    riskLevel: "high",
   },
   {
     id: "eg-2",
@@ -19,7 +21,8 @@ export const groups: Group[] = [
     department: "Design",
     status: "active",
     createdAt: "2024-01-20",
-    members: ["Jane Smith", "Charlie Brown"],
+    members: employees.filter((employee) => employee.department === "Design"),
+    riskLevel: "medium",
   },
   {
     id: "eg-3",
@@ -29,7 +32,8 @@ export const groups: Group[] = [
     department: "Product",
     status: "active",
     createdAt: "2024-02-01",
-    members: ["Bob Johnson"],
+    members: employees.filter((employee) => employee.department === "Product"),
+    riskLevel: "low",
   },
   {
     id: "eg-4",
@@ -39,7 +43,8 @@ export const groups: Group[] = [
     department: "Marketing",
     status: "active",
     createdAt: "2024-02-10",
-    members: ["Sarah Connor", "Mike Ross"],
+    members: employees.filter((employee) => employee.department === "Marketing"),
+    riskLevel: "medium",
   },
   {
     id: "eg-5",
@@ -49,7 +54,8 @@ export const groups: Group[] = [
     department: "Sales",
     status: "active",
     createdAt: "2024-02-15",
-    members: ["Harvey Specter", "Donna Paulsen"],
+    members: employees.filter((employee) => employee.department === "Sales"),
+    riskLevel: "low",
   },
   {
     id: "eg-6",
@@ -59,7 +65,8 @@ export const groups: Group[] = [
     department: "HR",
     status: "active",
     createdAt: "2024-03-01",
-    members: ["Jessica Pearson"],
+    members: employees.filter((employee) => employee.department === "HR"),
+    riskLevel: "low",
   },
   {
     id: "eg-7",
@@ -69,7 +76,8 @@ export const groups: Group[] = [
     department: "Finance",
     status: "active",
     createdAt: "2024-03-05",
-    members: ["Louis Litt", "Rachel Zane"],
+    members: employees.filter((employee) => employee.department === "Finance"),
+    riskLevel: "low",
   },
   {
     id: "eg-8",
@@ -79,7 +87,8 @@ export const groups: Group[] = [
     department: "Support",
     status: "active",
     createdAt: "2024-03-10",
-    members: ["Katrina Bennett"],
+    members: employees.filter((employee) => employee.department === "Support"),
+    riskLevel: "low",
   },
   {
     id: "eg-9",
@@ -89,7 +98,8 @@ export const groups: Group[] = [
     department: "Engineering",
     status: "active",
     createdAt: "2024-03-15",
-    members: ["Marcus Rashford"],
+    members: employees.filter((employee) => employee.department === "Engineering"),
+    riskLevel: "high",
   },
   {
     id: "eg-10",
@@ -99,7 +109,8 @@ export const groups: Group[] = [
     department: "Engineering",
     status: "active",
     createdAt: "2024-03-20",
-    members: ["Bruno Fernandes"],
+    members: employees.filter((employee) => employee.department === "Engineering"),
+    riskLevel: "medium",
   },
   {
     id: "eg-11",
@@ -109,7 +120,8 @@ export const groups: Group[] = [
     department: "Marketing",
     status: "inactive",
     createdAt: "2024-04-01",
-    members: ["Casemiro"],
+    members: employees.filter((employee) => employee.department === "Marketing"),
+    riskLevel: "high",
   },
   {
     id: "eg-12",
@@ -119,6 +131,7 @@ export const groups: Group[] = [
     department: "Product",
     status: "inactive",
     createdAt: "2024-04-05",
-    members: ["Antony"],
+    members: employees.filter((employee) => employee.department === "Product"),
+    riskLevel: "low",
   },
 ]

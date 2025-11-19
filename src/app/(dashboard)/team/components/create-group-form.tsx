@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { X } from "lucide-react"
+import { Employee } from "@/types"
 
 interface CreateGroupFormProps {
   onSubmit: (data: GroupFormData) => void
@@ -20,12 +21,6 @@ export interface GroupFormData {
   name: string
   description: string
   memberIds: string[]
-}
-
-interface Employee {
-  id: string
-  name: string
-  position: string
 }
 
 export function CreateGroupForm({
@@ -146,7 +141,7 @@ export function CreateGroupForm({
                   <div className="flex-1">
                     <p className="text-sm font-medium">{employee.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {employee.position}
+                      {employee.role}
                     </p>
                   </div>
                 </label>

@@ -93,7 +93,7 @@ export const GroupsTable = () => {
               {group.members.slice(0, 3).map((member, index) => (
                 <Avatar key={index} className="h-7 w-7 border-2 border-background">
                   <AvatarFallback className="text-xs">
-                    {member.split(' ').map(n => n[0]).join('')}
+                    {member.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
               ))}
