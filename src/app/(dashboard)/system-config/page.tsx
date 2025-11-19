@@ -32,7 +32,7 @@ export default function GeneralTab() {
   return (
     <div className="w-full">
       <div className="bg-white rounded-lg border border-gray-200 p-8">
-        <h2 className="text-2xl font-semibold mb-8">Workspace</h2>
+        <h2 className="text-2xl font-semibold mb-4">Workspace</h2>
         
         <div className="space-y-6">
           {/* Name Field */}
@@ -125,7 +125,7 @@ export default function GeneralTab() {
           </div>
 
           {/* Certifications Field */}
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <Label htmlFor="certifications" className="text-base font-normal">
               Certifications
             </Label>
@@ -146,7 +146,6 @@ export default function GeneralTab() {
               />
             </div>
             
-            {/* Selected Certifications */}
             {certifications.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {certifications.map((cert) => (
@@ -166,7 +165,7 @@ export default function GeneralTab() {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
