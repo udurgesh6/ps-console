@@ -80,14 +80,14 @@ export const navigationItems: NavigationItem[] = [
     ],
     showTitle: false
   },
-  {
-    id: 'inbox',
-    title: 'Inbox',
-    items: [
-      { label: 'Inbox (Beta)', href: '/inbox', icon: FileBadge },
-    ],
-    showTitle: false
-  }
+  // {
+  //   id: 'inbox',
+  //   title: 'Inbox',
+  //   items: [
+  //     { label: 'Inbox (Beta)', href: '/inbox', icon: FileBadge },
+  //   ],
+  //   showTitle: false
+  // }
 ]
 
 export const SIDEBAR_WIDTH = 212
