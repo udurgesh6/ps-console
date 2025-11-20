@@ -79,6 +79,14 @@ export const navigationItems: NavigationItem[] = [
       { label: 'Awareness', href: '/awareness', icon: FileBadge },
     ],
     showTitle: false
+  },
+  {
+    id: 'inbox',
+    title: 'Inbox',
+    items: [
+      { label: 'Inbox (Beta)', href: '/inbox', icon: FileBadge },
+    ],
+    showTitle: false
   }
 ]
 

@@ -108,6 +108,12 @@ export const pageConfigs: Record<string, PageConfig> = {
     showTitle: true,
     showDescription: false,
   },
+  "/inbox": {
+    title: "Inbox",
+    description: "This is the inbox page",
+    showTitle: false,
+    showDescription: false,
+  },
 };
 
 export function getPageConfig(pathname: string): PageConfig {
