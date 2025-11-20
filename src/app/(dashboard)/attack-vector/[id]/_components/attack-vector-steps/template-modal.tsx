@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dummyAttackVectors } from '@/constants/temporary/attack-vectors';
+import { landingPages } from '@/constants/temporary/landing-pages';
 
 interface Suggestion {
   id: string;
   icon: string;
   text: string;
   fullText?: string;
+  templateId?: string; // Add template ID to link to actual templates
 }
 
 interface GenerateResult {
@@ -72,88 +74,84 @@ export const TemplateModal: FC<TemplateModalProps> = ({
       const mockSuggestions: Suggestion[] = type === 'landing' ? [
         {
           id: '1',
-          icon: 'S',
-          text: 'Create a SaaS product landing page for a new productivity tool...',
+          icon: '🚀',
+          text: 'Create a modern product launch landing page with gradient design...',
           fullText:
-            'Create a SaaS product landing page for a new productivity tool with modern design and clear call-to-action buttons.',
+            'Create a modern product launch landing page with gradient design, featuring revolutionary product messaging and clear call-to-action buttons.',
+          templateId: '1', // Product Launch
         },
         {
           id: '2',
-          icon: 'E',
-          text: 'Design an event registration page for a cybersecurity conference...',
+          icon: '💼',
+          text: 'Design a clean SaaS startup landing page for business platform...',
           fullText:
-            'Design an event registration page for a cybersecurity conference with speaker highlights and agenda.',
+            'Design a clean SaaS startup landing page for business platform with professional navbar, hero section and free trial signup.',
+          templateId: '2', // SaaS Startup
         },
         {
           id: '3',
-          icon: 'P',
-          text: 'Build a product showcase page for a mobile app with features...',
+          icon: '🎯',
+          text: 'Build an event registration page for tech conference 2024...',
           fullText:
-            'Build a product showcase page for a mobile app with features overview and download links.',
+            'Build an event registration page for tech conference 2024 with speaker highlights, venue details and registration form.',
+          templateId: '3', // Event Registration
         },
         {
           id: '4',
-          icon: 'B',
-          text: 'Create a business landing page for a consulting firm with...',
+          icon: '🎨',
+          text: 'Create a creative portfolio showcase with dark theme design...',
           fullText:
-            'Create a business landing page for a consulting firm with testimonials and service offerings.',
-        },
-        {
-          id: '5',
-          icon: '🎯',
-          text: 'Design a marketing campaign page for a limited-time offer...',
-          fullText:
-            'Design a marketing campaign page for a limited-time offer with countdown timer and urgency elements.',
-        },
-        {
-          id: '6',
-          icon: '📱',
-          text: 'Build a mobile-first landing page for an app launch with...',
-          fullText:
-            'Build a mobile-first landing page for an app launch with app store badges and feature highlights.',
+            'Create a creative portfolio showcase with dark theme design, gradient text effects and portfolio grid layout.',
+          templateId: '4', // Portfolio Showcase
         },
       ] : [
         {
           id: '1',
-          icon: 'B',
-          text: 'Write an e-mail from brevo for email bounce issue that ne...',
+          icon: '🏠',
+          text: 'Create an AirBnb discount scam email offering 50% off bookings...',
           fullText:
-            'Write an e-mail from brevo for email bounce issue that need to be fix urgently, no greeting, no salutation.',
+            'Create an AirBnb discount scam email offering 50% off bookings to harvest payment credentials with authentic Airbnb branding.',
+          templateId: 'av-1', // AirBnb Discount Scam
         },
         {
           id: '2',
-          icon: 'G',
-          text: 'Write a professional email to the engineering team at Google ...',
+          icon: '🔐',
+          text: 'Design a Zoho 2FA bypass email with security alert messaging...',
           fullText:
-            'Write a professional email to the engineering team at Google about API integration.',
+            'Design a Zoho 2FA bypass email with security alert messaging attempting to bypass two-factor authentication.',
+          templateId: 'av-2', // Zoho 2FA Bypass
         },
         {
           id: '3',
-          icon: 'M',
-          text: 'Write an email from the platform to access the last Micros...',
+          icon: '🎥',
+          text: 'Build a YouTube Premium fake subscription offer email...',
           fullText:
-            'Write an email from the platform to access the last Microsoft security update details.',
+            'Build a YouTube Premium fake subscription offer email to collect payment information with trial messaging.',
+          templateId: 'av-3', // YouTube Premium Fake
         },
         {
           id: '4',
-          icon: 'N',
-          text: 'Write a notification from npm about a security vulnerabilit...',
+          icon: '🚗',
+          text: 'Create an Uber welcome email for account takeover attempt...',
           fullText:
-            'Write a notification from npm about a security vulnerability in one of your packages.',
+            'Create an Uber welcome email for account takeover attempt targeting new users with fake welcome messaging.',
+          templateId: 'av-4', // Uber Welcome
         },
         {
           id: '5',
-          icon: '📧',
-          text: 'Write an e-mail inviting your colleagues to vote for the loc...',
+          icon: '💬',
+          text: 'Design a Microsoft Teams urgent message for business compromise...',
           fullText:
-            'Write an e-mail inviting your colleagues to vote for the location of the next team building event.',
+            'Design a Microsoft Teams urgent message for business compromise using fake notifications to trick employees.',
+          templateId: 'av-5', // Microsoft Teams
         },
         {
           id: '6',
-          icon: '📧',
-          text: 'Write an e-mail to all employees on behalf of the CEO, ann...',
+          icon: '☁️',
+          text: 'Build an OneDrive storage full alert phishing email...',
           fullText:
-            'Write an e-mail to all employees on behalf of the CEO, announcing the Q4 results.',
+            'Build an OneDrive storage full alert phishing email targeting users with fake storage limit warnings.',
+          templateId: 'av-6', // OneDrive Storage
         },
       ];
 
@@ -169,6 +167,58 @@ export const TemplateModal: FC<TemplateModalProps> = ({
     setValue('prompt', suggestion.fullText || suggestion.text, {
       shouldValidate: true,
     });
+    
+    // If suggestion has a templateId, immediately generate that template
+    if (suggestion.templateId) {
+      generateTemplateById(suggestion.templateId);
+    }
+  };
+
+  const generateTemplateById = (templateId: string) => {
+    setIsGenerating(true);
+    
+    // Simulate API delay
+    setTimeout(() => {
+      let result: GenerateResult;
+      
+      if (type === 'landing') {
+        const selectedPage = landingPages.find(page => page.id === templateId);
+        if (selectedPage) {
+          result = {
+            subject: selectedPage.name,
+            from: selectedPage.name,
+            html: selectedPage.htmlTemplate,
+          };
+        } else {
+          // Fallback to first landing page
+          result = {
+            subject: landingPages[0].name,
+            from: landingPages[0].name,
+            html: landingPages[0].htmlTemplate,
+          };
+        }
+      } else {
+        const selectedVector = dummyAttackVectors.find(vector => vector.id === templateId);
+        if (selectedVector) {
+          result = {
+            subject: selectedVector.emailSubject,
+            from: selectedVector.from,
+            html: selectedVector.emailHtmlTemplate,
+          };
+        } else {
+          // Fallback to first attack vector
+          result = {
+            subject: dummyAttackVectors[0].emailSubject,
+            from: dummyAttackVectors[0].from,
+            html: dummyAttackVectors[0].emailHtmlTemplate,
+          };
+        }
+      }
+      
+      onGenerate(result);
+      onClose();
+      setIsGenerating(false);
+    }, 2000);
   };
 
   const onSubmit = async (data: FormData) => {
@@ -181,59 +231,118 @@ export const TemplateModal: FC<TemplateModalProps> = ({
       // Simulating API call for generation
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Mock generated result based on type
-      const result: GenerateResult = type === 'landing' ? {
-        subject: 'Generated Landing Page',
-        from: 'Generated Landing Page',
-        html: `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Generated Landing Page</title>
-              <style>
-                  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-                  .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-                  h1 { color: #333; text-align: center; margin-bottom: 20px; font-size: 2.5rem; }
-                  p { color: #666; line-height: 1.6; text-align: center; font-size: 1.1rem; margin-bottom: 20px; }
-                  .cta-button { display: inline-block; background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; margin-top: 20px; font-weight: bold; transition: background 0.3s; }
-                  .cta-button:hover { background: #0056b3; }
-                  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 40px 0; }
-                  .feature { text-align: center; padding: 20px; border: 1px solid #eee; border-radius: 6px; }
-                  .feature h3 { color: #333; margin-bottom: 10px; }
-              </style>
-          </head>
-          <body>
-              <div class="container">
-                  <h1>Welcome to Our Amazing Product</h1>
-                  <p>This is a sample landing page generated based on your prompt. It includes modern styling and clear call-to-action elements.</p>
-                  <div class="features">
-                      <div class="feature">
-                          <h3>Feature 1</h3>
-                          <p>Amazing functionality that will help you achieve your goals.</p>
-                      </div>
-                      <div class="feature">
-                          <h3>Feature 2</h3>
-                          <p>Powerful tools designed to make your life easier.</p>
-                      </div>
-                      <div class="feature">
-                          <h3>Feature 3</h3>
-                          <p>Seamless integration with your existing workflow.</p>
-                      </div>
-                  </div>
-                  <div style="text-align: center;">
-                      <a href="#" class="cta-button">Get Started Now</a>
-                  </div>
-              </div>
-          </body>
-          </html>
-        `,
-      } : {
-        subject: 'AirBnb Discount Scam',
-        from: 'phish-sheriff@phish-sheriff.co',
-        html: dummyAttackVectors[0].emailHtmlTemplate,
+      // Helper function to find best matching template based on prompt
+      const findBestMatchingTemplate = (prompt: string) => {
+        const normalizedPrompt = prompt.toLowerCase();
+        
+        if (type === 'landing') {
+          // Define keywords for each landing page category
+          const landingPageKeywords = {
+            'product': ['product', 'launch', 'new', 'revolutionary', 'innovation', 'feature'],
+            'saas': ['saas', 'software', 'platform', 'business', 'startup', 'scale', 'trial'],
+            'event': ['event', 'conference', 'registration', 'register', 'attend', 'speaker', 'tech'],
+            'portfolio': ['portfolio', 'creative', 'design', 'showcase', 'work', 'studio', 'art']
+          };
+          
+          let bestMatch = landingPages[0]; // Default fallback
+          let maxScore = 0;
+          
+          landingPages.forEach(page => {
+            let score = 0;
+            const pageKeywords = landingPageKeywords[page.category as keyof typeof landingPageKeywords] || [];
+            
+            // Check for keyword matches
+            pageKeywords.forEach(keyword => {
+              if (normalizedPrompt.includes(keyword)) {
+                score += 2;
+              }
+            });
+            
+            // Check if prompt contains page name or description words
+            if (normalizedPrompt.includes(page.name.toLowerCase())) {
+              score += 3;
+            }
+            if (normalizedPrompt.includes(page.description.toLowerCase())) {
+              score += 1;
+            }
+            
+            if (score > maxScore) {
+              maxScore = score;
+              bestMatch = page;
+            }
+          });
+          
+          return {
+            subject: bestMatch.name,
+            from: bestMatch.name,
+            html: bestMatch.htmlTemplate,
+          };
+        } else {
+          // Define keywords for each attack vector type
+          const attackVectorKeywords = {
+            'airbnb': ['airbnb', 'booking', 'travel', 'discount', 'stay', 'accommodation'],
+            'zoho': ['zoho', '2fa', 'security', 'verification', 'account', 'alert'],
+            'youtube': ['youtube', 'premium', 'video', 'trial', 'subscription', 'free'],
+            'uber': ['uber', 'ride', 'driver', 'transport', 'confirm', 'account'],
+            'microsoft': ['microsoft', 'teams', 'office', 'onedrive', 'outlook', 'storage'],
+            'instagram': ['instagram', 'social', 'photo', 'password', 'reset'],
+            'google': ['google', 'gmail', 'drive', 'security', 'gemini', 'ai'],
+            'phishing': ['phishing', 'scam', 'fake', 'credential', 'login'],
+            'social': ['social', 'engineering', 'pretexting', 'manipulation']
+          };
+          
+          let bestMatch = dummyAttackVectors[0]; // Default fallback
+          let maxScore = 0;
+          
+          dummyAttackVectors.forEach(vector => {
+            let score = 0;
+            
+            // Check for brand/service matches
+            Object.entries(attackVectorKeywords).forEach(([key, keywords]) => {
+              keywords.forEach(keyword => {
+                if (normalizedPrompt.includes(keyword)) {
+                  if (vector.name.toLowerCase().includes(key) || 
+                      vector.description.toLowerCase().includes(keyword)) {
+                    score += 3;
+                  } else {
+                    score += 1;
+                  }
+                }
+              });
+            });
+            
+            // Check category and subcategory matches
+            if (normalizedPrompt.includes(vector.category)) {
+              score += 2;
+            }
+            if (normalizedPrompt.includes(vector.subCategory)) {
+              score += 2;
+            }
+            
+            // Check if prompt contains vector name or description words
+            const vectorWords = vector.name.toLowerCase().split(' ');
+            vectorWords.forEach(word => {
+              if (word.length > 3 && normalizedPrompt.includes(word)) {
+                score += 2;
+              }
+            });
+            
+            if (score > maxScore) {
+              maxScore = score;
+              bestMatch = vector;
+            }
+          });
+          
+          return {
+            subject: bestMatch.emailSubject,
+            from: bestMatch.from,
+            html: bestMatch.emailHtmlTemplate,
+          };
+        }
       };
+
+      // Mock generated result based on type using intelligent matching
+      const result: GenerateResult = findBestMatchingTemplate(data.prompt);
 
       onGenerate(result);
       onClose();

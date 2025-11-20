@@ -26,6 +26,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   filterGroups = [],
   bulkActions = [],
   items = [],
+  initialSelectedItems = [],
   actionButtonText = "Done",
   onActionButtonClick,
   onClose,
@@ -38,7 +39,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
     Record<string, string[]>
   >({});
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>(initialSelectedItems);
   const [isSelectEnabled, setIsSelectEnabled] = useState<boolean>(showInModal ? true : false);
 
   useImperativeHandle(ref, () => ({

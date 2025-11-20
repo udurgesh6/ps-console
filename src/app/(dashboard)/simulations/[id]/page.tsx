@@ -93,6 +93,8 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       shouldFocusError: false,
     });
 
+  console.log(attackVectorSelectionForm)
+
   const scheduleForm = useForm<SimulationProfileScheduleFormData>({
     resolver: zodResolver(simulationProfileScheduleSchema),
     defaultValues: simulation?.isAutonomous

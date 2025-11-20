@@ -214,7 +214,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     {
       id: "timeline",
       icon: <CalendarIcon className="h-5 w-5" />,
-      title: "Schedule Attack Vector",
+      title: "Season",
       description:
         "Choose a seasonal theme or set a custom timeline for when this attack vector will be active.",
       content: <TimelineSelector form={timelineSelectorForm} />,

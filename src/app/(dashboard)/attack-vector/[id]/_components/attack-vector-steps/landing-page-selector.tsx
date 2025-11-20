@@ -238,6 +238,7 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
             onClose={() => setShowModal(false)}
             renderItem={LandingPageItem}
             isSingleSelect={true}
+            initialSelectedItems={selectedPages.map((page) => page.id)}
           />
         </DialogContent>
       </Dialog>

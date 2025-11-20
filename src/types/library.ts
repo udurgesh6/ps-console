@@ -63,6 +63,7 @@ export interface LibraryProps {
   filterGroups?: FilterGroup[];
   bulkActions?: BulkAction<LibraryItem>[];
   items: LibraryItem[];
+  initialSelectedItems?: string[];
   actionButtonText?: string;
   onActionButtonClick?: (selectedItems: LibraryItem[]) => void;
   onClose?: () => void;

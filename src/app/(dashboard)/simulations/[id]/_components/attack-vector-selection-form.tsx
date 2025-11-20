@@ -258,6 +258,7 @@ export const SimulationProfileAttackVectorsStep = ({
             showActionButton={true}
             showInModal={true}
             isOpen={showModal}
+            initialSelectedItems={attackVectorValues.map(av => av.id)}
             onActionButtonClick={handleDone}
             onClose={() => setShowModal(false)}
             isSingleSelect={false}

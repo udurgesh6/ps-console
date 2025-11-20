@@ -89,7 +89,7 @@ export const GroupsTable = () => {
         const group = row.original
         return (
           <div className="flex items-center gap-2">
-            <div className="flex -space-x-2">
+            {/* <div className="flex -space-x-2">
               {group.members.slice(0, 3).map((member, index) => (
                 <Avatar key={index} className="h-7 w-7 border-2 border-background">
                   <AvatarFallback className="text-xs">
@@ -97,7 +97,7 @@ export const GroupsTable = () => {
                   </AvatarFallback>
                 </Avatar>
               ))}
-            </div>
+            </div> */}
             <span className="text-sm text-muted-foreground">
               {group.memberCount} {group.memberCount === 1 ? 'member' : 'members'}
             </span>
