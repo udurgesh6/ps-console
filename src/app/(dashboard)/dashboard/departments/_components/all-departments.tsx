@@ -86,7 +86,7 @@ export const AllDepartments = () => {
       {departmentData.map((dept) => {
         const riskLevel = getRiskLevel(dept.avgRiskScore);
         return (
-          <Card key={dept.name}>
+          <Card key={dept.name} className="rounded-3xl shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center space-x-2">

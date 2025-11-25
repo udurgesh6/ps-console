@@ -15,7 +15,7 @@ const simulationsData = [
         clicked: 12,
         reported: 18,
         timestamp: "2 hours ago",
-        badgeVariant: "default",
+        badgeVariant: "default" as const,
     },
     {
         id: 2,
@@ -26,7 +26,7 @@ const simulationsData = [
         clicked: 34,
         reported: 89,
         timestamp: "1 day ago",
-        badgeVariant: "secondary",
+        badgeVariant: "secondary" as const,
     },
     {
         id: 3,
@@ -37,7 +37,7 @@ const simulationsData = [
         clicked: 8,
         reported: 23,
         timestamp: "3 hours ago",
-        badgeVariant: "default",
+        badgeVariant: "default" as const,
     },
 ];
 

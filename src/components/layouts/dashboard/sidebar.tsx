@@ -51,16 +51,16 @@ export const Sidebar = ({
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-50",
+        "hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-50 bg-gray-50",
         "transition-all duration-300 ease-in-out",
         isExpanded ? "w-56" : "w-20"
       )}
     >
-      <button
+      {/* <button
         onClick={toggleSidebar}
         className={cn(
-          "absolute cursor-pointer top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 rounded-full p-1.5 shadow-md hover:shadow-lg transition-all duration-200 hover:bg-gray-50",
-          isExpanded ? "right-[-12px]" : "right-[-12px]"
+          "absolute cursor-pointer top-20 -translate-y-1/2 z-10 bg-white border border-gray-300 rounded-full p-1.5 shadow-md hover:shadow-lg transition-all duration-200 hover:bg-gray-50",
+          isExpanded ? "right-[-19px]" : "right-[-12px]"
         )}
         title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
       >
@@ -69,16 +69,16 @@ export const Sidebar = ({
         ) : (
           <ChevronRight size={16} className="text-gray-600" />
         )}
-      </button>
+      </button> */}
 
       <div
         className={cn(
-          "absolute inset-0 w-20 bg-black border-r border-gray-200",
+          "absolute inset-0 w-20 bg-gray-100 border-r",
           "transition-opacity duration-200",
           isExpanded ? "opacity-0" : "opacity-100"
         )}
       >
-        <div className="flex items-center justify-center h-16 w-20 border-b bg-white border-gray-200">
+        <div className="flex items-center justify-center h-16 w-20 border-b bg-gray-100">
           <Image
             src="/phish-sheriff-small.png"
             alt="Phish Sheriff Small Logo"
@@ -145,25 +145,25 @@ export const Sidebar = ({
 
       <div
         className={cn(
-          "absolute inset-0 w-56 bg-black",
+          "absolute inset-0 w-56 bg-gray-100",
           "transition-opacity duration-200",
           isExpanded ? "opacity-100 delay-150" : "opacity-0 pointer-events-none"
         )}
       >
         {/* Full Logo */}
-        <div className="h-16 flex items-center gap-3 px-4 pl-6 bg-white border-b border-gray-200">
+        <div className="h-16 flex items-center gap-3 px-4 pl-6 bg-gray-100">
           <div className="flex items-center justify-center">
             <Image
               src="/phish-sheriff-logo-navbar.png"
               alt="Phish Sheriff Logo"
-              width={150}
+              width={180}
               height={150}
             />
           </div>
         </div>
 
-        <div className="flex-1 flex-col py-6 overflow-y-auto overflow-x-hidden h-[calc(100vh-4rem)] flex flex-col justify-between">
-          <div className="px-5 pl-5 space-y-3">
+        <div className="flex-1 flex-col py-0 pt-2 bg-gray-100 overflow-y-auto overflow-x-hidden h-[calc(100vh-4rem)] flex flex-col justify-between">
+          <div className="px-5 pl-5 space-y-2">
             {basicNavigationItems.map((navItem) => {
               const isExpanded = expandedGroups.includes(navItem.title);
 
@@ -175,10 +175,10 @@ export const Sidebar = ({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-2 px-2 py-2 text-sm rounded-md transition-colors font-medium",
+                        "flex items-center gap-2 p-3 text-sm rounded-lg transition-colors font-medium",
                         isBaseRouteActive(item.href, pathname)
-                          ? "bg-gray-200 text-gray-900"
-                          : "text-white hover:text-gray-900 hover:bg-gray-50"
+                          ? "bg-white shadow-md text-primary font-semibold"
+                          : "text-gray-900 hover:text-gray-900 hover:bg-gray-50"
                       )}
                     >
                       {IconComponent !== undefined && (
@@ -215,7 +215,7 @@ export const Sidebar = ({
                             className={cn(
                               "flex items-center gap-2 px-2 py-2 text-sm rounded-md transition-colors",
                               pathname === item.href
-                                ? "bg-gray-200 text-gray-900 font-medium"
+                                ? "bg-gray-200 text-gray-900 font-semibold"
                                 : "text-white hover:text-gray-900 hover:bg-gray-50"
                             )}
                           >
@@ -233,7 +233,7 @@ export const Sidebar = ({
             })}
           </div>
 
-          <div className="px-5 pl-5 space-y-3">
+          <div className="px-5 pl-5 space-y-2">
             {systemNavigationItems.map((navItem) => {
               const isExpanded = expandedGroups.includes(navItem.title);
 

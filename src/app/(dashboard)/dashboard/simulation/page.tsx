@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { CampaignEffectiveness } from "../_components/simulation/campaign-effectiveness";
 import { Summary } from "@/components/charts/summary";
+import { ChartWrapper } from "@/components/layouts/dashboard/chart-wrapper";
 
 export default function Simulation() {
   const simulationMetrics = [
@@ -176,41 +177,31 @@ export default function Simulation() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <ChartHeading
-            title="Simulation Performance Trend"
-            icon={TrendingUp}
+        <ChartWrapper title="Simulation Performance Trend" icon={TrendingUp}>
+          <PerformanceChart
+            data={simulationData}
+            dataKeys={{
+              x: "month",
+              lines: [
+                { key: "sent", color: "#3b82f6", name: "Sent" },
+                { key: "clicked", color: "#ef4444", name: "Clicked" },
+                { key: "reported", color: "#10b981", name: "Reported" },
+              ],
+            }}
           />
-          <CardContent>
-            <PerformanceChart
-              data={simulationData}
-              dataKeys={{
-                x: "month",
-                lines: [
-                  { key: "sent", color: "#3b82f6", name: "Sent" },
-                  { key: "clicked", color: "#ef4444", name: "Clicked" },
-                  { key: "reported", color: "#10b981", name: "Reported" },
-                ],
-              }}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <ChartHeading title="Template Performance" icon={TrendingUp} />
-          <CardContent>
-            <BarsChart
-              data={templatePerformance}
-              dataKeys={{
-                x: "name",
-                bars: [
-                  { key: "clicks", color: "#ef4444", name: "Clicks" },
-                  { key: "reports", color: "#10b981", name: "Reports" },
-                ],
-              }}
-            />
-          </CardContent>
-        </Card>
+        </ChartWrapper>
+        <ChartWrapper title="Template Performance" icon={TrendingUp}>
+          <BarsChart
+            data={templatePerformance}
+            dataKeys={{
+              x: "name",
+              bars: [
+                { key: "clicks", color: "#ef4444", name: "Clicks" },
+                { key: "reports", color: "#10b981", name: "Reports" },
+              ],
+            }}
+          />
+        </ChartWrapper>
       </div>
 
       {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

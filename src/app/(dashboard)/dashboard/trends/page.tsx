@@ -5,6 +5,7 @@ import { ChartHeading } from "@/components/charts/chart-heading";
 import { LineChart } from "@/components/charts/line-chart";
 import { Summary } from "@/components/charts/summary";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { ChartWrapper } from "@/components/layouts/dashboard/chart-wrapper";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar1Icon, Target, TrendingDown, TrendingUp } from "lucide-react";
 
@@ -113,59 +114,50 @@ export default function Trends() {
           />
         ))}
       </div>
-      <Card>
-        <ChartHeading title="Overall Trends" icon={TrendingUp} />
-        <CardContent>
-          <LineChart
-            data={overallTrends}
+      <ChartWrapper title="Overall Trends" icon={TrendingUp}>
+        <LineChart
+          data={overallTrends}
+          dataKeys={{
+            x: "month",
+            lines: [
+              { key: "clickRate", color: "#ef4444", name: "Click Rate %" },
+              { key: "openRate", color: "#10b981", name: "Report Rate %" },
+              { key: "riskScore", color: "#3b82f6", name: "Risk Score %" },
+            ],
+          }}
+        />
+      </ChartWrapper>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ChartWrapper title="Seasonal Patterns" icon={Calendar1Icon}>
+          <AreaChart
+            data={seasonalData}
             dataKeys={{
-              x: "month",
-              lines: [
-                { key: "clickRate", color: "#ef4444", name: "Click Rate %" },
-                { key: "openRate", color: "#10b981", name: "Report Rate %" },
-                { key: "riskScore", color: "#3b82f6", name: "Risk Score %" },
+              x: "period",
+              bars: [
+                { key: "business", color: "#ef4444", name: "Business" },
+                { key: "personal", color: "#10b981", name: "Personal" },
+                { key: "mixed", color: "#3b82f6", name: "Mixed" },
               ],
             }}
           />
-        </CardContent>
-      </Card>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <ChartHeading title="Seasonal Patterns" icon={Calendar1Icon} />
-          <CardContent>
-            <AreaChart
-              data={seasonalData}
-              dataKeys={{
-                x: "period",
-                bars: [
-                  { key: "business", color: "#ef4444", name: "Business" },
-                  { key: "personal", color: "#10b981", name: "Personal" },
-                  { key: "mixed", color: "#3b82f6", name: "Mixed" },
-                ],
-              }}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <ChartHeading title="Time of Day Trends" icon={TrendingUp} />
-          <CardContent>
-            <LineChart
-              data={timeOfDayData}
-              dataKeys={{
-                x: "hour",
-                lines: [
-                  { key: "clickRate", color: "#ef4444", name: "Click Rate %" },
-                  {
-                    key: "reportRate",
-                    color: "#10b981",
-                    name: "Report Rate %",
-                  },
-                ],
-              }}
-            />
-          </CardContent>
-        </Card>
+        </ChartWrapper>
+        <ChartWrapper title="Time of Day Trends" icon={TrendingUp}>
+          <LineChart
+            data={timeOfDayData}
+            dataKeys={{
+              x: "hour",
+              lines: [
+                { key: "clickRate", color: "#ef4444", name: "Click Rate %" },
+                {
+                  key: "reportRate",
+                  color: "#10b981",
+                  name: "Report Rate %",
+                },
+              ],
+            }}
+          />
+        </ChartWrapper>
       </div>
 
       {/* <Card>

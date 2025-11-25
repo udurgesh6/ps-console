@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className="antialiased"
+        className="antialiased bg-gray-100 h-screen"
       >
         <ToastProvider>
           <Providers>

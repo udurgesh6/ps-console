@@ -4,7 +4,7 @@ import { AlertTriangle } from 'lucide-react'
 
 export const Recommendations = () => {
   return (
-    <Card>
+    <Card className='rounded-3xl shadow-md'>
         <ChartHeading title="Department-Specific Recommendations" icon={AlertTriangle} />
         <CardContent>
           <div className="space-y-4">

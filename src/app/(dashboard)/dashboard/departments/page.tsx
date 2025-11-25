@@ -8,6 +8,7 @@ import { TrendingUp } from "lucide-react";
 import { AllDepartments } from "./_components/all-departments";
 import { Recommendations } from "./_components/recommendations";
 import { Summary } from "@/components/charts/summary";
+import { ChartWrapper } from "@/components/layouts/dashboard/chart-wrapper";
 
 export default function Departments() {
   const achievements = [
@@ -171,12 +172,10 @@ export default function Departments() {
   return (
     <div className="gap-6 flex flex-col">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card>
-        <ChartHeading
+        <ChartWrapper
           title="Department Click Rate Comparison"
           icon={TrendingUp}
-        />
-        <CardContent>
+        >
           <BarsChart
             data={departmentData}
             dataKeys={{
@@ -187,14 +186,11 @@ export default function Departments() {
               ],
             }}
           />
-        </CardContent>
-      </Card>
-      <Card>
-        <ChartHeading
+        </ChartWrapper>
+        <ChartWrapper
           title="Monthly Click Rate Trends by Department"
           icon={TrendingUp}
-        />
-        <CardContent>
+        >
           <LineChart
             data={monthlyTrends}
             dataKeys={{
@@ -209,8 +205,7 @@ export default function Departments() {
               ],
             }}
           />
-        </CardContent>
-      </Card>
+        </ChartWrapper>
       </div>
       <AllDepartments />
       <Recommendations />

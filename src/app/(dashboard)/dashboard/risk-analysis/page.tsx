@@ -2,13 +2,19 @@
 
 import { ChartHeading } from "@/components/charts/chart-heading";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, PieChart as PieChartIcon, BarChart3, GitBranch } from "lucide-react";
+import {
+  TrendingUp,
+  PieChart as PieChartIcon,
+  BarChart3,
+  GitBranch,
+} from "lucide-react";
 import { PieChart } from "@/components/charts/pie-chart";
 import { Tooltip } from "recharts";
 import { ScatterChart } from "@/components/charts/scatter-chart";
 import { RiskFactorAnalysis } from "../_components/risk-analysis/risk-factor-analysis";
 import { Summary } from "@/components/charts/summary";
 import { HighRiskUsers } from "../_components/risk-analysis/high-risk-users";
+import { ChartWrapper } from "@/components/layouts/dashboard/chart-wrapper";
 
 export default function RiskAnalysis() {
   const riskDistribution = [
@@ -83,47 +89,37 @@ export default function RiskAnalysis() {
   return (
     <div className="gap-6 flex flex-col">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <ChartHeading title="Risk Distribution" icon={PieChartIcon} />
-          <CardContent>
-            <PieChart data={riskDistribution} />
-          </CardContent>
-        </Card>
+        <ChartWrapper title="Risk Distribution" icon={PieChartIcon}>
+          <PieChart data={riskDistribution} />
+        </ChartWrapper>
         <HighRiskUsers />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RiskFactorAnalysis />
-        <Card>
-          <ChartHeading title="Risk Score vs Click Rate" icon={GitBranch} />
-          <CardContent>
-            <ScatterChart
-              data={userRiskScatter}
-              config={riskScoreVsClickRateConfig}
-              tooltip={
-                <Tooltip
-                  cursor={{ strokeDasharray: "3 3" }}
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      return (
-                        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
-                          <p className="font-medium">{data.department}</p>
-                          <p className="text-sm">
-                            Risk Score: {data.riskScore}
-                          </p>
-                          <p className="text-sm">
-                            Click Rate: {data.clickRate}%
-                          </p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              }
-            />
-          </CardContent>
-        </Card>
+        <ChartWrapper title="Risk Score vs Click Rate" icon={GitBranch}>
+          <ScatterChart
+            data={userRiskScatter}
+            config={riskScoreVsClickRateConfig}
+            tooltip={
+              <Tooltip
+                cursor={{ strokeDasharray: "3 3" }}
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
+                        <p className="font-medium">{data.department}</p>
+                        <p className="text-sm">Risk Score: {data.riskScore}</p>
+                        <p className="text-sm">Click Rate: {data.clickRate}%</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+            }
+          />
+        </ChartWrapper>
       </div>
       {/* <Summary
         icon={TrendingUp}

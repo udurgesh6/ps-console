@@ -90,5 +90,5 @@ export const navigationItems: NavigationItem[] = [
   // }
 ]
 
-export const SIDEBAR_WIDTH = 212
+export const SIDEBAR_WIDTH = 220
 export const SIDEBAR_COLLAPSED_WIDTH = 64

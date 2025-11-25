@@ -27,10 +27,10 @@ export function SubNav({ items, className }: SubNavTabsProps) {
     <Tabs value={activeValue} className={className}>
       <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0 space-x-4">
         {items.map((item) => (
-          <Link key={item.href} href={item.href} className="inline-flex">
+          <Link key={item.href} href={item.href} className="inline-flex bg-transparent">
             <TabsTrigger
               value={item.href}
-              className="relative px-0 pt-0 pb-2 cursor-pointer rounded-none border-t-0 border-x-0 border-b-2 hover:border-gray-300 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none"
+              className="relative bg-transparent font-medium px-0 pt-0 pb-2 cursor-pointer rounded-none border-t-0 border-x-0 border-b-2 hover:border-gray-300 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none"
             >
               {item.title}
             </TabsTrigger>
