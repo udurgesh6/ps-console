@@ -1,9 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/page-header";
-import { PlusIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { dummyAwarenessProfiles } from "@/constants/temporary/awareness";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 
@@ -12,7 +10,6 @@ export default function AwarenessLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
 
   const isEditRoute =
@@ -38,17 +35,7 @@ export default function AwarenessLayout({
   return (
     <>
       <div className="flex flex-col space-y-4">
-        {!isEditRoute && (
-          <div className="flex items-center justify-between">
-            <PageHeader />
-            <div className="flex gap-2">
-              <Button onClick={() => router.push("/simulations/new")}>
-                <PlusIcon className="h-4 w-4 font-semibold" />
-                Create New
-              </Button>
-            </div>
-          </div>
-        )}
+        {/* {!isEditRoute && <PageHeader />} */}
         {isEditRoute && (
           <div className="">
             <Breadcrumb

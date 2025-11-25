@@ -19,9 +19,153 @@ import {
   MessageSquare,
   Plus,
   Sparkles,
+  Upload,
 } from "lucide-react";
 import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from "@/constants/navigation";
 import { User } from "@/types";
+import { usePathname, useRouter } from "next/navigation";
+import { useSidebar } from "@/context/sidebar-context";
+
+// Context-aware create button component
+const ContextAwareCreateButton = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { setOpenSidebar } = useSidebar();
+
+  // Determine current page context
+  const getPageContext = () => {
+    if (pathname.startsWith('/team')) {
+      const isEmployeesPage = pathname.includes('/employees') || pathname === '/team';
+      return {
+        type: 'team',
+        isEmployeesPage,
+        buttonLabel: isEmployeesPage ? 'Employee' : 'Group'
+      };
+    }
+    if (pathname.startsWith('/attack-vector')) {
+      return { type: 'attack-vector' };
+    }
+    if (pathname.startsWith('/simulation')) {
+      return { type: 'simulation' };
+    }
+    if (pathname.startsWith('/awareness')) {
+      return { type: 'awareness' };
+    }
+    if (pathname.startsWith('/templates')) {
+      return { type: 'templates' };
+    }
+    return { type: 'default' };
+  };
+
+  const pageContext = getPageContext();
+
+  // Handle different create actions
+  const handleCreateAction = (action: string) => {
+    switch (pageContext.type) {
+      case 'team':
+        if (action === 'add') {
+          setOpenSidebar(pageContext.isEmployeesPage ? 'add-employee' : 'create-group');
+        } else if (action === 'import') {
+          setOpenSidebar(pageContext.isEmployeesPage ? 'import-employees' : 'import-groups');
+        }
+        break;
+      case 'attack-vector':
+        router.push('/attack-vector/new');
+        break;
+      case 'simulation':
+        router.push('/simulations/new');
+        break;
+      case 'awareness':
+        router.push('/awareness/new');
+        break;
+      case 'templates':
+        setOpenSidebar('add-template');
+        break;
+      default:
+        // Default create action
+        break;
+    }
+  };
+
+  // Render different button types based on context
+  if (pageContext.type === 'team') {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center">
+            <Plus className="h-4 w-4" />
+            {pageContext.buttonLabel}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => handleCreateAction('add')}>
+            <Plus className="h-4 w-4" />
+            {pageContext.buttonLabel}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleCreateAction('import')}>
+            <Upload className="h-4 w-4" />
+            Import from file
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  if (pageContext.type === 'attack-vector') {
+    return (
+      <Button 
+        onClick={() => handleCreateAction('create')}
+        className="bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center"
+      >
+        <Plus className="h-4 w-4" />
+         AttackVector
+      </Button>
+    );
+  }
+
+  if (pageContext.type === 'awareness') {
+    return (
+      <Button 
+        onClick={() => handleCreateAction('create')}
+        className="bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center"
+      >
+        <Plus className="h-4 w-4" />
+         Awareness
+      </Button>
+    );
+  }
+
+  if (pageContext.type === 'simulation') {
+    return (
+      <Button 
+        onClick={() => handleCreateAction('create')}
+        className="bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center"
+      >
+        <Plus className="h-4 w-4" />
+         Simulation
+      </Button>
+    );
+  }
+
+  if (pageContext.type === 'templates') {
+    return (
+      <Button 
+        onClick={() => handleCreateAction('create')}
+        className="bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center"
+      >
+        <Plus className="h-4 w-4" />
+        Template
+      </Button>
+    );
+  }
+
+  return (
+    <Button className="w-32 bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center">
+      <Sparkles className="h-4 w-4" />
+      Create
+    </Button>
+  );
+};
 
 export const Navbar = ({
   onMobileMenuToggle,
@@ -63,11 +207,8 @@ export const Navbar = ({
                 className="w-full h-10 pl-10 pr-4 py-2 rounded-full bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
-            {/* Create Button */}
-            <Button className="bg-primary hover:bg-primary/90 text-white w-28 rounded-full h-9 px-12 flex items-center justify-center">
-              <Sparkles />
-              Create
-            </Button>
+            {/* Context-Aware Create Button */}
+            <ContextAwareCreateButton />
 
             {/* Notification Icon */}
             <Button

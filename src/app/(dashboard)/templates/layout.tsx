@@ -2,8 +2,6 @@
 
 import { PageHeader } from "@/components/shared/page-header"
 import { SubNav } from "@/components/shared/sub-nav"
-import { Button } from "@/components/ui/button"
-import { PlusIcon } from "lucide-react"
 import { SubNavItem } from "@/components/shared/sub-nav"
 import { SidebarSheet } from "@/components/shared/sidebar-sheet"
 import { useSidebar } from "@/context/sidebar-context"
@@ -42,15 +40,7 @@ export default function TemplatesLayout({
   return (
     <>
       <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
-          <PageHeader />
-          <div className="flex gap-2">
-            <Button onClick={() => setOpenSidebar("add-template")}>
-              <PlusIcon className="mr-2 h-4 w-4 font-semibold" />
-              Add Template
-            </Button>
-          </div>
-        </div>
+        <PageHeader />
         <SubNav items={templateNavItems} />
         <div className="flex-1 pt-4">{children}</div>
       </div>

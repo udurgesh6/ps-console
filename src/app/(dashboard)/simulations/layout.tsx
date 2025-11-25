@@ -38,7 +38,7 @@ export default function SimulationsLayout({
   return (
     <>
       <div className="flex flex-col space-y-4">
-        {!isEditRoute && (
+        {/* {!isEditRoute && (
           <div className="flex items-center justify-between">
             <PageHeader />
             <div className="flex gap-2">
@@ -48,7 +48,7 @@ export default function SimulationsLayout({
               </Button>
             </div>
           </div>
-        )}
+        )} */}
         {isEditRoute && (
           <div className="">
             <Breadcrumb

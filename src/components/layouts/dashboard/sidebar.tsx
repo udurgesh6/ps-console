@@ -233,7 +233,7 @@ export const Sidebar = ({
             })}
           </div>
 
-          <div className="px-5 pl-5 space-y-2">
+          <div className="px-5 pb-10 pl-5 space-y-2">
             {systemNavigationItems.map((navItem) => {
               const isExpanded = expandedGroups.includes(navItem.title);
 
@@ -247,8 +247,8 @@ export const Sidebar = ({
                       className={cn(
                         "flex items-center gap-2 px-2 py-2 text-sm rounded-md transition-colors font-medium",
                         isBaseRouteActive(item.href, pathname)
-                          ? "bg-gray-200 text-gray-900"
-                          : "text-white hover:text-gray-900 hover:bg-gray-50"
+                          ? "bg-white shadow-md text-primary font-semibold"
+                          : "text-gray-900 hover:text-gray-900 hover:bg-gray-50"
                       )}
                     >
                       {IconComponent !== undefined && (

@@ -70,7 +70,7 @@ export const AwarenessProfileItem = (
   return (
     <Card
       onClick={onProfileClick}
-      className={`relative py-0 overflow-hidden transition-all duration-200 hover:shadow-lg group cursor-pointer ${
+      className={`relative py-0 !rounded-3xl overflow-hidden transition-all duration-200 hover:shadow-lg group cursor-pointer ${
         isSelected ? "ring-2 ring-primary ring-offset-2" : ""
       } ${!item.isActive ? "opacity-60" : ""}`}
     >

@@ -39,7 +39,7 @@ export default function AttackVectorLayout({
 
   return (
     <div className="flex flex-col space-y-4">
-      {!isEditRoute && (
+      {/* {!isEditRoute && (
         <div className="flex items-center justify-between">
           <PageHeader />
           <div className="flex gap-0">
@@ -49,7 +49,7 @@ export default function AttackVectorLayout({
             </Button>
           </div>
         </div>
-      )}
+      )} */}
       
       {/* Breadcrumb Navigation - Only show on edit routes */}
       {isEditRoute && (

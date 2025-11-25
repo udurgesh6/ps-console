@@ -85,7 +85,7 @@ export const Story: React.FC<StoryProps> = ({
   }, [onComplete, steps, activeStepId]);
 
   const StoryContent_Component = () => (
-    <div className={cn("relative border border-gray-200 shadow-lg rounded-xl flex bg-white min-h-[calc(100vh-9rem)] max-h-[calc(100vh-8rem)]", className)}>
+    <div className={cn("relative border border-gray-200 shadow-lg rounded-3xl flex bg-white min-h-[calc(100vh-9rem)] max-h-[calc(100vh-8rem)]", className)}>
       {showFlow && (
         <StoryVerticalProgress
           steps={steps}

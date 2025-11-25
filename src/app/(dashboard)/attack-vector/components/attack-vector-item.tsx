@@ -40,7 +40,7 @@ export const AttackVectorItem = (
   return (
     <Card
       onClick={onVectorClick}
-      className={`cursor-pointer py-0 relative aspect-square rounded-lg transition-all hover:shadow-md group overflow-hidden ${
+      className={`cursor-pointer py-0 relative aspect-square rounded-3xl transition-all hover:shadow-md group overflow-hidden ${
         isSelected 
           ? "border-2 border-primary" 
           : ""

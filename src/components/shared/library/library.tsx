@@ -108,7 +108,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
 
   const LibraryContent = () => (
     // Fixed scrolling behavior: filters scroll independently, action button stays fixed, library items scroll in their zone
-    <div className="flex h-full bg-white rounded-lg shadow-lg border border-gray-200">
+    <div className="flex h-full bg-white rounded-3xl shadow-lg border border-gray-200">
       {/* Filters Section - Scrolls independently */}
       {showFilters && filterGroups.length > 0 && (
         <LibraryFilters
@@ -122,10 +122,10 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
       )}
 
       {/* Main Content Area - Contains bulk actions, scrollable items, and fixed action button */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex-1 rounded-r-3xl flex flex-col min-h-0 overflow-hidden">
         {/* Bulk Actions - Fixed at top, doesn't scroll */}
         {showBulkActions && (
-          <div className={cn("", !showInModal && "bg-white border-b rounded-t-lg border-gray-200 px-6 py-4", selectedItems.length === 0 && "hidden md:block")}>
+          <div className={cn("", !showInModal && "bg-white border-b rounded-t-r-3xl border-gray-200 px-6 py-4", selectedItems.length === 0 && "hidden md:block")}>
             <BulkActions
               actions={bulkActions}
               selectedItems={items.filter((item) => selectedItems.includes(item.id))}
@@ -173,7 +173,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
           showCloseButton={false}
-          className="h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] p-0 flex flex-col"
+          className="h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] p-0 flex flex-col rounded-3xl"
           style={{
           maxWidth: "90vw",
           transition: "all 300ms ease-in-out"

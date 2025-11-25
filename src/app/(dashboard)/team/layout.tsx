@@ -141,12 +141,11 @@ export default function TeamLayout({
   return (
     <>
       <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
-          <PageHeader />
+        {/* <div className="flex items-center justify-end ">
           <div className="flex gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button>
+                <Button className="rounded-full">
                   <PlusIcon className="mr-2 h-4 w-4 font-semibold" />
                   {buttonLabel}
                 </Button>
@@ -163,7 +162,7 @@ export default function TeamLayout({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
+        </div> */}
         <SubNav items={employeeNavItems} />
         <div className="flex-1 pt-4">{children}</div>
       </div>
