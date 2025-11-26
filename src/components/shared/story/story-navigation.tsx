@@ -25,8 +25,8 @@ export const StoryNavigation: React.FC<StoryNavigationProps> = ({
   };
 
   return (
-    <div className={cn("bg-white border-t border-gray-200 px-6 py-4 rounded-b-xl", className)}>
-      <div className="flex items-center justify-between">
+    <div className={cn("bg-white border-t border-gray-200 px-6 py-4 rounded-b-3xl", className)}>
+      <div className="flex items-center justify-between rounded-b-3xl">
         {/* Previous Button */}
         <div>
           { (

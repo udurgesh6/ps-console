@@ -40,7 +40,7 @@ export default function TemplatesLayout({
   return (
     <>
       <div className="flex flex-col space-y-4">
-        <PageHeader />
+        {/* <PageHeader /> */}
         <SubNav items={templateNavItems} />
         <div className="flex-1 pt-4">{children}</div>
       </div>

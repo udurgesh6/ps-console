@@ -106,7 +106,7 @@ export const Story: React.FC<StoryProps> = ({
           )}
 
           {/* Step Content with bottom padding to avoid overlap with sticky navigation */}
-          <div className="flex-1 overflow-y-auto pb-10">
+          <div className="flex-1 rounded-3xl overflow-y-auto pb-10">
             {steps.map((step) => (
               <StoryContent
                 key={step.id}

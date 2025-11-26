@@ -31,7 +31,7 @@ export const StoryVerticalProgress: React.FC<StoryVerticalProgressProps> = ({
   const currentStepIndex = steps.findIndex(step => step.id === currentStepId);
 
   return (
-    <div className={cn("w-64 bg-white rounded-xl p-6", className)}>
+    <div className={cn("w-64 bg-white rounded-3xl p-6", className)}>
       <div className="relative">
         {steps.map((step, index) => {
           const isCompleted = index < currentStepIndex || step.isCompleted;

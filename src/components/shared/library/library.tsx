@@ -1,7 +1,7 @@
 "use client"
 
 // @ts-nocheck
-import { useState, useMemo, useCallback, forwardRef, useImperativeHandle, Ref } from "react"; // <-- Ensure Ref is imported
+import { useState, useMemo, useCallback, forwardRef, useImperativeHandle, Ref } from "react";
 import { LibraryFilters } from "./library-filters";
 import { LibraryItems } from "./library-items";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -48,14 +48,12 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }));
 
   const filteredItems = useMemo(() => {
-    // ... (Your filteredItems logic)
     let result = [...items];
 
     Object.entries(selectedFilters).forEach(([filterKey, selectedValues]) => {
       if (selectedValues.length > 0) {
         result = result.filter((item) => {
           const itemValue = item[filterKey];
-          // Assuming item[filterKey] is a string for comparison with selectedValues
           return selectedValues.includes(itemValue);
         });
       }
@@ -75,7 +73,6 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }, [items, selectedFilters, searchQuery]);
 
   const handleFilterChange = useCallback((filterKey: string, value: string) => {
-    // ... (Your handleFilterChange logic)
     setSelectedFilters((prev) => {
       const current = prev[filterKey] || [];
       const newValues = current.includes(value)
@@ -87,7 +84,6 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }, []);
 
   const toggleItemSelection = useCallback((itemId: string) => {
-    // ... (Your toggleItemSelection logic)
     if (!isSingleSelect) {
       setSelectedItems((prev) =>
         prev.includes(itemId)
@@ -100,32 +96,40 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }, [isSingleSelect]);
 
   const handleActionButton = useCallback(() => {
-    // ... (Your handleActionButton logic)
     if (onActionButtonClick) {
       onActionButtonClick(items.filter((item) => selectedItems.includes(item.id)));
     }
   }, [onActionButtonClick, selectedItems, items]);
 
   const LibraryContent = () => (
-    // Fixed scrolling behavior: filters scroll independently, action button stays fixed, library items scroll in their zone
-    <div className="flex h-full bg-white rounded-3xl shadow-lg border border-gray-200">
-      {/* Filters Section - Scrolls independently */}
+    // Fixed: Container now uses flex with full height to contain everything properly
+    <div className={cn(
+      "flex bg-white rounded-3xl shadow-lg border border-gray-200",
+      showInModal ? "h-full" : "h-[calc(100vh-7rem)] max-h-[900px]"
+    )}>
+      {/* Filters Section - Full height with border extending to bottom */}
       {showFilters && filterGroups.length > 0 && (
-        <LibraryFilters
-          filterGroups={filterGroups}
-          selectedFilters={selectedFilters}
-          onFilterChange={handleFilterChange}
-          showSearch={showSearch}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
+        <div className="flex-shrink-0 h-full">
+          <LibraryFilters
+            filterGroups={filterGroups}
+            selectedFilters={selectedFilters}
+            onFilterChange={handleFilterChange}
+            showSearch={showSearch}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+        </div>
       )}
 
-      {/* Main Content Area - Contains bulk actions, scrollable items, and fixed action button */}
-      <div className="flex-1 rounded-r-3xl flex flex-col min-h-0 overflow-hidden">
+      {/* Main Content Area - Full height flex column */}
+      <div className="flex-1 rounded-r-3xl flex flex-col h-full overflow-hidden">
         {/* Bulk Actions - Fixed at top, doesn't scroll */}
         {showBulkActions && (
-          <div className={cn("", !showInModal && "bg-white border-b rounded-t-r-3xl border-gray-200 px-6 py-4", selectedItems.length === 0 && "hidden md:block")}>
+          <div className={cn(
+            "flex-shrink-0",
+            !showInModal && "bg-white border-b rounded-tr-3xl border-gray-200 px-6 py-4",
+            selectedItems.length === 0 && "hidden md:block"
+          )}>
             <BulkActions
               actions={bulkActions}
               selectedItems={items.filter((item) => selectedItems.includes(item.id))}
@@ -139,8 +143,11 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
           </div>
         )}
 
-        {/* Library Items - Scrollable in its own zone */}
-        <div className={cn("flex-1 overflow-y-auto p-3 md:p-6 min-h-0", showInModal && "py-4")}>
+        {/* Library Items - Scrollable zone that takes remaining height */}
+        <div className={cn(
+          "flex-1 overflow-y-auto p-3 md:p-6",
+          showInModal && "py-4"
+        )}>
           <LibraryItems
             items={filteredItems}
             selectedItems={selectedItems}
@@ -175,9 +182,9 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
           showCloseButton={false}
           className="h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] p-0 flex flex-col rounded-3xl"
           style={{
-          maxWidth: "90vw",
-          transition: "all 300ms ease-in-out"
-        }}
+            maxWidth: "90vw",
+            transition: "all 300ms ease-in-out"
+          }}
         >
           <VisuallyHidden>
             <DialogTitle>Library</DialogTitle>
@@ -191,7 +198,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }
 
   return (
-    <div className="">
+    <div className="w-full">
       <LibraryContent />
     </div>
   );

@@ -85,8 +85,9 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
 
   return (
     <>
-      {/* Desktop: Sidebar - Fixed width, scrolls independently when filter content is tall */}
-      <div className="hidden rounded-l-3xl md:flex md:flex-col w-64 bg-white border-r border-gray-200 h-full overflow-hidden">
+      {/* Desktop: Sidebar - Full height container with border extending to bottom */}
+      <div className="hidden rounded-l-3xl md:flex md:flex-col w-64 bg-white border-r border-gray-200 h-full">
+        {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto p-6">
           <FilterContent />
         </div>

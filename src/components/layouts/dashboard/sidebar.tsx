@@ -175,9 +175,9 @@ export const Sidebar = ({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-2 p-3 text-sm rounded-lg transition-colors font-medium",
+                        "flex items-center gap-2 p-3 text-sm rounded-3xl transition-colors font-medium",
                         isBaseRouteActive(item.href, pathname)
-                          ? "bg-white shadow-md text-primary font-semibold"
+                          ? "bg-white shadow-sm text-primary font-semibold"
                           : "text-gray-900 hover:text-gray-900 hover:bg-gray-50"
                       )}
                     >
@@ -213,7 +213,7 @@ export const Sidebar = ({
                             key={item.href}
                             href={item.href}
                             className={cn(
-                              "flex items-center gap-2 px-2 py-2 text-sm rounded-md transition-colors",
+                              "flex items-center gap-2 px-2 py-2 text-sm rounded-3xl transition-colors",
                               pathname === item.href
                                 ? "bg-gray-200 text-gray-900 font-semibold"
                                 : "text-white hover:text-gray-900 hover:bg-gray-50"
@@ -245,9 +245,9 @@ export const Sidebar = ({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-2 px-2 py-2 text-sm rounded-md transition-colors font-medium",
+                        "flex items-center gap-2 p-3 text-sm rounded-3xl transition-colors font-medium",
                         isBaseRouteActive(item.href, pathname)
-                          ? "bg-white shadow-md text-primary font-semibold"
+                          ? "bg-white shadow-sm text-primary font-semibold"
                           : "text-gray-900 hover:text-gray-900 hover:bg-gray-50"
                       )}
                     >
@@ -283,7 +283,7 @@ export const Sidebar = ({
                             key={item.href}
                             href={item.href}
                             className={cn(
-                              "flex items-center gap-2 px-2 py-2 text-sm rounded-md transition-colors",
+                              "flex items-center gap-2 p-3 text-sm rounded-3xl transition-colors",
                               pathname === item.href
                                 ? "bg-gray-200 text-gray-900 font-medium"
                                 : "text-white hover:text-gray-900 hover:bg-gray-50"
