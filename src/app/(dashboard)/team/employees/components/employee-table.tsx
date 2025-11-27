@@ -48,6 +48,7 @@ export const EmployeesTable = () => {
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 20
     },
     {
       accessorKey: "name",
@@ -154,7 +155,8 @@ export const EmployeesTable = () => {
         const employee = row.original
 
         return (
-          <DropdownMenu>
+          <div className="flex w-full justify-end">
+            <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
@@ -186,8 +188,10 @@ export const EmployeesTable = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         )
       },
+      size: 50,
     },
   ]
 

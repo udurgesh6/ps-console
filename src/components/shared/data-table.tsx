@@ -25,6 +25,11 @@ import {
   ArrowDown,
   Filter,
   Columns3,
+  ChevronDown,
+  ChevronsLeft,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -117,7 +122,7 @@ export function DataTable<TData, TValue>({
   const isFiltered = columnFilters.length > 0 || globalFilter.length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-white p-6 rounded-3xl">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex flex-1 items-center gap-2">
@@ -133,7 +138,7 @@ export function DataTable<TData, TValue>({
                 onChange={(event) =>
                   table.getColumn(searchKey)?.setFilterValue(event.target.value)
                 }
-                className="pl-8"
+                className="pl-8 rounded-full border border-gray-300"
               />
             </div>
           )}
@@ -197,12 +202,12 @@ export function DataTable<TData, TValue>({
       {/* Table */}
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-gray-50 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+              <TableRow key={headerGroup.id} className="table table-fixed w-full">
+                {headerGroup.headers.map((header, headerIndex) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead className={cn(headerIndex !== headerGroup.headers.length - 1 && headerIndex !== 0 ? "border-r border-gray-200" : "")} key={header.id} style={{ width: header.column.getSize() }}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -215,17 +220,19 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className={cn("block")} style={{ height: '500px' }}>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            <>
+              {table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={cn(onRowClick && "cursor-pointer")}
+                  className={cn("table table-fixed w-full", onRowClick && "cursor-pointer")}
+                  style={{ height: '50px' }}
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell className="truncate" key={cell.id} style={{ width: cell.column.getSize() }}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -233,45 +240,173 @@ export function DataTable<TData, TValue>({
                     </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
+              ))}
+              {/* Fill empty rows if less than 10 items */}
+              {Array.from({ length: Math.max(0, 10 - table.getRowModel().rows.length) }).map((_, index) => (
+                <TableRow key={`empty-${index}`} style={{ height: '50px' }}>
+                  {columns.map((_, cellIndex) => (
+                    <TableCell key={cellIndex}>&nbsp;</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </>
+          ) : (
+            <>
+              <TableRow style={{ height: '50px' }}>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="text-center"
                 >
                   No results.
                 </TableCell>
               </TableRow>
-            )}
+              {/* Fill remaining empty rows */}
+              {Array.from({ length: 9 }).map((_, index) => (
+                <TableRow key={`empty-${index}`} style={{ height: '50px' }}>
+                  {columns.map((_, cellIndex) => (
+                    <TableCell key={cellIndex}>&nbsp;</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </>
+          )}
           </TableBody>
         </Table>
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <div className="flex items-center gap-1">
-          <span className="text-sm text-muted-foreground">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+      <div className="flex items-center justify-between">
+        {/* Left side - Rows per page */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground hidden lg:block">Rows per page</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 w-[70px]">
+                {table.getState().pagination.pageSize} <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {[10, 20, 30, 50, 100].map((pageSize) => (
+                <DropdownMenuCheckboxItem
+                  key={pageSize}
+                  checked={table.getState().pagination.pageSize === pageSize}
+                  onCheckedChange={() => {
+                    table.setPageSize(pageSize);
+                  }}
+                >
+                  {pageSize}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <span className="text-sm text-muted-foreground hidden lg:block">
+            {table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize +
+              1}
+            -
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) *
+                table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}{" "}
+            of {table.getFilteredRowModel().rows.length} rows
           </span>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+
+        {/* Right side - Page navigation */}
+        <div className="flex items-center gap-1">
+          {/* First page */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden lg:flex lg:h-8 lg:w-8 lg:p-0"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <span className="sr-only">Go to first page</span>
+            <ChevronsLeft />
+          </Button>
+
+          {/* Previous page */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <span className="sr-only">Go to previous page</span>
+            <ChevronLeft />
+          </Button>
+
+          {/* Page numbers */}
+          {(() => {
+            const currentPage = table.getState().pagination.pageIndex;
+            const pageCount = table.getPageCount();
+            const pages: (number | string)[] = [];
+
+            if (pageCount <= 3) {
+              // Show all pages if 7 or fewer
+              pages.push(...Array.from({ length: pageCount }, (_, i) => i));
+            } else {
+              // Always show first page
+              pages.push(0);
+
+              if (currentPage <= 2) {
+                // Near start: [1] 2 3 4 5 ... 10
+                pages.push(1, 2, "...", pageCount - 1);
+              } else if (currentPage >= pageCount - 2) {
+                // Near end: 1 ... 6 7 8 9 [10]
+                pages.push("...", pageCount - 2, pageCount - 1);
+              } else {
+                // Middle: 1 ... 4 [5] 6 ... 10
+                pages.push("...", currentPage - 1, currentPage, currentPage + 1, "...", pageCount - 1);
+              }
+            }
+
+            return pages.map((page, idx) =>
+              page === "..." ? (
+                <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center">
+                  ...
+                </span>
+              ) : (
+                <Button
+                  key={page}
+                  variant={page === currentPage ? "default" : "outline"}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => table.setPageIndex(page as number)}
+                >
+                  {(page as number) + 1}
+                </Button>
+              )
+            );
+          })()}
+
+          {/* Next page */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <span className="sr-only">Go to next page</span>
+            <ChevronRight />
+          </Button>
+
+          {/* Last page */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden lg:flex lg:h-8 lg:w-8 lg:p-0"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <span className="sr-only">Go to last page</span>
+            <ChevronsRight />
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -331,12 +466,11 @@ export function DataTableColumnHeader<TData, TValue>({
           variant="ghost"
           size="sm"
           className={cn(
-            "h-8 px-2 hover:bg-transparent",
+            "h-8 !px-0 hover:bg-transparent font-medium text-black",
             sortable && "cursor-pointer",
             !sortable && "cursor-default"
           )}
           onClick={handleSort}
-          disabled={!sortable}
         >
           <span className="font-medium">{title}</span>
           {sortable && (
