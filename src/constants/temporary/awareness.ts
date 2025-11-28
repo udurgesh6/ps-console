@@ -1,6 +1,5 @@
 
 import { dummyCourses as courses } from "./courses";
-import { groups } from "./groups";
 import { AwarenessProfile, FilterGroup } from "@/types";
 
 export const dummyAwarenessProfiles: AwarenessProfile[] = [
@@ -19,11 +18,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2025-01-01"),
         endDate: new Date("2025-03-31"),
-        employeeGroups: [
-            groups.find(g => g.id === "eg-1")!,
-            groups.find(g => g.id === "eg-2")!,
-            groups.find(g => g.id === "eg-3")!,
-        ],
+        employeeGroups: [],
     },
     {
         id: "awareness-profile-2",
@@ -40,10 +35,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2025-02-01"),
         endDate: new Date("2026-05-31"),    
-        employeeGroups: [
-            groups.find(g => g.id === "eg-3")!,
-            groups.find(g => g.id === "eg-4")!,
-        ],
+        employeeGroups: [],
     },
     {
         id: "awareness-profile-3",
@@ -57,12 +49,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2025-03-01"),
         endDate: new Date("2025-06-30"),
-        employeeGroups: [
-            groups.find(g => g.id === "eg-5")!,
-            groups.find(g => g.id === "eg-6")!,
-            groups.find(g => g.id === "eg-7")!,
-            groups.find(g => g.id === "eg-8")!,
-        ],
+        employeeGroups: [],
     },
     {
         id: "awareness-profile-4",
@@ -77,10 +64,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2024-01-15"),
         endDate: new Date("2024-04-15"),
-        employeeGroups: [   
-            groups.find(g => g.id === "eg-5")!,
-            groups.find(g => g.id === "eg-6")!
-        ],  
+        employeeGroups: [],  
     },
     {
         id: "awareness-profile-5",
@@ -95,10 +79,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2025-04-01"),
         endDate: new Date("2025-12-31"),
-        employeeGroups: [
-            groups.find(g => g.id === "eg-9")!,
-            groups.find(g => g.id === "eg-10")!,
-            groups.find(g => g.id === "eg-11")!        ],
+        employeeGroups: [],
     },
     {
         id: "awareness-profile-6",
@@ -112,12 +93,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2025-02-15"),
         endDate: new Date("2025-12-31"),
-        employeeGroups: [
-            groups.find(g => g.id === "eg-5")!,
-            groups.find(g => g.id === "eg-6")!,
-            groups.find(g => g.id === "eg-7")!,
-            groups.find(g => g.id === "eg-8")!,
-        ],
+        employeeGroups: [],
     },
     {
         id: "awareness-profile-7",
@@ -132,10 +108,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2025-05-01"),
         endDate: new Date("2025-12-31"),
-        employeeGroups: [
-            groups.find(g => g.id === "eg-1")!,
-            groups.find(g => g.id === "eg-2")!
-        ],
+        employeeGroups: [],
     },
     {
         id: "awareness-profile-8",
@@ -153,12 +126,7 @@ export const dummyAwarenessProfiles: AwarenessProfile[] = [
         ],
         startDate: new Date("2025-04-01"),
         endDate: new Date("2026-12-31"),
-        employeeGroups: [
-            groups.find(g => g.id === "eg-5")!,
-            groups.find(g => g.id === "eg-6")!,
-            groups.find(g => g.id === "eg-7")!,
-            groups.find(g => g.id === "eg-8")!,
-        ],
+        employeeGroups: [],
     },
 ];
 

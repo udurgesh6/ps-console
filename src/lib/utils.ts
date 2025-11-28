@@ -59,3 +59,13 @@ export const formatDateRange = (startDate: Date, endDate?: Date | null): string 
     return formatCompactDate(startDate);
   }
 };
+
+export const unixToLocaleDate = (timestamp: number) => {
+  const date = new Date(timestamp * 1000); // convert seconds → ms
+
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};

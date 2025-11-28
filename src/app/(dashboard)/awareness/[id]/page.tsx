@@ -19,7 +19,6 @@ import { Book, Calendar, InfoIcon, UsersIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { simulationProfileTargetSelectionSchema } from "@/types";
-import { groups } from "@/constants/temporary/groups";
 import { AwarenessProfileBasicInfoStep } from "./_components/base-info-step";
 import { SimulationProfileTargetSelectionStep } from "../../simulations/[id]/_components/target-selection-form";
 import { CourseSelector } from "../../attack-vector/[id]/_components/attack-vector-steps/course-selector";
@@ -130,7 +129,7 @@ export default function AwarenessPage({ params }: AwarenessPageProps) {
         <SimulationProfileTargetSelectionStep
           form={targetSelectionForm}
           isSubmitting={isNextProcessing}
-          availableGroups={groups}
+          availableGroups={[]}
         />
       ),
       validation: () => targetSelectionForm.formState.isValid,

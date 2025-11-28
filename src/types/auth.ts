@@ -1,9 +1,3 @@
-export interface User {
-  userId: string
-  name: string
-  role: 'superadmin' | 'admin' | 'user'
-  tenantId: string
-}
 
 export interface LoginRequest {
   email: string
@@ -21,16 +15,29 @@ export interface OtpRequestResponse {
   expiresIn: number // in minutes
 }
 
-export interface LoginResponse {
-  accessToken: string
-  userId: string
+export interface User {
+  email: string
+  first_name: string
+  last_name: string
+  role: 'admin' | 'superadmin'
+  id: string
+}
+
+export interface Tenant {
+  id: string
   name: string
-  role: 'superadmin' | 'admin' | 'user'
-  tenantId: string
+}
+
+export interface LoginResponse {
+  access_token: string
+  refresh_token: string
+  user: User
+  tenant: Tenant
 }
 
 export interface AuthContextType {
   userDetails: User | null
+  tenantDetails: Tenant | null
   isLoading: boolean
   login: (loginResponse: LoginResponse) => void
   logout: () => void

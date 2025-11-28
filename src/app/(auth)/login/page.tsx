@@ -41,8 +41,8 @@ export default function LoginPage() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "udurgesh6@gmail.com",
-      password: "password",
+      email: "",
+      password: "",
     },
   });
 
@@ -75,16 +75,18 @@ export default function LoginPage() {
       { email, password, otp },
       {
         onSuccess: (data) => {
+          console.log(data)
           login(data);
           toast.success("Login successful!");
           setShowOtpStep(false);
 
           // Navigate based on user role
-          if (data.role === "superadmin") {
-            router.push("/superadmin");
-          } else {
-            router.push("/dashboard");
-          }
+          // if (data.user.role === "superadmin") {
+          //   router.push("/superadmin");
+          // } else {
+          //   router.push("/dashboard");
+          // }
+          router.push("/dashboard");
         },
         onError: (error) => {
           toast.error(error.message || "Invalid verification code");

@@ -21,10 +21,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Employee } from "@/types"
-import { employees } from "@/constants/temporary/employees"
+import { Employee, EmployeeQueryParams } from "@/types"
+import { useCallback, useState } from "react"
+import { useGetEmployees } from "@/hooks/use-employee"
+import type { SortingState, PaginationState } from "@tanstack/react-table"
 
 export const EmployeesTable = () => {
+  const [params, setParams] = useState<EmployeeQueryParams>({
+    limit: 10,
+    offset: 0,
+  });
+
+  const { data, isLoading, error } = useGetEmployees(params);
+
+  const handlePaginationChange = useCallback((pagination: PaginationState) => {
+    setTimeout(() => {
+      setParams((prev) => ({
+        ...prev,
+        limit: pagination.pageSize,
+        offset: pagination.pageIndex * pagination.pageSize,
+      }))
+    }, 0)
+  }, [])
+
+  if (error) return <div>Something went wrong!</div>;
+  
   const columns: ColumnDef<Employee>[] = [
     {
       id: "select",
@@ -83,22 +104,13 @@ export const EmployeesTable = () => {
       },
     },
     {
-      accessorKey: "role",
+      accessorKey: "positionTitle",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Role"
-          filterable={true}
-          filterOptions={[
-            { label: "Developer", value: "Developer" },
-            { label: "Designer", value: "Designer" },
-            { label: "Manager", value: "Manager" },
-          ]}
+          title="Position"
         />
       ),
-      filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id))
-      },
     },
     {
       accessorKey: "department",
@@ -107,20 +119,11 @@ export const EmployeesTable = () => {
           column={column}
           title="Department"
           sortable={true}
-          filterable={true}
-          filterOptions={[
-            { label: "Engineering", value: "Engineering" },
-            { label: "Design", value: "Design" },
-            { label: "Management", value: "Management" },
-          ]}
         />
       ),
-      filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id))
-      },
     },
     {
-      accessorKey: "status",
+      accessorKey: "isActive",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -128,24 +131,25 @@ export const EmployeesTable = () => {
           sortable={true}
           filterable={true}
           filterOptions={[
-            { label: "Active", value: "active", icon: UserCheck },
-            { label: "Inactive", value: "inactive", icon: UserX },
+            { label: "Active", value: "true", icon: UserCheck },
+            { label: "Inactive", value: "false", icon: UserX },
           ]}
         />
       ),
       cell: ({ row }) => {
-        const status = row.getValue("status") as string
+        const isActive = row.getValue("isActive") as boolean
         return (
           <Badge
-            variant={status === "active" ? "default" : "outline"}
+            variant={isActive ? "default" : "outline"}
             className="capitalize"
           >
-            {status}
+            {isActive ? "Active" : "Inactive"}
           </Badge>
         )
       },
       filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id))
+        const isActive = row.getValue(id) as boolean
+        return value.includes(String(isActive))
       },
     },
     {
@@ -157,37 +161,37 @@ export const EmployeesTable = () => {
         return (
           <div className="flex w-full justify-end">
             <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation()
-                  navigator.clipboard.writeText(employee.id)
-                }}
-              >
-                Copy employee ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                View details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                Edit employee
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={(e) => e.stopPropagation()}
-                className="text-destructive"
-              >
-                Delete employee
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigator.clipboard.writeText(employee.id)
+                  }}
+                >
+                  Copy employee ID
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                  View details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                  Edit employee
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-destructive"
+                >
+                  Delete employee
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )
       },
@@ -201,7 +205,7 @@ export const EmployeesTable = () => {
       label: "Assign Group",
       icon: Mail,
       onClick: (rows) => {
-        console.log("Send email to:", rows.map(r => r.original.email))
+        console.log("Assign group to:", rows.map(r => r.original.email))
       },
       variant: "outline",
     },
@@ -219,15 +223,53 @@ export const EmployeesTable = () => {
     console.log("Row clicked:", employee)
   }
 
+  const handleSearchChange = (searchValue: string) => {
+    setParams((prev) => ({
+      ...prev,
+      query: searchValue || undefined,
+      offset: 0,
+    }))
+  }
+
+  const handleSortingChange = (sorting: SortingState) => {
+    if (sorting.length > 0) {
+      const sort = sorting[0]
+      setParams((prev) => ({
+        ...prev,
+        sortKey: sort.id,
+        sortDirection: sort.desc ? 'desc' : 'asc',
+        offset: 0,
+      }))
+    } else {
+      setParams((prev) => ({
+        ...prev,
+        sortKey: undefined,
+        sortDirection: undefined,
+        offset: 0,
+      }))
+    }
+  }
+
   return (
     <div className="space-y-4">
       <DataTable
         columns={columns}
-        data={employees}
+        data={data?.employees || []}
+        total={data?.total || 0}
         searchKey="name"
         searchPlaceholder="Search employees..."
         actions={actions}
         onRowClick={handleRowClick}
+        onSearchChange={handleSearchChange}
+        onSortingChange={handleSortingChange}
+        onPaginationChange={handlePaginationChange}
+        manualPagination={true}
+        manualSorting={true}
+        pageCount={Math.ceil((data?.total || 0) / (params.limit || 10))}
+        pageIndex={Math.floor((params.offset || 0) / (params.limit || 10))}
+        pageSize={params.limit || 10}
+        isLoading={isLoading}
+        searchDebounceMs={500}
       />
     </div>
   )

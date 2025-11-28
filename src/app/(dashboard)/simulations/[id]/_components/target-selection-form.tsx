@@ -13,13 +13,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { SimulationProfileTargetSelectionFormData } from "@/types";
-import { Group } from "@/types";
+import { EmployeeGroup } from "@/types";
 import { Button } from "@/components/ui/button";
 
 interface SimulationProfileTargetSelectionStepProps {
   form: UseFormReturn<SimulationProfileTargetSelectionFormData>;
   isSubmitting?: boolean;
-  availableGroups: Group[];
+  availableGroups: EmployeeGroup[];
 }
 
 export const SimulationProfileTargetSelectionStep = ({
@@ -35,18 +35,18 @@ export const SimulationProfileTargetSelectionStep = ({
     const query = searchQuery.toLowerCase();
     return (
       group.name.toLowerCase().includes(query) ||
-      group.department?.toLowerCase().includes(query)
+      group.employeeIds?.includes(query)
     );
   });
 
   // Calculate total employees from selected Group objects (not IDs)
   const totalSelectedEmployees = selectedGroups.reduce(
-    (sum, group) => sum + group.memberCount,
+    (sum, group) => sum + group.employeeCount,
     0
   );
 
   // Handle group toggle by adding/removing Group objects (not just IDs)
-  const handleGroupToggle = (group: Group, checked: boolean) => {
+  const handleGroupToggle = (group: EmployeeGroup, checked: boolean) => {
     const currentGroups = form.getValues("employeeGroups") || [];
     if (checked) {
       // Add the full Group object
@@ -171,20 +171,20 @@ export const SimulationProfileTargetSelectionStep = ({
                                       {group.name}
                                     </h4>
                                     <div className="flex items-center gap-3 text-xs text-gray-600">
-                                      {group.department && (
+                                      {/* {group.department && (
                                         <div className="flex items-center gap-1">
                                           <Building2 className="w-3.5 h-3.5" />
                                           <span>{group.department}</span>
                                         </div>
-                                      )}
+                                      )} */}
                                     </div>
                                   </div>
                                   <Badge
                                     variant="secondary"
                                     className="flex-shrink-0"
                                   >
-                                    {group.memberCount}{" "}
-                                    {group.memberCount === 1
+                                    {group.employeeCount}{" "}
+                                    {group.employeeCount === 1
                                       ? "employee"
                                       : "employees"}
                                   </Badge>

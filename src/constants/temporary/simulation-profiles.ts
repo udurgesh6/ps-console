@@ -1,5 +1,4 @@
 import { SimulationProfile } from "@/types";
-import { groups } from "./groups";
 import { dummyAttackVectors } from "./attack-vectors";
 
 export const dummySimulationProfiles: SimulationProfile[] = [
@@ -11,7 +10,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "high-priority",
     simulationInterval: 4,
     simulationFrequency: 4,
-    employeeGroups: [groups[0], groups[1]],
+    employeeGroups: [],
     attackVectors: [
       dummyAttackVectors[0],
       dummyAttackVectors[1],
@@ -33,7 +32,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "department-specific",
     simulationInterval: 1,
     simulationFrequency: 1,
-    employeeGroups: [groups[2]],
+    employeeGroups: [],
     attackVectors: [dummyAttackVectors[3], dummyAttackVectors[6]],
     schedule: {
       type: "monthly",
@@ -51,7 +50,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "technical",
     simulationInterval: 2,
     simulationFrequency: 2,
-    employeeGroups: [groups[3], groups[4]],
+    employeeGroups: [],
     attackVectors: [
       dummyAttackVectors[2],
       dummyAttackVectors[3],
@@ -74,14 +73,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "organization-wide",
     simulationInterval: 3,
     simulationFrequency: 0.33,
-    employeeGroups: [
-      groups[0],
-      groups[1],
-      groups[2],
-      groups[3],
-      groups[4],
-      groups[5],
-    ],
+    employeeGroups: [],
     attackVectors: [
       dummyAttackVectors[0],
       dummyAttackVectors[5],
@@ -104,7 +96,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "customer-facing",
     simulationInterval: 4,
     simulationFrequency: 4,
-    employeeGroups: [groups[6]],
+    employeeGroups: [],
     attackVectors: [dummyAttackVectors[5], dummyAttackVectors[9]],
     schedule: {
       type: "weekly",
@@ -122,7 +114,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "onboarding",
     simulationInterval: 2,
     simulationFrequency: 2,
-    employeeGroups: [groups[7]],
+    employeeGroups: [],
     attackVectors: [
       dummyAttackVectors[0],
       dummyAttackVectors[5],
@@ -144,7 +136,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "department-specific",
     simulationInterval: 1,
     simulationFrequency: 1,
-    employeeGroups: [groups[8]],
+    employeeGroups: [],
     attackVectors: [dummyAttackVectors[0], dummyAttackVectors[4]],
     schedule: {
       type: "monthly",
@@ -162,7 +154,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "department-specific",
     simulationInterval: 2,
     simulationFrequency: 2,
-    employeeGroups: [groups[9]],
+    employeeGroups: [],
     attackVectors: [dummyAttackVectors[8], dummyAttackVectors[10]],
     schedule: {
       type: "custom",
@@ -180,7 +172,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "high-priority",
     simulationInterval: 5,
     simulationFrequency: 4,
-    employeeGroups: [groups[10]],
+    employeeGroups: [],
     attackVectors: [
       dummyAttackVectors[3],
       dummyAttackVectors[8],
@@ -202,7 +194,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "remote-workers",
     simulationInterval: 1,
     simulationFrequency: 1,
-    employeeGroups: [groups[11]],
+    employeeGroups: [],
     attackVectors: [
       dummyAttackVectors[5],
       dummyAttackVectors[6],
@@ -225,14 +217,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "seasonal",
     simulationInterval: 6,
     simulationFrequency: 1,
-    employeeGroups: [
-      groups[0],
-      groups[1],
-      groups[2],
-      groups[3],
-      groups[4],
-      groups[5],
-    ],
+    employeeGroups: [],
     attackVectors: [dummyAttackVectors[12]],
     schedule: {
       type: "custom",
@@ -250,7 +235,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     category: "compliance",
     simulationInterval: 3,
     simulationFrequency: 0.33,
-    employeeGroups: [groups[12]],
+    employeeGroups: [],
     attackVectors: [
       dummyAttackVectors[2],
       dummyAttackVectors[7],

@@ -15,8 +15,14 @@ import { RiskFactorAnalysis } from "../_components/risk-analysis/risk-factor-ana
 import { Summary } from "@/components/charts/summary";
 import { HighRiskUsers } from "../_components/risk-analysis/high-risk-users";
 import { ChartWrapper } from "@/components/layouts/dashboard/chart-wrapper";
+import { useGetEmployees } from "@/hooks/use-employee";
 
 export default function RiskAnalysis() {
+  const { data, isLoading, error } = useGetEmployees();
+
+  if (isLoading || !data) return <div>Loading employees...</div>;
+  if (error) return <div>Something went wrong!</div>;
+
   const riskDistribution = [
     { name: "Low", value: 25, color: "#3b82f6" },
     { name: "Medium", value: 50, color: "#ef4444" },
@@ -92,7 +98,7 @@ export default function RiskAnalysis() {
         <ChartWrapper title="Risk Distribution" icon={PieChartIcon}>
           <PieChart data={riskDistribution} />
         </ChartWrapper>
-        <HighRiskUsers />
+        <HighRiskUsers employees={data?.employees}/>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RiskFactorAnalysis />

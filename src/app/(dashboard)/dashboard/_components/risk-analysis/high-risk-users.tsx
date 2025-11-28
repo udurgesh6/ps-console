@@ -2,12 +2,12 @@ import { ChartHeading } from "@/components/charts/chart-heading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge, Users } from "lucide-react";
 import React from "react";
-import { employees } from "@/constants/temporary/employees";
+import { Employee } from "@/types";
 import { ChartWrapper } from "@/components/layouts/dashboard/chart-wrapper";
 
-export const HighRiskUsers = () => {
+export const HighRiskUsers = ({ employees }: { employees: Employee[] }) => {
   const highRiskEmployees = employees
-    .filter((employee) => employee.riskLevel === "high")
+    .filter((employee) => employee.name.startsWith("high"))
     .slice(0, 4);
 
   const highRiskUsers = [

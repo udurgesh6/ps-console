@@ -1,3 +1,4 @@
+// services/auth-service.ts
 import { api } from '@/lib/axios'
 import type {
   LoginRequest,
@@ -19,6 +20,7 @@ export const authService = {
     verifyData: OtpVerifyRequest
   ): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('/login', verifyData)
+    console.log(response)
     return response
   },
 

@@ -14,7 +14,7 @@ import { RiskChart } from "@/components/charts/risk-chart";
 import { AiEngineStatus } from "./_components/ai-engine-status";
 import { RecentSimulations } from "./_components/recent-simulations";
 import { ThreatIntel } from "./_components/threat-intel";
-import { employees } from "@/constants/temporary/employees";
+// import { employees } from "@/constants/temporary/employees";
 import { dummySimulationProfiles } from "@/constants/temporary/simulation-profiles";
 import { Top } from "./_components/top";
 import { SubNavItem } from "@/components/shared/sub-nav";
@@ -27,7 +27,7 @@ export default function Dashboard() {
   const keyMetrics = [
     {
       title: "Total Users",
-      value: String(employees.length),
+      value: String(3),
       icon: Users,
       description: "+12% from last month",
       color: COLOR_SCHEMES.user.group.main,
@@ -44,7 +44,7 @@ export default function Dashboard() {
     {
       title: "High Risk Employees",
       value: String(
-        employees.filter((employee) => employee.riskLevel === "high").length
+        0
       ),
       icon: AlertTriangle,
       description: "-8% improvement",

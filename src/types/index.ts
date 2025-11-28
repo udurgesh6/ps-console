@@ -7,7 +7,7 @@ export * from './form';
 export * from './course';
 export * from './landing-page';
 export * from './simulation-profile';
-export * from './group';
+export * from './employee-group';
 export * from './awareness';
 export * from './employee';
  

@@ -1,6 +1,6 @@
 import z from "zod";
 import { AttackVector, attackVectorSchema } from "./attack-vector";
-import { Group, groupSchema } from "./group";
+import { EmployeeGroup, employeeGroupSchema } from "./employee-group";
 
 export type SimulationInterval = 
   | "daily" 
@@ -93,7 +93,7 @@ export interface SimulationProfile {
   name: string;
   description: string;
   category: SimulationCategory;
-  employeeGroups: Group[];
+  employeeGroups: EmployeeGroup[];
   attackVectors: AttackVector[];
   isActive?: boolean;
   createdAt?: Date;
@@ -115,13 +115,13 @@ export interface SimulationProfile {
 }
 
 // Employee Group reference type
-export interface EmployeeGroup {
-  id: string;
-  name: string;
-  count: number;
-  department?: string;
-  location?: string;
-}
+// export interface EmployeeGroup {
+//   id: string;
+//   name: string;
+//   count: number;
+//   department?: string;
+//   location?: string;
+// }
 
 // Filter group for UI
 export interface SimulationProfileFilterGroup {
@@ -154,7 +154,7 @@ export const simulationProfileBasicInfoSchema = z.object({
 
 // 2. Target Selection (Employee Groups) Form Schema
 export const simulationProfileTargetSelectionSchema = z.object({
-  employeeGroups: z.array(groupSchema)
+  employeeGroups: z.array(employeeGroupSchema)
     .min(1, "At least one employee group must be selected")
 });
 

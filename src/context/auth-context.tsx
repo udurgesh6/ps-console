@@ -3,12 +3,13 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'js-cookie'
-import type { AuthContextType, LoginResponse, User } from '@/types'
+import type { AuthContextType, LoginResponse, Tenant, User } from '@/types'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userDetails, setUserDetails] = useState<User | null>(null)
+  const [tenantDetails, setTenantDetails] = useState<Tenant | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
@@ -16,14 +17,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const accessToken = Cookies.get('accessToken')
+    const refreshToken = Cookies.get('refreshToken')
     const userData = Cookies.get('user')
+    const tenantData = Cookies.get('tenant')
 
-    if (accessToken && userData) {
+    if (accessToken && refreshToken && userData && tenantData) {
       try {
         const parsedUser = JSON.parse(userData)
+        const parsedTenant = JSON.parse(tenantData)
         setUserDetails(parsedUser)
+        setTenantDetails(parsedTenant)
       } catch {
         Cookies.remove('accessToken')
+        Cookies.remove('refreshToken')
+        Cookies.remove('tenant')
         Cookies.remove('user')
       }
     }
@@ -39,19 +46,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (loginResponse: LoginResponse) => {
     const user: User = {
-      userId: loginResponse.userId,
-      name: loginResponse.name,
-      role: loginResponse.role,
-      tenantId: loginResponse.tenantId,
+      id: loginResponse.user.id,
+      email: loginResponse.user.email,
+      first_name: loginResponse.user.first_name,
+      last_name: loginResponse.user.last_name,
+      role: loginResponse.user.role,
     }
 
-    Cookies.set('accessToken', loginResponse.accessToken, cookieOptions)
+    const tenant: Tenant = {
+      id: loginResponse.tenant.id,
+      name: loginResponse.tenant.name,
+    }
+
+    Cookies.set('accessToken', loginResponse.access_token, cookieOptions)
+    Cookies.set('refreshToken', loginResponse.refresh_token, cookieOptions)
     Cookies.set('user', JSON.stringify(user), cookieOptions)
+    Cookies.set('tenant', JSON.stringify(tenant), cookieOptions)
     setUserDetails(user)
   }
 
   const logout = () => {
     Cookies.remove('accessToken')
+    Cookies.remove('refreshToken')
+    Cookies.remove('tenant')
     Cookies.remove('user')
     setUserDetails(null)
     router.push('/login')
@@ -61,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         userDetails,
+        tenantDetails,
         isLoading,
         login,
         logout,

@@ -37,6 +37,7 @@ let refreshPromise: Promise<string> | null = null;
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
+    console.log(error)
     const originalRequest = error.config as CustomAxiosRequestConfig;
     
     const isAuthEndpoint =
@@ -116,7 +117,7 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
-  get: <T>(url: string) => apiClient.get<T>(url).then((res) => res.data),
+  get: <T>(url: string, params?: Record<string, unknown>) => apiClient.get<T>(url, {params}).then((res) => res.data),
   post: <T, D = unknown>(url: string, data?: D) =>
     apiClient.post<T>(url, data).then((res) => res.data),
   put: <T, D = unknown>(url: string, data?: D) =>

@@ -30,6 +30,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsRight,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ import {
 } from "@/components/shared/popover";
 import { cn } from "@/lib/utils";
 import { BulkActions } from "./bulk-actions";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface DataTableAction<TData> {
   label: string;
@@ -68,58 +70,173 @@ export interface DataTableAction<TData> {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  total?: number;
   searchKey?: string;
   searchPlaceholder?: string;
   actions?: DataTableAction<TData>[];
   onRowClick?: (row: TData) => void;
+  onSearchChange?: (value: string) => void;
+  onSortingChange?: (sorting: SortingState) => void;
+  onPaginationChange?: (pagination: PaginationState) => void;
+  manualPagination?: boolean;
+  manualSorting?: boolean;
+  pageCount?: number;
+  pageIndex?: number;
+  pageSize?: number;
+  isLoading?: boolean;
+  searchDebounceMs?: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  total,
   searchKey,
   searchPlaceholder = "Search...",
   actions = [],
   onRowClick,
+  onSearchChange,
+  onSortingChange,
+  onPaginationChange,
+  manualPagination = false,
+  manualSorting = false,
+  pageCount: controlledPageCount,
+  pageIndex: controlledPageIndex = 0,
+  pageSize: controlledPageSize = 10,
+  isLoading = false,
+  searchDebounceMs = 500,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
+    pageIndex: controlledPageIndex,
+    pageSize: controlledPageSize,
+  });
+  const [searchValue, setSearchValue] = React.useState("");
+  
+  // Track if component is mounted to prevent callbacks during initial render
+  const isMountedRef = React.useRef(false);
+  const isUserInteractionRef = React.useRef(false);
+
+  React.useEffect(() => {
+    isMountedRef.current = true;
+  }, []);
+
+  // Sync controlled pagination from props (without triggering callbacks)
+  React.useEffect(() => {
+    if (manualPagination) {
+      isUserInteractionRef.current = false;
+      setPagination({
+        pageIndex: controlledPageIndex,
+        pageSize: controlledPageSize,
+      });
+    }
+  }, [controlledPageIndex, controlledPageSize, manualPagination]);
+
+  // Debounced search effect
+  React.useEffect(() => {
+    if (!isMountedRef.current) return;
+
+    const handler = setTimeout(() => {
+      if (searchKey) {
+        table.getColumn(searchKey)?.setFilterValue(searchValue);
+      }
+      
+      if (onSearchChange) {
+        onSearchChange(searchValue);
+      }
+    }, searchDebounceMs);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchValue, searchDebounceMs]);
+
+  // Create wrapped handlers that call the parent callbacks
+  const handleSortingChange = React.useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      setSorting((old) => {
+        const newSorting = typeof updater === "function" ? updater(old) : updater;
+        
+        // Only call parent callback if this is a user interaction and component is mounted
+        if (onSortingChange && manualSorting && isMountedRef.current && isUserInteractionRef.current) {
+          onSortingChange(newSorting);
+        }
+        
+        return newSorting;
+      });
+    },
+    [onSortingChange, manualSorting]
+  );
+
+  const handlePaginationChange = React.useCallback(
+    (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+      setPagination((old) => {
+        const newPagination = typeof updater === "function" ? updater(old) : updater;
+        
+        // Only call parent callback if this is a user interaction and component is mounted
+        if (onPaginationChange && manualPagination && isMountedRef.current && isUserInteractionRef.current) {
+          onPaginationChange(newPagination);
+        }
+        
+        return newPagination;
+      });
+    },
+    [onPaginationChange, manualPagination]
+  );
 
   const table = useReactTable({
     data,
     columns,
+    pageCount: manualPagination ? controlledPageCount : undefined,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: handleSortingChange,
+    getSortedRowModel: manualSorting ? undefined : getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: setPagination,
+    onPaginationChange: handlePaginationChange,
+    manualPagination,
+    manualSorting,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
       globalFilter,
-      pagination: pagination,
+      pagination,
     },
   });
 
-  // const selectedRows = table.getFilteredSelectedRowModel().rows;
   const isFiltered = columnFilters.length > 0 || globalFilter.length > 0;
+  const rowCount = total ?? table.getFilteredRowModel().rows.length;
+
+  // Handle search input change (updates local state, debounced effect handles the rest)
+  const handleSearchInputChange = (value: string) => {
+    setSearchValue(value);
+  };
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    table.resetColumnFilters();
+    setGlobalFilter("");
+    setSearchValue("");
+    if (onSearchChange) {
+      onSearchChange("");
+    }
+  };
+
+  // Wrapper functions for pagination buttons to mark user interactions
+  const handleUserPageChange = (action: () => void) => {
+    isUserInteractionRef.current = true;
+    action();
+  };
 
   return (
     <div className="space-y-4 bg-white p-6 rounded-3xl">
@@ -132,14 +249,13 @@ export function DataTable<TData, TValue>({
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={searchPlaceholder}
-                value={
-                  (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
-                }
-                onChange={(event) =>
-                  table.getColumn(searchKey)?.setFilterValue(event.target.value)
-                }
+                value={searchValue}
+                onChange={(event) => handleSearchInputChange(event.target.value)}
                 className="pl-8 rounded-full border border-gray-300"
               />
+              {isLoading && searchValue && (
+                <Loader2 className="absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-muted-foreground" />
+              )}
             </div>
           )}
 
@@ -147,10 +263,7 @@ export function DataTable<TData, TValue>({
           {isFiltered && (
             <Button
               variant="ghost"
-              onClick={() => {
-                table.resetColumnFilters();
-                setGlobalFilter("");
-              }}
+              onClick={handleClearFilters}
               className="h-8 px-2 lg:px-3"
             >
               Reset
@@ -163,9 +276,11 @@ export function DataTable<TData, TValue>({
           <BulkActions
             actions={actions}
             selectedItems={table.getFilteredSelectedRowModel().rows}
-            setSelectedItems={(rows) => table.setRowSelection(
-              Object.fromEntries(rows.map(r => [r.id, true]))
-            )}
+            setSelectedItems={(rows) =>
+              table.setRowSelection(
+                Object.fromEntries(rows.map((r) => [r.id, true]))
+              )
+            }
           />
           {/* Column Visibility Dropdown - visible on all screens */}
           <DropdownMenu>
@@ -204,10 +319,22 @@ export function DataTable<TData, TValue>({
         <Table>
           <TableHeader className="sticky top-0 bg-gray-50 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="table table-fixed w-full">
+              <TableRow
+                key={headerGroup.id}
+                className="table table-fixed w-full"
+              >
                 {headerGroup.headers.map((header, headerIndex) => {
                   return (
-                    <TableHead className={cn(headerIndex !== headerGroup.headers.length - 1 && headerIndex !== 0 ? "border-r border-gray-200" : "")} key={header.id} style={{ width: header.column.getSize() }}>
+                    <TableHead
+                      className={cn(
+                        headerIndex !== headerGroup.headers.length - 1 &&
+                          headerIndex !== 0
+                          ? "border-r border-gray-200"
+                          : ""
+                      )}
+                      key={header.id}
+                      style={{ width: header.column.getSize() }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -220,56 +347,93 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className={cn("block")} style={{ height: '500px' }}>
-            {table.getRowModel().rows?.length ? (
-            <>
-              {table.getRowModel().rows.map((row) => (
+          <TableBody className={cn("block")} style={{ height: "500px" }}>
+            {isLoading ? (
+              // Loading skeleton
+              <>
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <TableRow
+                    key={`skeleton-${index}`}
+                    className="table table-fixed w-full"
+                    style={{ height: "50px" }}
+                  >
+                    {columns.map((column, cellIndex) => (
+                      <TableCell
+                        key={cellIndex}
+                        style={{ width: column.size || 'auto' }}
+                      >
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </>
+            ) : table.getRowModel().rows?.length ? (
+              <>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className={cn(
+                      "table table-fixed w-full",
+                      onRowClick && "cursor-pointer"
+                    )}
+                    style={{ height: "50px" }}
+                    onClick={() => onRowClick?.(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        className="truncate"
+                        key={cell.id}
+                        style={{ width: cell.column.getSize() }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+                {/* Fill empty rows if less than 10 items */}
+                {Array.from({
+                  length: Math.max(0, 10 - table.getRowModel().rows.length),
+                }).map((_, index) => (
+                  <TableRow
+                    key={`empty-${index}`}
+                    className="table table-fixed w-full"
+                    style={{ height: "50px" }}
+                  >
+                    {columns.map((_, cellIndex) => (
+                      <TableCell key={cellIndex}>&nbsp;</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </>
+            ) : (
+              <>
                 <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className={cn("table table-fixed w-full", onRowClick && "cursor-pointer")}
-                  style={{ height: '50px' }}
-                  onClick={() => onRowClick?.(row.original)}
+                  className="table table-fixed w-full"
+                  style={{ height: "50px" }}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell className="truncate" key={cell.id} style={{ width: cell.column.getSize() }}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  <TableCell colSpan={columns.length} className="text-center">
+                    No results.
+                  </TableCell>
                 </TableRow>
-              ))}
-              {/* Fill empty rows if less than 10 items */}
-              {Array.from({ length: Math.max(0, 10 - table.getRowModel().rows.length) }).map((_, index) => (
-                <TableRow key={`empty-${index}`} style={{ height: '50px' }}>
-                  {columns.map((_, cellIndex) => (
-                    <TableCell key={cellIndex}>&nbsp;</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </>
-          ) : (
-            <>
-              <TableRow style={{ height: '50px' }}>
-                <TableCell
-                  colSpan={columns.length}
-                  className="text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-              {/* Fill remaining empty rows */}
-              {Array.from({ length: 9 }).map((_, index) => (
-                <TableRow key={`empty-${index}`} style={{ height: '50px' }}>
-                  {columns.map((_, cellIndex) => (
-                    <TableCell key={cellIndex}>&nbsp;</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </>
-          )}
+                {/* Fill remaining empty rows */}
+                {Array.from({ length: 9 }).map((_, index) => (
+                  <TableRow
+                    key={`empty-${index}`}
+                    className="table table-fixed w-full"
+                    style={{ height: "50px" }}
+                  >
+                    {columns.map((_, cellIndex) => (
+                      <TableCell key={cellIndex}>&nbsp;</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </>
+            )}
           </TableBody>
         </Table>
       </div>
@@ -278,10 +442,12 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-between">
         {/* Left side - Rows per page */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground hidden lg:block">Rows per page</span>
+          <span className="text-sm text-muted-foreground hidden lg:block">
+            Rows per page
+          </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 w-[70px]">
+              <Button variant="outline" size="sm" className="h-8 w-[70px]" disabled={isLoading}>
                 {table.getState().pagination.pageSize} <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
@@ -291,7 +457,7 @@ export function DataTable<TData, TValue>({
                   key={pageSize}
                   checked={table.getState().pagination.pageSize === pageSize}
                   onCheckedChange={() => {
-                    table.setPageSize(pageSize);
+                    handleUserPageChange(() => table.setPageSize(pageSize));
                   }}
                 >
                   {pageSize}
@@ -307,9 +473,9 @@ export function DataTable<TData, TValue>({
             {Math.min(
               (table.getState().pagination.pageIndex + 1) *
                 table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length
+              rowCount
             )}{" "}
-            of {table.getFilteredRowModel().rows.length} rows
+            of {rowCount} rows
           </span>
         </div>
 
@@ -320,8 +486,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             className="hidden lg:flex lg:h-8 lg:w-8 lg:p-0"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => handleUserPageChange(() => table.setPageIndex(0))}
+            disabled={!table.getCanPreviousPage() || isLoading}
           >
             <span className="sr-only">Go to first page</span>
             <ChevronsLeft />
@@ -332,8 +498,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             className="h-8 w-8 p-0"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => handleUserPageChange(() => table.previousPage())}
+            disabled={!table.getCanPreviousPage() || isLoading}
           >
             <span className="sr-only">Go to previous page</span>
             <ChevronLeft />
@@ -346,27 +512,32 @@ export function DataTable<TData, TValue>({
             const pages: (number | string)[] = [];
 
             if (pageCount <= 3) {
-              // Show all pages if 7 or fewer
               pages.push(...Array.from({ length: pageCount }, (_, i) => i));
             } else {
-              // Always show first page
               pages.push(0);
 
               if (currentPage <= 2) {
-                // Near start: [1] 2 3 4 5 ... 10
                 pages.push(1, 2, "...", pageCount - 1);
               } else if (currentPage >= pageCount - 2) {
-                // Near end: 1 ... 6 7 8 9 [10]
                 pages.push("...", pageCount - 2, pageCount - 1);
               } else {
-                // Middle: 1 ... 4 [5] 6 ... 10
-                pages.push("...", currentPage - 1, currentPage, currentPage + 1, "...", pageCount - 1);
+                pages.push(
+                  "...",
+                  currentPage - 1,
+                  currentPage,
+                  currentPage + 1,
+                  "...",
+                  pageCount - 1
+                );
               }
             }
 
             return pages.map((page, idx) =>
               page === "..." ? (
-                <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center">
+                <span
+                  key={`ellipsis-${idx}`}
+                  className="flex h-8 w-8 items-center justify-center"
+                >
                   ...
                 </span>
               ) : (
@@ -375,7 +546,8 @@ export function DataTable<TData, TValue>({
                   variant={page === currentPage ? "default" : "outline"}
                   size="sm"
                   className="h-8 w-8 p-0"
-                  onClick={() => table.setPageIndex(page as number)}
+                  onClick={() => handleUserPageChange(() => table.setPageIndex(page as number))}
+                  disabled={isLoading}
                 >
                   {(page as number) + 1}
                 </Button>
@@ -388,8 +560,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             className="h-8 w-8 p-0"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => handleUserPageChange(() => table.nextPage())}
+            disabled={!table.getCanNextPage() || isLoading}
           >
             <span className="sr-only">Go to next page</span>
             <ChevronRight />
@@ -400,8 +572,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             className="hidden lg:flex lg:h-8 lg:w-8 lg:p-0"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
+            onClick={() => handleUserPageChange(() => table.setPageIndex(table.getPageCount() - 1))}
+            disabled={!table.getCanNextPage() || isLoading}
           >
             <span className="sr-only">Go to last page</span>
             <ChevronsRight />
@@ -411,6 +583,8 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
+
+// DataTableColumnHeader remains the same...
 
 // Column Header with separate Sort and Filter controls
 interface DataTableColumnHeaderProps<TData, TValue> {

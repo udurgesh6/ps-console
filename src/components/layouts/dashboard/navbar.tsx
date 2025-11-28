@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import {
   Menu,
   X,
-  ChevronDown,
   LogOut,
   Search,
   Bell,
@@ -235,7 +234,7 @@ export const Navbar = ({
                 >
                   <Avatar className="w-8 h-8">
                     <AvatarFallback className="bg-primary text-white">
-                      {userDetails?.name
+                      {userDetails?.first_name || userDetails?.last_name
                         ?.split(" ")
                         .map((n: string) => n[0])
                         .join("")
@@ -249,7 +248,7 @@ export const Navbar = ({
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">
-                      {userDetails?.name || "User"}
+                      {userDetails?.first_name || userDetails?.last_name || "User"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -293,7 +292,7 @@ export const Navbar = ({
                 >
                   <Avatar className="w-8 h-8 bg-primary">
                     <AvatarFallback className="bg-primary text-white">
-                      {userDetails?.name
+                      {userDetails?.first_name
                         ?.split(" ")
                         .map((n: string) => n[0])
                         .join("")
@@ -306,7 +305,7 @@ export const Navbar = ({
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">
-                      {userDetails?.name || "User"}
+                      {userDetails?.first_name || userDetails?.last_name || "User"}
                     </p>
                   </div>
                 </DropdownMenuLabel>

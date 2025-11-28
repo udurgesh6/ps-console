@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PageHeader } from "@/components/shared/page-header"
-import { employees } from "@/constants/temporary/employees"
+// import { employees } from "@/constants/temporary/employees"
 
 const employeeNavItems: SubNavItem[] = [
   {
@@ -190,7 +190,7 @@ export default function TeamLayout({
         <CreateGroupForm
           onSubmit={handleCreateGroup}
           onCancel={closeSidebar}
-          availableEmployees={employees}
+          availableEmployees={[]}
         />
       </SidebarSheet>
 

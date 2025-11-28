@@ -1,6 +1,6 @@
 import z from "zod"
 import { courseSchema } from "./course";
-import { groupSchema } from "./group";
+import { employeeGroupSchema } from "./employee-group";
 
 export const awarenessSchema = z.object({
     id: z.string().nonempty("ID is required"),
@@ -11,7 +11,7 @@ export const awarenessSchema = z.object({
     courses: z.array(courseSchema).min(1, "At least one course is required"),
     startDate: z.date().optional(),
     endDate: z.date().optional(),
-    employeeGroups: z.array(groupSchema).min(1, "At least one employee group is required"),
+    employeeGroups: z.array(employeeGroupSchema).min(1, "At least one employee group is required"),
 });
 export type AwarenessProfile = z.infer<typeof awarenessSchema>;
 
@@ -28,7 +28,7 @@ export const awarenessProfileCoursesSchema = z.object({
 export type AwarenessProfileCoursesFormData = z.infer<typeof awarenessProfileCoursesSchema>;
 
 export const awarenessProfileEmployeeGroupsSchema = z.object({
-  employeeGroups: z.array(groupSchema).min(1, "At least one employee group is required"),
+  employeeGroups: z.array(employeeGroupSchema).min(1, "At least one employee group is required"),
 });
 export type AwarenessProfileEmployeeGroupsFormData = z.infer<typeof awarenessProfileEmployeeGroupsSchema>;
 

@@ -21,7 +21,7 @@ import { SimulationProfileBasicInfoStep } from "./_components/basic-info-step";
 import { SimulationProfileTargetSelectionStep } from "./_components/target-selection-form";
 import { simulationProfileTargetSelectionSchema } from "@/types";
 import { SimulationProfileTargetSelectionFormData } from "@/types";
-import { groups } from "@/constants/temporary/groups";
+// import { groups } from "@/constants/temporary/groups";
 import { SimulationProfileAttackVectorsStep } from "./_components/attack-vector-selection-form";
 import { SimulationProfileScheduleStep } from "./_components/schedule-form";
 
@@ -150,7 +150,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
         <SimulationProfileTargetSelectionStep
           form={targetSelectionForm}
           isSubmitting={isNextProcessing}
-          availableGroups={groups}
+          availableGroups={[]}
         />
       ),
       validation: () => targetSelectionForm.formState.isValid,

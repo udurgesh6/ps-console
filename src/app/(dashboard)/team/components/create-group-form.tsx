@@ -141,7 +141,7 @@ export function CreateGroupForm({
                   <div className="flex-1">
                     <p className="text-sm font-medium">{employee.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {employee.role}
+                      {employee.positionTitle}
                     </p>
                   </div>
                 </label>
