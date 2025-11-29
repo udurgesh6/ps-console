@@ -1,6 +1,6 @@
 "use client"
 
-import { Employee } from "@/types"
+import { Employee, EmployeeGroup } from "@/types"
 import { createContext, useCallback, useContext, useState, ReactNode } from "react"
 
 type SidebarType = "add-employee" | "edit-employee" | "create-group" | "edit-group" | "import-employees" | "import-groups" | "add-template" | "add-course" | null
@@ -11,6 +11,8 @@ interface SidebarContextType {
   closeSidebar: () => void
   employeeDetail: Employee | null
   setEmployeeDetail: (employee: Employee | null) => void
+  groupDetail: EmployeeGroup | null
+  setGroupDetail: (group: EmployeeGroup | null) => void
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(
@@ -20,6 +22,7 @@ const SidebarContext = createContext<SidebarContextType | undefined>(
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [openSidebar, setOpenSidebar] = useState<SidebarType>(null)
   const [employeeDetail, setEmployeeDetail] = useState<Employee | null>(null)
+  const [groupDetail, setGroupDetail] = useState<EmployeeGroup | null>(null)
 
   const closeSidebar = useCallback(() => {
     setOpenSidebar(null)
@@ -27,7 +30,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
   return (
     <SidebarContext.Provider
-      value={{ openSidebar, setOpenSidebar, closeSidebar, employeeDetail, setEmployeeDetail }}
+      value={{ openSidebar, setOpenSidebar, closeSidebar, employeeDetail, setEmployeeDetail, groupDetail, setGroupDetail }}
     >
       {children}
     </SidebarContext.Provider>

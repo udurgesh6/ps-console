@@ -1,8 +1,8 @@
 export enum ObjectType {
   EMPLOYEE = "employee",
-  EMPLOYEE_GROUP = "employee-group",
-  SIMULATION_PROFILE = "simulation-profile",
-  ATTACK_VECTOR = "attack-vector",
+  EMPLOYEE_GROUP = "employeeGroup",
+  SIMULATION_PROFILE = "simulationProfile",
+  ATTACK_VECTOR = "attackVector",
   COURSE = "course",
 }
 
@@ -13,6 +13,11 @@ export enum ValueType {
   BOOLEAN = "boolean",
 }
 
+export enum OperationType {
+  DELETE = "delete",
+  ASSIGN_GROUP = "assign-group",
+}
+
 export interface OperationInput {
   key: string
   value: string | string[] | number | boolean
@@ -21,7 +26,7 @@ export interface OperationInput {
 
 export interface OperationRequest {
   objectType: ObjectType
-  operationType: string
+  operationType: OperationType
   input: OperationInput[]
 }
 

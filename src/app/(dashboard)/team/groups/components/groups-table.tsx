@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { ColumnDef, PaginationState, SortingState } from "@tanstack/react-table";
+import { useState, useCallback, useRef } from "react";
+import {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+} from "@tanstack/react-table";
 import {
   DataTable,
   DataTableAction,
@@ -9,32 +13,67 @@ import {
 } from "@/components/shared/data-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { useGetEmployeeGroups } from "@/hooks";
-import {
-  MoreHorizontal,
-  Trash2,
-  Users,
-  Edit,
-  Eye,
-} from "lucide-react";
+import { useEmployeeGroupOperation, useGetEmployeeGroups } from "@/hooks";
+import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { EmployeeGroup, EmployeeGroupQueryParams } from "@/types";
+import { EmployeeGroup, EmployeeGroupQueryParams, ObjectType } from "@/types";
 import { unixToLocaleDate } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { DataTableRef } from "@/components/shared/data-table";
+import { useSidebar } from "@/context/sidebar-context";
+import { createBulkDeleteRequest } from "@/helpers/operations";
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 
 export const GroupsTable = () => {
+  const { toast } = useToast();
+  const { setOpenSidebar, setGroupDetail } = useSidebar();
+
+  const tableRef = useRef<DataTableRef<EmployeeGroup>>(null);
+
   const [params, setParams] = useState<EmployeeGroupQueryParams>({
     limit: 10,
     offset: 0,
   });
 
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    groupIds: string[];
+  }>({
+    open: false,
+    groupIds: [],
+  });
+
   const { data, isLoading, error } = useGetEmployeeGroups(params);
+
+  const employeeGroupOperation = useEmployeeGroupOperation({
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Operation completed successfully",
+      });
+      tableRef.current?.resetRowSelection();
+    },
+  });
+
+  const handleConfirmDelete = () => {
+    const request = createBulkDeleteRequest(
+      ObjectType.EMPLOYEE_GROUP,
+      deleteDialog.groupIds
+    );
+    employeeGroupOperation.mutate(request, {
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to delete employees",
+        });
+      },
+    });
+  };
 
   const handlePaginationChange = useCallback((pagination: PaginationState) => {
     setTimeout(() => {
@@ -71,7 +110,7 @@ export const GroupsTable = () => {
       ),
       enableSorting: false,
       enableHiding: false,
-      size: 20
+      size: 20,
     },
     {
       accessorKey: "name",
@@ -86,16 +125,8 @@ export const GroupsTable = () => {
         const group = row.original;
         return (
           <div className="flex items-center gap-3">
-            {/* <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FolderKanban className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex flex-col"> */}
-              <span className="font-medium">{group.name}</span>
-              {/* <span className="text-xs text-muted-foreground line-clamp-1">
-                {group.description}
-              </span> */}
-            </div>
-          // </div>
+            <span className="font-medium">{group.name}</span>
+          </div>
         );
       },
     },
@@ -236,41 +267,38 @@ export const GroupsTable = () => {
                 <Button variant="ghost" className="h-8 w-8 p-0">
                   <span className="sr-only">Open menu</span>
                   <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigator.clipboard.writeText(group.id);
-                }}
-              >
-                Copy group ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                <Eye className="mr-2 h-4 w-4" />
-                View details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit group
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                <Users className="mr-2 h-4 w-4" />
-                Manage members
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={(e) => e.stopPropagation()}
-                className="text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete group
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View details
+                </DropdownMenuItem> */}
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenSidebar("edit-group");
+                    setGroupDetail(group);
+                  }}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit group
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteDialog({
+                      open: true,
+                      groupIds: [group.id],
+                    });
+                  }}
+                  className="text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete group
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         );
       },
@@ -278,19 +306,7 @@ export const GroupsTable = () => {
     },
   ];
 
-  // Bulk actions configuration
   const actions: DataTableAction<EmployeeGroup>[] = [
-    {
-      label: "Manage Members",
-      icon: Users,
-      onClick: (rows) => {
-        console.log(
-          "Manage members for:",
-          rows.map((r) => r.original.name)
-        );
-      },
-      variant: "outline",
-    },
     {
       label: "Delete Groups",
       icon: Trash2,
@@ -309,31 +325,31 @@ export const GroupsTable = () => {
   };
 
   const handleSearchChange = (searchValue: string) => {
+    setParams((prev) => ({
+      ...prev,
+      query: searchValue || undefined,
+      offset: 0,
+    }));
+  };
+
+  const handleSortingChange = (sorting: SortingState) => {
+    if (sorting.length > 0) {
+      const sort = sorting[0];
       setParams((prev) => ({
         ...prev,
-        query: searchValue || undefined,
+        sortKey: sort.id,
+        sortDirection: sort.desc ? "desc" : "asc",
         offset: 0,
-      }))
+      }));
+    } else {
+      setParams((prev) => ({
+        ...prev,
+        sortKey: undefined,
+        sortDirection: undefined,
+        offset: 0,
+      }));
     }
-  
-    const handleSortingChange = (sorting: SortingState) => {
-      if (sorting.length > 0) {
-        const sort = sorting[0]
-        setParams((prev) => ({
-          ...prev,
-          sortKey: sort.id,
-          sortDirection: sort.desc ? 'desc' : 'asc',
-          offset: 0,
-        }))
-      } else {
-        setParams((prev) => ({
-          ...prev,
-          sortKey: undefined,
-          sortDirection: undefined,
-          offset: 0,
-        }))
-      }
-    }
+  };
 
   return (
     <div className="space-y-4">
@@ -355,6 +371,13 @@ export const GroupsTable = () => {
         pageSize={params.limit || 10}
         isLoading={isLoading}
         searchDebounceMs={500}
+      />
+      <DeleteConfirmationDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
+        onConfirm={handleConfirmDelete}
+        itemCount={deleteDialog.groupIds.length}
+        itemType="group"
       />
     </div>
   );

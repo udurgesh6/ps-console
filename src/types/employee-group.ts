@@ -28,3 +28,19 @@ export interface EmployeeGroupDetailsResponse {
   total: number
   limit: number
 }
+
+export const employeeGroupFormSchema = z.object({
+  name: z.string().min(1, "Group name is required"),
+  employeeIds: z.array(z.string()),
+});
+
+export type EmployeeGroupFormData = z.infer<typeof employeeGroupFormSchema>;
+
+export interface CreateEmployeeGroupRequest {
+  name: string;
+  employeeIds: string[];
+}
+
+export interface UpdateEmployeeGroupRequest extends CreateEmployeeGroupRequest {
+  id: string;
+}

@@ -1,8 +1,8 @@
-import { ObjectType, ValueType, OperationRequest, OperationInput } from '@/types'
+import { ObjectType, ValueType, OperationRequest, OperationInput, OperationType } from '@/types'
 
 export const createOperationRequest = (
   objectType: ObjectType,
-  operationType: string,
+  operationType: OperationType,
   input: OperationInput[]
 ): OperationRequest => ({
   objectType,
@@ -16,10 +16,10 @@ export const createBulkDeleteRequest = (
   ids: string[]
 ): OperationRequest => ({
   objectType,
-  operationType: "delete",
+  operationType: OperationType.DELETE,
   input: [
     {
-      key: `${objectType}Id`,
+      key: `${objectType}Ids`,
       value: ids,
       valueType: ValueType.ARRAY,
     },
@@ -32,7 +32,7 @@ export const createAssignGroupRequest = (
   groupId: string
 ): OperationRequest => ({
   objectType: ObjectType.EMPLOYEE,
-  operationType: "assign-group",
+  operationType: OperationType.ASSIGN_GROUP,
   input: [
     {
       key: "employeeId",
