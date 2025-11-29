@@ -1,29 +1,33 @@
 "use client"
 
-import * as React from "react"
+import { Employee } from "@/types"
+import { createContext, useCallback, useContext, useState, ReactNode } from "react"
 
-type SidebarType = "add-employee" | "create-group" | "import-employees" | "import-groups" | "add-template" | "add-course" | null
+type SidebarType = "add-employee" | "edit-employee" | "create-group" | "edit-group" | "import-employees" | "import-groups" | "add-template" | "add-course" | null
 
 interface SidebarContextType {
   openSidebar: SidebarType
   setOpenSidebar: (type: SidebarType) => void
   closeSidebar: () => void
+  employeeDetail: Employee | null
+  setEmployeeDetail: (employee: Employee | null) => void
 }
 
-const SidebarContext = React.createContext<SidebarContextType | undefined>(
+const SidebarContext = createContext<SidebarContextType | undefined>(
   undefined
 )
 
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [openSidebar, setOpenSidebar] = React.useState<SidebarType>(null)
+export function SidebarProvider({ children }: { children: ReactNode }) {
+  const [openSidebar, setOpenSidebar] = useState<SidebarType>(null)
+  const [employeeDetail, setEmployeeDetail] = useState<Employee | null>(null)
 
-  const closeSidebar = React.useCallback(() => {
+  const closeSidebar = useCallback(() => {
     setOpenSidebar(null)
   }, [])
 
   return (
     <SidebarContext.Provider
-      value={{ openSidebar, setOpenSidebar, closeSidebar }}
+      value={{ openSidebar, setOpenSidebar, closeSidebar, employeeDetail, setEmployeeDetail }}
     >
       {children}
     </SidebarContext.Provider>
@@ -31,7 +35,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useSidebar() {
-  const context = React.useContext(SidebarContext)
+  const context = useContext(SidebarContext)
   if (context === undefined) {
     throw new Error("useSidebar must be used within a SidebarProvider")
   }

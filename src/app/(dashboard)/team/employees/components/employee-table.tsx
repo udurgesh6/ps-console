@@ -1,32 +1,108 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { DataTable, DataTableAction, DataTableColumnHeader } from "@/components/shared/data-table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { 
-  MoreHorizontal, 
-  Trash2, 
-  Mail, 
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  DataTable,
+  DataTableAction,
+  DataTableColumnHeader,
+} from "@/components/shared/data-table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  MoreHorizontal,
+  Trash2,
+  Mail,
   UserCheck,
   UserX,
-  User
-} from "lucide-react"
+  User,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Employee, EmployeeQueryParams } from "@/types"
-import { useCallback, useState } from "react"
-import { useGetEmployees } from "@/hooks/use-employee"
-import type { SortingState, PaginationState } from "@tanstack/react-table"
+} from "@/components/ui/dropdown-menu";
+import { Employee, EmployeeQueryParams } from "@/types";
+import { useCallback, useRef, useState } from "react";
+import { useGetEmployees } from "@/hooks/use-employee";
+import type { SortingState, PaginationState } from "@tanstack/react-table";
+import { useSidebar } from "@/context/sidebar-context";
+import { useEmployeeOperation } from "@/hooks";
+import {
+  createBulkDeleteRequest,
+  createAssignGroupRequest,
+} from "@/helpers/operations";
+import { ObjectType } from "@/types";
+import { useToast } from "@/hooks/use-toast";
+import { DataTableRef } from "@/components/shared/data-table";
+import { AssignGroupDialog } from "./assign-group-dialog";
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 
 export const EmployeesTable = () => {
+  const { toast } = useToast();
+
+  const tableRef = useRef<DataTableRef<Employee>>(null);
+
+  const employeeOperation = useEmployeeOperation({
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Operation completed successfully",
+      });
+      // Clear row selection after successful operation
+      tableRef.current?.resetRowSelection();
+    },
+  });
+
+  const { setOpenSidebar, setEmployeeDetail } = useSidebar();
+
+  const [assignGroupDialog, setAssignGroupDialog] = useState<{
+    open: boolean;
+    employeeIds: string[];
+  }>({
+    open: false,
+    employeeIds: [],
+  });
+
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    employeeIds: string[];
+  }>({
+    open: false,
+    employeeIds: [],
+  });
+
+  const handleAssignGroup = (groupId: string) => {
+    const request = createAssignGroupRequest(
+      assignGroupDialog.employeeIds,
+      groupId
+    );
+    employeeOperation.mutate(request, {
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to assign group",
+        });
+      },
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    const request = createBulkDeleteRequest(
+      ObjectType.EMPLOYEE,
+      deleteDialog.employeeIds
+    );
+    employeeOperation.mutate(request, {
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to delete employees",
+        });
+      },
+    });
+  };
+
   const [params, setParams] = useState<EmployeeQueryParams>({
     limit: 10,
     offset: 0,
@@ -40,12 +116,12 @@ export const EmployeesTable = () => {
         ...prev,
         limit: pagination.pageSize,
         offset: pagination.pageIndex * pagination.pageSize,
-      }))
-    }, 0)
-  }, [])
+      }));
+    }, 0);
+  }, []);
 
   if (error) return <div>Something went wrong!</div>;
-  
+
   const columns: ColumnDef<Employee>[] = [
     {
       id: "select",
@@ -69,16 +145,12 @@ export const EmployeesTable = () => {
       ),
       enableSorting: false,
       enableHiding: false,
-      size: 20
+      size: 20,
     },
     {
       accessorKey: "name",
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Name"
-          sortable={true}
-        />
+        <DataTableColumnHeader column={column} title="Name" sortable={true} />
       ),
       cell: ({ row }) => {
         return (
@@ -88,29 +160,28 @@ export const EmployeesTable = () => {
             </div>
             <span className="font-medium">{row.getValue("name")}</span>
           </div>
-        )
+        );
       },
     },
     {
       accessorKey: "email",
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Email"
-        />
+        <DataTableColumnHeader column={column} title="Email" />
       ),
       cell: ({ row }) => {
-        return <span className="font-medium">{row.getValue("email")}</span>
+        return <span className="font-medium">{row.getValue("email")}</span>;
       },
     },
     {
       accessorKey: "positionTitle",
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Position"
-        />
+        <DataTableColumnHeader column={column} title="Position" />
       ),
+      cell: ({ row }) => {
+        return (
+          <span className="font-medium">{row.getValue("positionTitle")}</span>
+        );
+      },
     },
     {
       accessorKey: "department",
@@ -128,7 +199,7 @@ export const EmployeesTable = () => {
         <DataTableColumnHeader
           column={column}
           title="Status"
-          sortable={true}
+          sortable={false}
           filterable={true}
           filterOptions={[
             { label: "Active", value: "true", icon: UserCheck },
@@ -137,7 +208,7 @@ export const EmployeesTable = () => {
         />
       ),
       cell: ({ row }) => {
-        const isActive = row.getValue("isActive") as boolean
+        const isActive = row.getValue("isActive") as boolean;
         return (
           <Badge
             variant={isActive ? "default" : "outline"}
@@ -145,18 +216,18 @@ export const EmployeesTable = () => {
           >
             {isActive ? "Active" : "Inactive"}
           </Badge>
-        )
+        );
       },
       filterFn: (row, id, value) => {
-        const isActive = row.getValue(id) as boolean
-        return value.includes(String(isActive))
+        const isActive = row.getValue(id) as boolean;
+        return value.includes(String(isActive));
       },
     },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const employee = row.original
+        const employee = row.original;
 
         return (
           <div className="flex w-full justify-end">
@@ -168,24 +239,23 @@ export const EmployeesTable = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation()
-                    navigator.clipboard.writeText(employee.id)
+                    e.stopPropagation();
+                    setOpenSidebar("edit-employee");
+                    setEmployeeDetail(employee);
                   }}
                 >
-                  Copy employee ID
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                  View details
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
                   Edit employee
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={(e) => e.stopPropagation()}
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteDialog({
+                      open: true,
+                      employeeIds: [employee.id],
+                    });
+                  }}
                   className="text-destructive"
                 >
                   Delete employee
@@ -193,19 +263,22 @@ export const EmployeesTable = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        )
+        );
       },
       size: 50,
     },
-  ]
+  ];
 
-  // Bulk actions configuration
   const actions: DataTableAction<Employee>[] = [
     {
       label: "Assign Group",
       icon: Mail,
       onClick: (rows) => {
-        console.log("Assign group to:", rows.map(r => r.original.email))
+        const employeeIds = rows.map((r) => r.original.id);
+        setAssignGroupDialog({
+          open: true,
+          employeeIds,
+        });
       },
       variant: "outline",
     },
@@ -213,46 +286,51 @@ export const EmployeesTable = () => {
       label: "Delete",
       icon: Trash2,
       onClick: (rows) => {
-        console.log("Delete employees:", rows.map(r => r.original.id))
+        const employeeIds = rows.map((r) => r.original.id);
+        setDeleteDialog({
+          open: true,
+          employeeIds,
+        });
       },
       variant: "outline",
     },
-  ]
+  ];
 
   const handleRowClick = (employee: Employee) => {
-    console.log("Row clicked:", employee)
-  }
+    console.log("Row clicked:", employee);
+  };
 
   const handleSearchChange = (searchValue: string) => {
     setParams((prev) => ({
       ...prev,
       query: searchValue || undefined,
       offset: 0,
-    }))
-  }
+    }));
+  };
 
   const handleSortingChange = (sorting: SortingState) => {
     if (sorting.length > 0) {
-      const sort = sorting[0]
+      const sort = sorting[0];
       setParams((prev) => ({
         ...prev,
         sortKey: sort.id,
-        sortDirection: sort.desc ? 'desc' : 'asc',
+        sortDirection: sort.desc ? "desc" : "asc",
         offset: 0,
-      }))
+      }));
     } else {
       setParams((prev) => ({
         ...prev,
         sortKey: undefined,
         sortDirection: undefined,
         offset: 0,
-      }))
+      }));
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
       <DataTable
+        ref={tableRef}
         columns={columns}
         data={data?.employees || []}
         total={data?.total || 0}
@@ -271,6 +349,23 @@ export const EmployeesTable = () => {
         isLoading={isLoading}
         searchDebounceMs={500}
       />
+      <AssignGroupDialog
+        open={assignGroupDialog.open}
+        onOpenChange={(open) =>
+          setAssignGroupDialog((prev) => ({ ...prev, open }))
+        }
+        onConfirm={handleAssignGroup}
+        employeeCount={assignGroupDialog.employeeIds.length}
+      />
+      <DeleteConfirmationDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) =>
+          setDeleteDialog((prev) => ({ ...prev, open }))
+        }
+        onConfirm={handleConfirmDelete}
+        itemCount={deleteDialog.employeeIds.length}
+        itemType="employee"
+      />
     </div>
-  )
-}
+  );
+};

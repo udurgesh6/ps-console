@@ -1,6 +1,7 @@
 import * as React from "react"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "../ui/button"
 
 interface SidebarSheetProps {
   open: boolean
@@ -65,13 +66,15 @@ export function SidebarSheet({
               <p className="text-sm text-muted-foreground !m-0 !p-0">{description}</p>
             )}
           </div>
-          <button
+          <Button
             onClick={() => onOpenChange(false)}
+            variant="ghost"
+            size="icon"
             className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
           >
             <X className="h-5 w-5" />
             <span className="sr-only">Close</span>
-          </button>
+          </Button>
         </div>
 
         {/* Content */}

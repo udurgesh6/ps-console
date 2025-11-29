@@ -230,9 +230,9 @@ export const Navbar = ({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="profile-button flex items-center px-2 rounded-md gap-1"
+                  className="profile-button flex items-center !px-0 !pr-4 rounded-md gap-1"
                 >
-                  <Avatar className="w-8 h-8">
+                  <Avatar className="w-9 h-9">
                     <AvatarFallback className="bg-primary text-white">
                       {userDetails?.first_name || userDetails?.last_name
                         ?.split(" ")

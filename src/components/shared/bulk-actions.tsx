@@ -84,7 +84,7 @@ export function BulkActions<TItem>({
               className="h-8"
               disabled={!hasSelection}
             >
-              {Icon && <Icon className="mr-2 h-4 w-4" />}
+              {Icon && <Icon className="mr-1 h-4 w-4" />}
               {action.label}
             </Button>
           );

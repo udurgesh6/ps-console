@@ -1,23 +1,13 @@
 "use client"
 
 import { SubNav, SubNavItem } from "@/components/shared/sub-nav"
-import { Button } from "@/components/ui/button"
-import { PlusIcon, Upload } from "lucide-react"
-import { usePathname } from "next/navigation"
 import { SidebarSheet } from "@/components/shared/sidebar-sheet"
-import { AddEmployeeForm, EmployeeFormData } from "./components/add-employee-form"
+import { EmployeeForm } from "./components/employee-form"
 import { CreateGroupForm, GroupFormData } from "./components/create-group-form"
 import { FileUploadFormWithExcel, ParsedFileData } from "./components/file-upload-with-excel"
 import { useSidebar } from "@/context/sidebar-context"
 import { useToast } from "@/hooks/use-toast"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { PageHeader } from "@/components/shared/page-header"
-// import { employees } from "@/constants/temporary/employees"
+import { EmployeeFormData } from "@/types"
 
 const employeeNavItems: SubNavItem[] = [
   {
@@ -35,52 +25,33 @@ export default function TeamLayout({
 }: {
   children: React.ReactNode
 }) {
-  const pathname = usePathname()
-  const { openSidebar, setOpenSidebar, closeSidebar } = useSidebar()
+  const { openSidebar, closeSidebar, employeeDetail } = useSidebar()
   const { toast } = useToast()
-  // const pageConfig = getPageConfig(pathname)
 
-  const activeNavItem = employeeNavItems.find(
-    (item) => pathname === item.href || pathname.startsWith(item.href + "/")
-  )
-
-  const isEmployeesPage = activeNavItem === employeeNavItems[0]
-  const buttonLabel = isEmployeesPage ? "Add Employee" : "Create Group"
-
-  const handleAddClick = () => {
-    setOpenSidebar(isEmployeesPage ? "add-employee" : "create-group")
-  }
-
-  const handleImportClick = () => {
-    setOpenSidebar(isEmployeesPage ? "import-employees" : "import-groups")
-  }
-
-  const handleAddEmployee = async (data: EmployeeFormData) => {
-    try {
-      // TODO: Replace with actual API call
-      console.log("Adding employee:", data)
+  // const handleAddEmployee = async (data: EmployeeFormData) => {
+  //   try {
+  //     console.log("Adding employee:", data)
       
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+  //     await new Promise((resolve) => setTimeout(resolve, 1000))
       
-      toast({
-        title: "Employee added",
-        description: `${data.firstName} ${data.lastName} has been added successfully.`,
-        type: "success",
-      })
+  //     toast({
+  //       title: "Employee added",
+  //       description: `${data.name} has been added successfully.`,
+  //       type: "success",
+  //     })
       
-      closeSidebar()
+  //     closeSidebar()
       
-      // TODO: Refresh employee list
-    } catch (error) {
-      console.log(error)
-      toast({
-        title: "Error",
-        description: "Failed to add employee. Please try again.",
-        type: "error",
-      })
-    }
-  }
+  //     // TODO: Refresh employee list
+  //   } catch (error) {
+  //     console.log(error)
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to add employee. Please try again.",
+  //       type: "error",
+  //     })
+  //   }
+  // }
 
   const handleCreateGroup = async (data: GroupFormData) => {
     try {
@@ -167,20 +138,29 @@ export default function TeamLayout({
         <div className="flex-1 pt-4">{children}</div>
       </div>
 
-      {/* Add Employee Sidebar */}
       <SidebarSheet
         open={openSidebar === "add-employee"}
         onOpenChange={(open) => !open && closeSidebar()}
         title="Add New Employee"
         description="Fill in the details to add a new employee to your team."
       >
-        <AddEmployeeForm
-          onSubmit={handleAddEmployee}
+        <EmployeeForm
           onCancel={closeSidebar}
         />
       </SidebarSheet>
 
-      {/* Create Group Sidebar */}
+      {employeeDetail && <SidebarSheet
+        open={openSidebar === "edit-employee"}
+        onOpenChange={(open) => !open && closeSidebar()}
+        title="Edit Employee"
+        description="Fill in the details to edit an employee."
+      >
+        <EmployeeForm
+          onCancel={closeSidebar}
+          employeeDetail={employeeDetail}
+        />
+      </SidebarSheet>}
+
       <SidebarSheet
         open={openSidebar === "create-group"}
         onOpenChange={(open) => !open && closeSidebar()}

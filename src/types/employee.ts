@@ -1,15 +1,15 @@
 import { z } from 'zod'
 
 export const employeeSchema = z.object({
-  id: z.string().uuid(),
-  tenantId: z.string().uuid(),
+  id: z.uuid(),
+  tenantId: z.uuid(),
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
   department: z.string().min(1, 'Department is required'),
   positionTitle: z.string(),
   isActive: z.boolean(),
-  managerEmployeeId: z.string().email('Invalid manager email'),
-  employeeGroupId: z.string().uuid(),
+  managerEmployeeId: z.email('Invalid manager email'),
+  employeeGroupId: z.uuid(),
   createdAt: z.number().int().positive(),
   updatedAt: z.number().int().positive(),
 })
@@ -34,4 +34,30 @@ export interface EmployeeDetailsResponse {
   employees: Employee[]
   total: number
   limit: number
+}
+
+export const employeeFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.email("Invalid email address"),
+  department: z.string().min(1, "Department is required"),
+  positionTitle: z.string().min(1, "Position title is required"),
+  isActive: z.boolean(),
+  managerEmployeeId: z.email("Invalid manager email").optional().or(z.literal("")),
+  employeeGroupId: z.uuid("Invalid employee group ID").optional().or(z.literal("")),
+})
+
+export type EmployeeFormData = z.infer<typeof employeeFormSchema>
+
+export interface CreateEmployeeRequest {
+  name: string
+  email: string
+  department: string
+  positionTitle: string
+  isActive: boolean
+  managerEmployeeId?: string
+  employeeGroupId?: string
+}
+
+export interface UpdateEmployeeRequest extends CreateEmployeeRequest {
+  id: string
 }

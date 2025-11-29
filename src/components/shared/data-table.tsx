@@ -1,7 +1,7 @@
 "use client";
 // @ts-nocheck
 
-import * as React from "react";
+import { useImperativeHandle, useState, useEffect, useCallback, useRef, forwardRef } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -67,6 +67,12 @@ export interface DataTableAction<TData> {
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost";
 }
 
+export interface DataTableRef<TData> {
+  resetRowSelection: () => void;
+  getSelectedRows: () => Row<TData>[];
+  getTable: () => ReturnType<typeof useReactTable<TData>>;
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -87,46 +93,47 @@ interface DataTableProps<TData, TValue> {
   searchDebounceMs?: number;
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-  total,
-  searchKey,
-  searchPlaceholder = "Search...",
-  actions = [],
-  onRowClick,
-  onSearchChange,
-  onSortingChange,
-  onPaginationChange,
-  manualPagination = false,
-  manualSorting = false,
-  pageCount: controlledPageCount,
-  pageIndex: controlledPageIndex = 0,
-  pageSize: controlledPageSize = 10,
-  isLoading = false,
-  searchDebounceMs = 500,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [pagination, setPagination] = React.useState<PaginationState>({
+function DataTableInner<TData, TValue>(
+  {
+    columns,
+    data,
+    total,
+    searchKey,
+    searchPlaceholder = "Search...",
+    actions = [],
+    onRowClick,
+    onSearchChange,
+    onSortingChange,
+    onPaginationChange,
+    manualPagination = false,
+    manualSorting = false,
+    pageCount: controlledPageCount,
+    pageIndex: controlledPageIndex = 0,
+    pageSize: controlledPageSize = 10,
+    isLoading = false,
+    searchDebounceMs = 500,
+  }: DataTableProps<TData, TValue>,
+  ref: React.Ref<DataTableRef<TData>>
+) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: controlledPageIndex,
     pageSize: controlledPageSize,
   });
-  const [searchValue, setSearchValue] = React.useState("");
+  const [searchValue, setSearchValue] = useState("");
   
-  // Track if component is mounted to prevent callbacks during initial render
-  const isMountedRef = React.useRef(false);
-  const isUserInteractionRef = React.useRef(false);
+  const isMountedRef = useRef(false);
+  const isUserInteractionRef = useRef(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     isMountedRef.current = true;
   }, []);
 
-  // Sync controlled pagination from props (without triggering callbacks)
-  React.useEffect(() => {
+  useEffect(() => {
     if (manualPagination) {
       isUserInteractionRef.current = false;
       setPagination({
@@ -136,8 +143,7 @@ export function DataTable<TData, TValue>({
     }
   }, [controlledPageIndex, controlledPageSize, manualPagination]);
 
-  // Debounced search effect
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isMountedRef.current) return;
 
     const handler = setTimeout(() => {
@@ -155,13 +161,11 @@ export function DataTable<TData, TValue>({
     };
   }, [searchValue, searchDebounceMs]);
 
-  // Create wrapped handlers that call the parent callbacks
-  const handleSortingChange = React.useCallback(
+  const handleSortingChange = useCallback(
     (updater: SortingState | ((old: SortingState) => SortingState)) => {
       setSorting((old) => {
         const newSorting = typeof updater === "function" ? updater(old) : updater;
         
-        // Only call parent callback if this is a user interaction and component is mounted
         if (onSortingChange && manualSorting && isMountedRef.current && isUserInteractionRef.current) {
           onSortingChange(newSorting);
         }
@@ -172,12 +176,11 @@ export function DataTable<TData, TValue>({
     [onSortingChange, manualSorting]
   );
 
-  const handlePaginationChange = React.useCallback(
+  const handlePaginationChange = useCallback(
     (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
       setPagination((old) => {
         const newPagination = typeof updater === "function" ? updater(old) : updater;
         
-        // Only call parent callback if this is a user interaction and component is mounted
         if (onPaginationChange && manualPagination && isMountedRef.current && isUserInteractionRef.current) {
           onPaginationChange(newPagination);
         }
@@ -214,15 +217,22 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  // Expose methods to parent
+  useImperativeHandle(ref, () => ({
+    resetRowSelection: () => table.resetRowSelection(),
+    getSelectedRows: () => table.getFilteredSelectedRowModel().rows,
+    getTable: () => table,
+  }), [table]);
+
+  // ... rest of your existing component code (no changes needed below this)
+  
   const isFiltered = columnFilters.length > 0 || globalFilter.length > 0;
   const rowCount = total ?? table.getFilteredRowModel().rows.length;
 
-  // Handle search input change (updates local state, debounced effect handles the rest)
   const handleSearchInputChange = (value: string) => {
     setSearchValue(value);
   };
 
-  // Clear all filters
   const handleClearFilters = () => {
     table.resetColumnFilters();
     setGlobalFilter("");
@@ -232,7 +242,6 @@ export function DataTable<TData, TValue>({
     }
   };
 
-  // Wrapper functions for pagination buttons to mark user interactions
   const handleUserPageChange = (action: () => void) => {
     isUserInteractionRef.current = true;
     action();
@@ -250,7 +259,9 @@ export function DataTable<TData, TValue>({
               <Input
                 placeholder={searchPlaceholder}
                 value={searchValue}
-                onChange={(event) => handleSearchInputChange(event.target.value)}
+                onChange={(event) =>
+                  handleSearchInputChange(event.target.value)
+                }
                 className="pl-8 rounded-full border border-gray-300"
               />
               {isLoading && searchValue && (
@@ -262,12 +273,12 @@ export function DataTable<TData, TValue>({
           {/* Clear Filters */}
           {isFiltered && (
             <Button
-              variant="ghost"
+              variant="default"
               onClick={handleClearFilters}
               className="h-8 px-2 lg:px-3"
             >
               Reset
-              <X className="ml-2 h-4 w-4" />
+              <X className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -360,7 +371,7 @@ export function DataTable<TData, TValue>({
                     {columns.map((column, cellIndex) => (
                       <TableCell
                         key={cellIndex}
-                        style={{ width: column.size || 'auto' }}
+                        style={{ width: column.size || "auto" }}
                       >
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
@@ -447,7 +458,12 @@ export function DataTable<TData, TValue>({
           </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 w-[70px]" disabled={isLoading}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-[70px]"
+                disabled={isLoading}
+              >
                 {table.getState().pagination.pageSize} <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
@@ -546,7 +562,11 @@ export function DataTable<TData, TValue>({
                   variant={page === currentPage ? "default" : "outline"}
                   size="sm"
                   className="h-8 w-8 p-0"
-                  onClick={() => handleUserPageChange(() => table.setPageIndex(page as number))}
+                  onClick={() =>
+                    handleUserPageChange(() =>
+                      table.setPageIndex(page as number)
+                    )
+                  }
                   disabled={isLoading}
                 >
                   {(page as number) + 1}
@@ -572,7 +592,11 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             className="hidden lg:flex lg:h-8 lg:w-8 lg:p-0"
-            onClick={() => handleUserPageChange(() => table.setPageIndex(table.getPageCount() - 1))}
+            onClick={() =>
+              handleUserPageChange(() =>
+                table.setPageIndex(table.getPageCount() - 1)
+              )
+            }
             disabled={!table.getCanNextPage() || isLoading}
           >
             <span className="sr-only">Go to last page</span>
@@ -608,7 +632,7 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const isSorted = column.getIsSorted();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
-  const [filterSearch, setFilterSearch] = React.useState("");
+  const [filterSearch, setFilterSearch] = useState("");
 
   // Filter the options based on search
   const filteredOptions = filterOptions.filter((option) =>
@@ -779,3 +803,7 @@ export function DataTableColumnHeader<TData, TValue>({
     </div>
   );
 }
+
+export const DataTable = forwardRef(DataTableInner) as <TData, TValue>(
+  props: DataTableProps<TData, TValue> & { ref?: React.Ref<DataTableRef<TData>> }
+) => ReturnType<typeof DataTableInner>;
