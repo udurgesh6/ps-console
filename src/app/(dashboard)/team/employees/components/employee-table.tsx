@@ -38,6 +38,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DataTableRef } from "@/components/shared/data-table";
 import { AssignGroupDialog } from "./assign-group-dialog";
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { Error } from "@/components/shared/error";
 
 export const EmployeesTable = () => {
   const { toast } = useToast();
@@ -120,7 +121,7 @@ export const EmployeesTable = () => {
     }, 0);
   }, []);
 
-  if (error) return <div>Something went wrong!</div>;
+  if (error) return <Error error={error} />;
 
   const columns: ColumnDef<Employee>[] = [
     {
@@ -359,9 +360,7 @@ export const EmployeesTable = () => {
       />
       <DeleteConfirmationDialog
         open={deleteDialog.open}
-        onOpenChange={(open) =>
-          setDeleteDialog((prev) => ({ ...prev, open }))
-        }
+        onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
         onConfirm={handleConfirmDelete}
         itemCount={deleteDialog.employeeIds.length}
         itemType="employee"

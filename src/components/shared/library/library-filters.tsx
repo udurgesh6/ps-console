@@ -38,24 +38,24 @@ export const LibraryFilters: React.FC<LibraryFiltersProps> = ({
 
       {/* Filter Groups */}
       {filterGroups.map((group, groupIndex) => (
-        <div key={group.key}>
+        <div key={group.id}>
           {groupIndex > 0 && <Separator className="my-6" />}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">{group.title}</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{group.name}</h3>
             <div className="space-y-3">
               {group.options.map((option) => (
-                <div key={option.value} className="flex items-center space-x-3">
+                <div key={option.id} className="flex items-center space-x-3">
                   <Checkbox
-                    id={`${group.key}-${option.value}`}
-                    checked={selectedFilters[group.key]?.includes(option.value) || false}
-                    onCheckedChange={() => onFilterChange(group.key, option.value)}
+                    id={`${group.id}-${option.id}`}
+                    checked={selectedFilters[group.id]?.includes(option.id) || false}
+                    onCheckedChange={() => onFilterChange(group.id, option.id)}
                     className="data-[state=checked]:bg-black data-[state=checked]:border-black"
                   />
                   <Label
-                    htmlFor={`${group.key}-${option.value}`}
+                    htmlFor={`${group.id}-${option.id}`}
                     className="flex-1 text-sm font-normal cursor-pointer text-gray-700 hover:text-gray-900"
                   >
-                    <span>{option.label}</span>
+                    <span>{option.name}</span>
                     {option.count !== undefined && (
                       <span className="ml-2 text-gray-400">{option.count}</span>
                     )}

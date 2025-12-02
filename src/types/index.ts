@@ -11,3 +11,5 @@ export * from './employee-group';
 export * from './awareness';
 export * from './employee';
 export * from './operations';
+export * from './email-template';
+export * from './general';

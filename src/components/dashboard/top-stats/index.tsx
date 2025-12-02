@@ -1,17 +1,24 @@
-import { TopStatsCard } from '@/components/dashboard/top-stats/top-stats-card'
-import { TopStatsCardProps } from '@/types'
+import { TopStatsCard } from "@/components/dashboard/top-stats/top-stats-card";
+import { TopStatsCardProps } from "@/types";
 
-export const TopStats = ({topStats}: {topStats: TopStatsCardProps[]}) => {
+export const TopStats = ({
+  topStats,
+  isLoading,
+}: {
+  topStats: TopStatsCardProps[];
+  isLoading?: boolean;
+}) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-         {topStats.map((stat: TopStatsCardProps) => (
-            <TopStatsCard
-              key={stat.title}
-              icon={stat.icon}
-              title={stat.title}
-              value={stat.value}
-            />
-          ))}
+      {topStats.map((stat: TopStatsCardProps) => (
+        <TopStatsCard
+          key={stat.title}
+          icon={stat.icon}
+          title={stat.title}
+          value={stat.value}
+          isLoading={isLoading}
+        />
+      ))}
     </div>
-  )
-}
+  );
+};

@@ -41,8 +41,11 @@ const ContextAwareCreateButton = () => {
         buttonLabel: isEmployeesPage ? 'Employee' : 'Group'
       };
     }
+    if (pathname.startsWith('/attack-vector/vishing')) {
+      return { type: 'vishing' };
+    }
     if (pathname.startsWith('/attack-vector')) {
-      return { type: 'attack-vector' };
+      return { type: 'phishing' };
     }
     if (pathname.startsWith('/simulation')) {
       return { type: 'simulation' };
@@ -68,8 +71,11 @@ const ContextAwareCreateButton = () => {
           setOpenSidebar(pageContext.isEmployeesPage ? 'import-employees' : 'import-groups');
         }
         break;
-      case 'attack-vector':
+      case 'phishing':
         router.push('/attack-vector/new');
+        break;
+      case 'vishing':
+        router.push('/attack-vector/vishing/new');
         break;
       case 'simulation':
         router.push('/simulations/new');
@@ -110,14 +116,26 @@ const ContextAwareCreateButton = () => {
     );
   }
 
-  if (pageContext.type === 'attack-vector') {
+  if (pageContext.type === 'phishing') {
     return (
       <Button 
         onClick={() => handleCreateAction('create')}
         className="bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center"
       >
         <Plus className="h-4 w-4" />
-         AttackVector
+         Phishing
+      </Button>
+    );
+  }
+
+  if (pageContext.type === 'vishing') {
+    return (
+      <Button 
+        onClick={() => handleCreateAction('create')}
+        className="bg-primary hover:bg-primary/90 text-white rounded-full h-9 px-4 flex items-center justify-center"
+      >
+        <Plus className="h-4 w-4" />
+         Vishing
       </Button>
     );
   }

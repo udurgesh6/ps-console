@@ -5,11 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { attackVectorSubCategories } from "@/constants/temporary/attack-vectors";
-import { AttackVectorBasicInfoFormData } from "@/types/attack-vector";
-
+import { AttackVectorVishingBasicInfoFormData, VishingLanguage } from "@/types";
 
 interface BasicInfoStepProps {
-  form: UseFormReturn<AttackVectorBasicInfoFormData>;
+  form: UseFormReturn<AttackVectorVishingBasicInfoFormData>;
   isSubmitting?: boolean;
 }
 
@@ -35,7 +34,7 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder="e.g., Phishing Email Campaign"
+                    placeholder="e.g., Vishing Email Campaign"
                     disabled={isSubmitting}
                     className="text-base h-11"
                   />
@@ -71,28 +70,31 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
         </div>
 
         <div className="border-t border-gray-200 pt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <FormField
               control={form.control}
-              name="type"
+              name="language"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-sm font-medium" required>Type</FormLabel>
+                  <FormLabel className="text-sm font-medium" required>Language</FormLabel>
                   <Select
                     value={field.value}
-                    onValueChange={(value: "click" | "submission") => {
+                    onValueChange={(value: VishingLanguage) => {
                       field.onChange(value);
                     }}
                     disabled={isSubmitting}
                   >
                     <FormControl>
                       <SelectTrigger className="h-11 w-full">
-                        <SelectValue placeholder="Select type" />
+                        <SelectValue placeholder="Select language" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="click">Click</SelectItem>
-                      <SelectItem value="submission">Submission</SelectItem>
+                      {Object.keys(VishingLanguage).map((language) => (
+                        <SelectItem key={language} value={VishingLanguage[language]}>
+                          {language.charAt(0).toUpperCase() + language.slice(1).toLowerCase()}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

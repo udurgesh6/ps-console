@@ -1,5 +1,5 @@
 // lib/axios.ts
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 import { API_CONFIG } from "../config/constants";
 import type { ApiErrorResponse } from "@/types/api";
@@ -37,7 +37,6 @@ let refreshPromise: Promise<string> | null = null;
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
-    console.log(error)
     const originalRequest = error.config as CustomAxiosRequestConfig;
     
     const isAuthEndpoint =
@@ -118,8 +117,8 @@ apiClient.interceptors.response.use(
 
 export const api = {
   get: <T>(url: string, params?: Record<string, unknown>) => apiClient.get<T>(url, {params}).then((res) => res.data),
-  post: <T, D = unknown>(url: string, data?: D) =>
-    apiClient.post<T>(url, data).then((res) => res.data),
+  post: <T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) =>
+    apiClient.post<T>(url, data, config).then((res) => res.data),
   put: <T, D = unknown>(url: string, data?: D) =>
     apiClient.put<T>(url, data).then((res) => res.data),
   delete: <T>(url: string) => apiClient.delete<T>(url).then((res) => res.data),

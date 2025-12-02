@@ -17,18 +17,14 @@ import { Switch } from "@/components/ui/switch";
 import { Employee, EmployeeFormData, employeeFormSchema } from "@/types";
 import { useToast } from "@/hooks";
 import { useCreateEmployee, useUpdateEmployee } from "@/hooks";
+import { useSidebar } from "@/context/sidebar-context";
 
 interface EmployeeFormProps {
-  onCancel: () => void;
-  isLoading?: boolean;
   employeeDetail?: Partial<Employee>;
 }
 
-export function EmployeeForm({
-  onCancel,
-  isLoading = false,
-  employeeDetail,
-}: EmployeeFormProps) {
+export function EmployeeForm({ employeeDetail }: EmployeeFormProps) {
+  const { closeSidebar } = useSidebar();
   const { toast } = useToast();
   const createEmployee = useCreateEmployee();
   const updateEmployee = useUpdateEmployee();
@@ -65,7 +61,7 @@ export function EmployeeForm({
           type: "success",
         });
       }
-      onCancel();
+      closeSidebar();
     } catch (error) {
       console.log(error);
       toast({
@@ -173,12 +169,12 @@ export function EmployeeForm({
           <Button
             type="button"
             variant="outline"
-            onClick={onCancel}
-            disabled={isLoading || isMutating}
+            onClick={closeSidebar}
+            disabled={isMutating}
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading || isMutating}>
+          <Button type="submit" disabled={isMutating}>
             {isMutating
               ? "Saving..."
               : isEditMode

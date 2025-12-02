@@ -28,8 +28,9 @@ import { DataTableRef } from "@/components/shared/data-table";
 import { useSidebar } from "@/context/sidebar-context";
 import { createBulkDeleteRequest } from "@/helpers/operations";
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { Error } from "@/components/shared/error";
 
-export const GroupsTable = () => {
+export const EmployeeGroupsTable = () => {
   const { toast } = useToast();
   const { setOpenSidebar, setGroupDetail } = useSidebar();
 
@@ -85,7 +86,7 @@ export const GroupsTable = () => {
     }, 0);
   }, []);
 
-  if (error) return <div>Something went wrong!</div>;
+  if (error) return <Error error={error} />;
 
   const columns: ColumnDef<EmployeeGroup>[] = [
     {

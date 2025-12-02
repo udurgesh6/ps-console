@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { employeeService } from '@/services'
-import { CreateEmployeeRequest, Employee, ApiError, EmployeeQueryParams, EmployeeDetailsResponse, UseOperationOptions } from '@/types'
+import { CreateEmployeeRequest, Employee, ApiError, EmployeeQueryParams, EmployeeDetailsResponse, UseOperationOptions, EmployeeSummaryResponse, EmployeeImportResponse } from '@/types'
 import { useOperation } from './use-operations'
 
 export const useGetEmployees = (params?: EmployeeQueryParams) => {
@@ -50,3 +50,22 @@ export const useEmployeeOperation = (options?: UseOperationOptions) => {
   })
 }
 
+export const useGetEmployeeSummary = () => {
+  return useQuery<EmployeeSummaryResponse, ApiError>({
+    queryKey: ['employee-summary'],
+    queryFn: () => employeeService.getEmployeeSummary(),
+  })
+}
+
+export const useImportEmployees = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (file: File): Promise<EmployeeImportResponse> =>
+      employeeService.importEmployees(file),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] })
+    },
+  })
+}

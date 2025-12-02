@@ -68,7 +68,7 @@ export const AttackVectorItem = (
               width: '600px',
               height: '800px',
             }}
-            srcDoc={item.emailHtmlTemplate}
+            srcDoc={item.emailTemplate?.htmlBody}
             sandbox=""
             title={`Email preview for ${item.name}`}
           />
@@ -77,7 +77,7 @@ export const AttackVectorItem = (
       
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-gray-100 opacity-100 group-hover:opacity-0 transition-opacity duration-300 p-3 z-20">
         <p className="text-white text-sm font-semibold truncate">{item.name}</p>
-        <p className="text-white/80 text-xs truncate">{item.emailSubject}</p>
+        <p className="text-white/80 text-xs truncate">{item.emailTemplate?.subject}</p>
       </div>
     </Card>
   );

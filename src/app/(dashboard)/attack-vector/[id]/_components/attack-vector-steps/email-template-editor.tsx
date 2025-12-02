@@ -27,7 +27,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Eye, Code, Sparkles, Upload } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { AttackVectorEmailHtmlTemplateFormData } from "@/types";
+import { AttackVectorEmailTemplateFormData } from "@/types";
 import { scopeHtmlTemplate } from "@/lib/scope-html-template";
 import { useWatch } from "react-hook-form";
 import { availableDomains } from "@/constants/temporary/available-domains";
@@ -36,7 +36,7 @@ import { TemplateModal } from "./template-modal";
 import { EmailPreviewModal } from "@/app/(dashboard)/templates/components/email-preview-modal";
 
 interface EmailTemplateEditorProps {
-  form: UseFormReturn<AttackVectorEmailHtmlTemplateFormData>;
+  form: UseFormReturn<AttackVectorEmailTemplateFormData>;
   isSubmitting: boolean;
   htmlError: string;
   setHtmlError: (error: string) => void;
@@ -116,9 +116,9 @@ export const EmailTemplateEditor = ({
         if (validationResult.valid) {
           setHtmlError("");
           // Use setTimeout to break out of the render cycle
-          setTimeout(() => {
-            form.clearErrors("htmlContent");
-          }, 0);
+          // setTimeout(() => {
+          //   form.clearErrors("htmlContent");
+          // }, 0);
         } else {
           const firstError = validationResult.errors[0];
           const errorMessage = `${firstError.message}`;
@@ -257,59 +257,74 @@ export const EmailTemplateEditor = ({
 
           <div className="pb-6 border-b">
             <div className="space-y-3">
-              <FormItem className="flex flex-row items-center gap-4">
-                <FormLabel className="w-16">From</FormLabel>{" "}
-                <div className="flex flex-1 items-center">
-                  <FormField
-                    control={form.control}
-                    name="emailPrefix"
-                    render={({ field }) => (
-                      <FormItem className="w-28">
-                        <FormControl>
-                          <Input
-                            {...field}
-                            disabled={isSubmitting}
-                            placeholder="e.g., info"
-                            className="border-0 border-b-2 shadow-none rounded-none border-dashed px-0"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {/* Fixed From field - single row layout with errors below */}
+              <div className="flex flex-row items-start gap-4">
+                <FormLabel className="w-16 pt-2">From</FormLabel>
+                <div className="flex-1">
+                  <div className="flex items-center">
+                    <FormField
+                      control={form.control}
+                      name="emailPrefix"
+                      render={({ field }) => (
+                        <FormItem className="w-28">
+                          <FormControl>
+                            <Input
+                              {...field}
+                              disabled={isSubmitting}
+                              placeholder="e.g., info"
+                              className="border-0 border-b-2 shadow-none rounded-none border-dashed px-0"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="emailFromDomain"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Select
-                            disabled={isSubmitting}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0">
-                              <SelectValue
-                                placeholder="@Select domain"
-                                className="rounded-0"
-                              />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-0">
-                              {availableDomains.map((domain) => (
-                                <SelectItem key={domain} value={domain}>
-                                  {domain}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                    <FormField
+                      control={form.control}
+                      name="emailFromDomain"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Select
+                              disabled={isSubmitting}
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger className="flex-1 border-0 border-b-2 cursor-pointer shadow-none rounded-none border-dashed pl-0">
+                                <SelectValue
+                                  placeholder="@Select domain"
+                                  className="rounded-0"
+                                />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-0">
+                                {availableDomains.map((domain) => (
+                                  <SelectItem key={domain} value={domain}>
+                                    {domain}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {/* Display error messages for both fields below the combined input */}
+                  <div className="mt-1 min-h-[20px]">
+                    {form.formState.errors.emailPrefix && (
+                      <p className="text-sm font-medium text-destructive">
+                        {form.formState.errors.emailPrefix.message}
+                      </p>
                     )}
-                  />
+                    {form.formState.errors.emailFromDomain && (
+                      <p className="text-sm font-medium text-destructive">
+                        {form.formState.errors.emailFromDomain.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </FormItem>
+              </div>
+              
               <FormField
                 control={form.control}
                 name="subject"

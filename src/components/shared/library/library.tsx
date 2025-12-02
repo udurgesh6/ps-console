@@ -127,7 +127,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
         {showBulkActions && (
           <div className={cn(
             "flex-shrink-0",
-            !showInModal && "bg-white border-b rounded-tr-3xl border-gray-200 px-6 py-4",
+            !showInModal && "bg-white border-b rounded-t-3xl border-gray-200 px-6 py-4",
             selectedItems.length === 0 && "hidden md:block"
           )}>
             <BulkActions

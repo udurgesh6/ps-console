@@ -13,12 +13,9 @@ import { SimulationProfileAttackVectorsFormData } from "@/types";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  dummyAttackVectors,
-  filterGroups,
-} from "@/constants/temporary/attack-vectors";
 import { AttackVectorItem } from "@/app/(dashboard)/attack-vector/components/attack-vector-item";
 import { cn } from "@/lib/utils";
+import { useGetAttackVectors, useGetAttackVectorFilters } from "@/hooks";
 
 interface SimulationProfileAttackVectorsStepProps {
   form: UseFormReturn<SimulationProfileAttackVectorsFormData>;
@@ -29,6 +26,9 @@ export const SimulationProfileAttackVectorsStep = ({
   form,
   isSubmitting = true,
 }: SimulationProfileAttackVectorsStepProps) => {
+  const { data: attackVectorsData, isLoading: attackVectorsLoading, error: attackVectorsError } = useGetAttackVectors();
+  const { data: filterGroupsData, isLoading: filterGroupsLoading, error: filterGroupsError } = useGetAttackVectorFilters();
+
   const [showModal, setShowModal] = useState(false);
 
   const {
@@ -80,6 +80,17 @@ export const SimulationProfileAttackVectorsStep = ({
     // Open the library modal
     setShowModal(true);
   };
+
+  const isLoading = attackVectorsLoading || filterGroupsLoading;
+  const error = attackVectorsError || filterGroupsError;
+
+  if (isLoading) {
+    return <></>
+  }
+
+  if (error) {
+    return <></>;
+  }
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -211,7 +222,7 @@ export const SimulationProfileAttackVectorsStep = ({
                               width: '600px',
                               height: '800px',
                             }}
-                            srcDoc={av.emailHtmlTemplate}
+                            srcDoc={av.emailTemplate.htmlBody}
                             sandbox=""
                             title={`Email preview for ${av.name}`}
                           />
@@ -220,7 +231,7 @@ export const SimulationProfileAttackVectorsStep = ({
                       
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-3 z-20">
                         <p className="text-white text-sm font-semibold truncate">{av.name}</p>
-                        <p className="text-white/80 text-xs truncate">{av.emailSubject}</p>
+                        <p className="text-white/80 text-xs truncate">{av.emailTemplate.subject}</p>
                       </div>
                     </Card>
 
@@ -249,8 +260,8 @@ export const SimulationProfileAttackVectorsStep = ({
             <DialogTitle>Attack Vector Library</DialogTitle>
           </DialogHeader>
           <Library
-            items={dummyAttackVectors}
-            filterGroups={filterGroups}
+            items={attackVectorsData?.attackVectors || []}
+            filterGroups={filterGroupsData?.filters || []}
             renderItem={AttackVectorItem}
             showFilters={true}
             showSearch={true}

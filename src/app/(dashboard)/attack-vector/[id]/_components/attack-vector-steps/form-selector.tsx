@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/dialog";
 import { Library as LibraryIcon, Plus } from "lucide-react";
 import { Library } from "@/components/shared/library";
-import { Form, LibraryItem } from "@/types";
+import { FilterObject, Form, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
-import { AttackVectorFormsSelectorFormData } from "@/types/attack-vector";
+import { AttackVectorFormsFormData } from "@/types/attack-vector";
 import { useFieldArray } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { FormItem } from "./form-item";
@@ -20,7 +20,7 @@ import { sampleFormTemplates } from "@/constants/temporary/forms";
 import { AddFormComponent } from "@/app/(dashboard)/templates/components/add-form";
 
 interface FormSelectorProps {
-  form: UseFormReturn<AttackVectorFormsSelectorFormData>;
+  form: UseFormReturn<AttackVectorFormsFormData>;
 }
 
 export const FormSelector = ({ form }: FormSelectorProps) => {
@@ -37,23 +37,23 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
     name: "forms",
   });
 
-  const filterGroups = [
+  const filterGroups: FilterObject[] = [
     {
-      title: "Form Type",
-      key: "category",
+      name: "Form Type",
+      id: "category",
       options: [
-        { label: "Contact", value: "contact", count: 1 },
-        { label: "Registration", value: "registration", count: 1 },
-        { label: "Survey", value: "survey", count: 1 },
-        { label: "Newsletter", value: "newsletter", count: 1 },
+        { name: "Contact", id: "contact" },
+        { name: "Registration", id: "registration" },
+        { name: "Survey", id: "survey" },
+        { name: "Newsletter", id: "newsletter" },
       ]
     },
     {
-      title: "Complexity",
-      key: "complexity",
+      name: "Complexity",
+      id: "complexity",
       options: [
-        { label: "Simple", value: "simple", count: 2 },
-        { label: "Advanced", value: "advanced", count: 2 },
+        { name: "Simple", id: "simple" },
+        { name: "Advanced", id: "advanced" },
       ]
     }
   ];

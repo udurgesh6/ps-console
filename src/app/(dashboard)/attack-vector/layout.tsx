@@ -1,26 +1,31 @@
 "use client"
 
-import { PageHeader } from "@/components/shared/page-header"
-import { Button } from "@/components/ui/button"
 import { Breadcrumb } from "@/components/shared/breadcrumb"
-import { PlusIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { dummyAttackVectors } from "@/constants/temporary/attack-vectors"
-import { useRouter } from "next/navigation"
+import { useGetAttackVectorById } from "@/hooks"
+import { SubNav, SubNavItem } from "@/components/shared/sub-nav"
+
+const attackVectorNavItems: SubNavItem[] = [
+  {
+    title: "Phishing ",
+    href: "/attack-vector",
+  },
+  {
+    title: "Vishing",
+    href: "/attack-vector/vishing",
+  },
+];
 
 export default function AttackVectorLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
   const pathname = usePathname()
-  const isEditRoute = pathname.startsWith('/attack-vector/') && pathname !== '/attack-vector'
+  const isEditRoute = pathname !== "/attack-vector" && pathname !== "/attack-vector/vishing"
   
-  // Extract attack vector ID from pathname - more robust approach
   const getAttackVectorId = () => {
     if (isEditRoute) {
-      // Split pathname and get the last segment which should be the ID
       const segments = pathname.split('/').filter(Boolean)
       return segments[segments.length - 1] || null
     }
@@ -29,40 +34,27 @@ export default function AttackVectorLayout({
 
   const attackVectorId = getAttackVectorId()
   
-  // Find attack vector by ID and return its name
-  const getAttackVectorName = (id: string | null) => {
-    if (!id) return "Unknown Attack Vector"
-    
-    const attackVector = dummyAttackVectors.find(av => av.id === id)
-    return attackVector ? attackVector.name : `Attack Vector ${id}`
+  const { data: attackVector, isLoading } = useGetAttackVectorById(attackVectorId || '')
+  
+  const getAttackVectorName = () => {
+    if (isLoading) return "Loading..."
+    if (!attackVectorId) return "Unknown Attack Vector"
+    return attackVector?.name || `New`
   }
 
   return (
     <div className="flex flex-col space-y-4">
-      {/* {!isEditRoute && (
-        <div className="flex items-center justify-between">
-          <PageHeader />
-          <div className="flex gap-0">
-            <Button onClick={() => router.push('/attack-vector/new')}>
-              <PlusIcon className=" h-4 w-4 font-semibold" />
-              Create New
-            </Button>
-          </div>
-        </div>
-      )} */}
-      
-      {/* Breadcrumb Navigation - Only show on edit routes */}
       {isEditRoute && (
         <div className="">
           <Breadcrumb 
             items={[
               { label: "Attack Vector", href: "/attack-vector" },
-              { label: getAttackVectorName(attackVectorId), isActive: true }
+              { label: getAttackVectorName(), isActive: true }
             ]}
           />
         </div>
       )}
-      
+      {!isEditRoute && <SubNav items={attackVectorNavItems} />}
       <div className="flex-1">{children}</div>
     </div>
   )

@@ -16,6 +16,7 @@ export const StoryNavigation: React.FC<StoryNavigationProps> = ({
   className,
   isNextProcessing
 }) => {
+  console.log(!canProceed, isNextProcessing)
   const handleNext = () => {
     if (isLastStep && onComplete) {
       onComplete();

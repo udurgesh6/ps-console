@@ -43,9 +43,22 @@ export const Story: React.FC<StoryProps> = ({
   const isLastStep = currentStepIndex === steps.length - 1;
   
   const canProceed = useMemo(() => {
-    if (!currentStep) return false;
-    return currentStep.validation ? currentStep.validation() : true;
-  }, [currentStep]);
+  if (!currentStep) {
+    console.log("canProceed: No current step");
+    return false;
+  }
+  
+  const result = currentStep.validation ? currentStep.validation() : true;
+  
+  console.log("canProceed calculation:", {
+    stepId: currentStep.id,
+    hasValidation: !!currentStep.validation,
+    result,
+    currentStep
+  });
+  
+  return result;
+}, [currentStep]);
 
   const handleStepChange = useCallback((stepId: string) => {
     if (onStepChange) {

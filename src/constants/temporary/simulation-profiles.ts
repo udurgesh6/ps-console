@@ -1,5 +1,5 @@
 import { SimulationProfile } from "@/types";
-import { dummyAttackVectors } from "./attack-vectors";
+// import { dummyAttackVectors } from "./attack-vectors";
 
 export const dummySimulationProfiles: SimulationProfile[] = [
   {
@@ -11,11 +11,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 4,
     simulationFrequency: 4,
     employeeGroups: [],
-    attackVectors: [
-      dummyAttackVectors[0],
-      dummyAttackVectors[1],
-      dummyAttackVectors[2],
-    ],
+    attackVectors: [],
     schedule: {
       type: "custom",
       dayOfWeek: ["monday", "wednesday"],
@@ -33,7 +29,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 1,
     simulationFrequency: 1,
     employeeGroups: [],
-    attackVectors: [dummyAttackVectors[3], dummyAttackVectors[6]],
+    attackVectors: [],
     schedule: {
       type: "monthly",
       dayOfMonth: 15,
@@ -51,12 +47,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 2,
     simulationFrequency: 2,
     employeeGroups: [],
-    attackVectors: [
-      dummyAttackVectors[2],
-      dummyAttackVectors[3],
-      dummyAttackVectors[8],
-      dummyAttackVectors[11],
-    ],
+    attackVectors: [],
     schedule: {
       type: "bi-weekly",
       dayOfWeek: ["tuesday", "thursday"],
@@ -74,11 +65,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 3,
     simulationFrequency: 0.33,
     employeeGroups: [],
-    attackVectors: [
-      dummyAttackVectors[0],
-      dummyAttackVectors[5],
-      dummyAttackVectors[10],
-    ],
+    attackVectors: [],
     schedule: {
       type: "quarterly",
       monthsOfYear: [3, 6, 9, 12],
@@ -97,7 +84,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 4,
     simulationFrequency: 4,
     employeeGroups: [],
-    attackVectors: [dummyAttackVectors[5], dummyAttackVectors[9]],
+    attackVectors: [],
     schedule: {
       type: "weekly",
       dayOfWeek: ["friday"],
@@ -115,11 +102,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 2,
     simulationFrequency: 2,
     employeeGroups: [],
-    attackVectors: [
-      dummyAttackVectors[0],
-      dummyAttackVectors[5],
-      dummyAttackVectors[10],
-    ],
+    attackVectors: [],
     schedule: {
       type: "bi-weekly",
       dayOfWeek: ["monday"],
@@ -137,7 +120,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 1,
     simulationFrequency: 1,
     employeeGroups: [],
-    attackVectors: [dummyAttackVectors[0], dummyAttackVectors[4]],
+    attackVectors: [],
     schedule: {
       type: "monthly",
       dayOfMonth: 10,
@@ -155,7 +138,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 2,
     simulationFrequency: 2,
     employeeGroups: [],
-    attackVectors: [dummyAttackVectors[8], dummyAttackVectors[10]],
+    attackVectors: [],
     schedule: {
       type: "custom",
       dayOfWeek: ["tuesday", "thursday"],
@@ -173,11 +156,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 5,
     simulationFrequency: 4,
     employeeGroups: [],
-    attackVectors: [
-      dummyAttackVectors[3],
-      dummyAttackVectors[8],
-      dummyAttackVectors[11],
-    ],
+    attackVectors: [],
     schedule: {
       type: "weekly",
       dayOfWeek: ["wednesday"],
@@ -195,12 +174,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 1,
     simulationFrequency: 1,
     employeeGroups: [],
-    attackVectors: [
-      dummyAttackVectors[5],
-      dummyAttackVectors[6],
-      dummyAttackVectors[7],
-      dummyAttackVectors[9],
-    ],
+    attackVectors: [],
     schedule: {
       type: "monthly",
       dayOfMonth: 5,
@@ -218,7 +192,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 6,
     simulationFrequency: 1,
     employeeGroups: [],
-    attackVectors: [dummyAttackVectors[12]],
+    attackVectors: [],
     schedule: {
       type: "custom",
       specificDates: ["2024-11-01", "2024-11-02", "2024-11-03"],
@@ -236,11 +210,7 @@ export const dummySimulationProfiles: SimulationProfile[] = [
     simulationInterval: 3,
     simulationFrequency: 0.33,
     employeeGroups: [],
-    attackVectors: [
-      dummyAttackVectors[2],
-      dummyAttackVectors[7],
-      dummyAttackVectors[9],
-    ],
+    attackVectors: [],
     schedule: {
       type: "quarterly",
       monthsOfYear: [1, 4, 7, 10],

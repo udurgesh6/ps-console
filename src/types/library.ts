@@ -3,22 +3,23 @@ import { Form } from "./form";
 import { Course } from "./course";
 import { LandingPage } from "./landing-page";
 import { AttackVector } from "./attack-vector";
+import { FilterObject } from "./general";
 
-export interface FilterOption {
-  label: string;
-  value: string;
-  count?: number;
-}
+// export interface FilterOption {
+//   label: string;
+//   value: string;
+//   count?: number;
+// }
 
-export interface FilterGroup {
-  title: string;
-  key: string;
-  options: FilterOption[];
-}
+// export interface FilterGroup {
+//   title: string;
+//   key: string;
+//   options: FilterOption[];
+// }
 
-export interface Filter {
-  groups: FilterGroup[];
-}
+// export interface Filter {
+//   groups: FilterGroup[];
+// }
 
 export interface LibraryItem {
   id: string;
@@ -40,8 +41,8 @@ export interface LibraryItem {
   landingPages?: LandingPage[];
   courses?: Course[];
   tropicality?: string;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: number;
+  endDate?: number;
   status?: boolean;
 }
 
@@ -60,7 +61,7 @@ export interface LibraryProps {
   showActionButton?: boolean;
   showInModal?: boolean;
   isOpen?: boolean;
-  filterGroups?: FilterGroup[];
+  filterGroups?: FilterObject[];
   bulkActions?: BulkAction<LibraryItem>[];
   items: LibraryItem[];
   initialSelectedItems?: string[];
@@ -105,7 +106,7 @@ export interface LibraryItemProps {
 }
 
 export interface LibraryFiltersProps {
-  filterGroups: FilterGroup[];
+  filterGroups: FilterObject[];
   selectedFilters: Record<string, string[]>;
   onFilterChange: (filterKey: string, value: string) => void;
   showSearch: boolean;

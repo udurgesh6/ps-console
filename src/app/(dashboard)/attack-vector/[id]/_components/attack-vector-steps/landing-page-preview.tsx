@@ -65,7 +65,7 @@ export const LandingPagePreview = ({
                 height: "auto",
                 minHeight: "400px",
               }}
-              srcDoc={item.htmlTemplate}
+              srcDoc={item.htmlPage}
               sandbox=""
               title={`Landing page preview for ${item.name}`}
               onLoad={(e) => {

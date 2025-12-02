@@ -61,3 +61,20 @@ export interface CreateEmployeeRequest {
 export interface UpdateEmployeeRequest extends CreateEmployeeRequest {
   id: string
 }
+
+export interface RiskLevels {
+  low: number
+  medium: number
+  high: number
+}
+
+export interface EmployeeSummaryResponse {
+  total: number
+  active: number
+  inactive: number
+  riskLevels: RiskLevels
+}
+
+export interface EmployeeImportResponse {
+  message: string
+}

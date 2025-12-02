@@ -44,3 +44,16 @@ export interface CreateEmployeeGroupRequest {
 export interface UpdateEmployeeGroupRequest extends CreateEmployeeGroupRequest {
   id: string;
 }
+
+export interface RiskLevels {
+  low: number
+  medium: number
+  high: number
+}
+
+export interface EmployeeGroupSummaryResponse {
+  total: number
+  active: number
+  inactive: number
+  riskLevels: RiskLevels
+}

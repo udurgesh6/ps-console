@@ -4,6 +4,7 @@ import type {
   EmployeeGroup,
   EmployeeGroupDetailsResponse,
   EmployeeGroupQueryParams,
+  EmployeeGroupSummaryResponse,
 } from "@/types";
 
 export const employeeGroupService = {
@@ -37,6 +38,12 @@ export const employeeGroupService = {
       `/employee-groups/${id}`,
       data
     );
+    return response;
+  },
+
+  getEmployeeGroupSummary: async (): Promise<EmployeeGroupSummaryResponse> => {
+    const response =
+      await api.get<EmployeeGroupSummaryResponse>("/employee-groups/summary");
     return response;
   },
 };

@@ -8,9 +8,9 @@ import {
 import { Sparkles, Library as LibraryIcon } from "lucide-react";
 import { Library } from "@/components/shared/library";
 import { landingPages } from "@/constants/temporary/landing-pages";
-import { LandingPage, LibraryItem } from "@/types";
+import { FilterObject, LandingPage, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
-import { AttackVectorLandingPageSelectorFormData } from "@/types/attack-vector";
+import { AttackVectorLandingPageFormData } from "@/types/attack-vector";
 import { useFieldArray } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { LandingPageItem } from "./landing-page-item";
@@ -19,7 +19,7 @@ import { TemplateModal } from "./template-modal";
 import { EmailPreviewModal } from "@/app/(dashboard)/templates/components/email-preview-modal";
 
 interface LandingPageSelectorProps {
-  form: UseFormReturn<AttackVectorLandingPageSelectorFormData>;
+  form: UseFormReturn<AttackVectorLandingPageFormData>;
 }
 
 interface GeneratedTemplateResult {
@@ -44,23 +44,23 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
     name: "landingPages",
   });
 
-  const filterGroups = [
+  const filterGroups: FilterObject[] = [
     {
-      title: "Page Type",
-      key: "category",
+      name: "Page Type",
+      id: "category",
       options: [
-        { label: "Product", value: "product", count: 1 },
-        { label: "SaaS", value: "saas", count: 1 },
-        { label: "Event", value: "event", count: 1 },
-        { label: "Portfolio", value: "portfolio", count: 1 },
+        { name: "Product", id: "product" },
+        { name: "SaaS", id: "saas" },
+        { name: "Event", id: "event" },
+        { name: "Portfolio", id: "portfolio" },
       ],
     },
     {
-      title: "Style",
-      key: "style",
+      name: "Style",
+      id: "style",
       options: [
-        { label: "Modern", value: "modern", count: 2 },
-        { label: "Creative", value: "creative", count: 2 },
+        { name: "Modern", id: "modern" },
+        { name: "Creative", id: "creative" },
       ],
     },
   ];
@@ -98,13 +98,14 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
   };
 
   const handleUseTemplate = (data: { from: string; subject: string; html: string }) => {
-    // Create a new landing page from the generated template
     const newLandingPage: LandingPage = {
       id: `generated-${crypto.randomUUID()}`,
       name: data.subject || "Generated Landing Page",
       description: "AI-generated landing page",
-      category: "generated",
-      htmlTemplate: data.html,
+      htmlPage: data.html,
+      tenantId: "",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     };
     
     // Replace the existing item with the new generated one

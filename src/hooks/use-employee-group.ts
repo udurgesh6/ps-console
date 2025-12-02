@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { employeeGroupService } from '@/services'
-import { EmployeeGroup, ApiError, EmployeeGroupQueryParams, EmployeeGroupDetailsResponse, UseOperationOptions, CreateEmployeeGroupRequest } from '@/types'
+import { EmployeeGroup, ApiError, EmployeeGroupQueryParams, EmployeeGroupDetailsResponse, UseOperationOptions, CreateEmployeeGroupRequest, EmployeeGroupSummaryResponse } from '@/types'
 import { useOperation } from '@/hooks'
 
 export const useGetEmployeeGroups = (params?: EmployeeGroupQueryParams) => {
@@ -46,5 +46,12 @@ export const useUpdateEmployeeGroup = () => {
       queryClient.invalidateQueries({ queryKey: ['employeeGroups'] })
       queryClient.invalidateQueries({ queryKey: ['employeeGroup', variables.id] })
     },
+  })
+}
+
+export const useGetEmployeeGroupSummary = () => {
+  return useQuery<EmployeeGroupSummaryResponse, ApiError>({
+    queryKey: ['employee-group-summary'],
+    queryFn: () => employeeGroupService.getEmployeeGroupSummary(),
   })
 }
