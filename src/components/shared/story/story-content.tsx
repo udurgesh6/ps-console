@@ -9,6 +9,12 @@ export const StoryContent: React.FC<StoryContentProps> = ({
   isActive,
   className,
 }) => {
+  console.log("StoryContent render", {
+    stepId: step.id,
+    isActive,
+    timestamp: Date.now()
+  });
+  
   if (!isActive) return null;
 
   return (

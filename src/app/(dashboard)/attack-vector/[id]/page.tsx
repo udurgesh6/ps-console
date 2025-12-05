@@ -79,9 +79,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     createMutation.error ||
     updateMutation.error;
 
-  const attackVectorCategories = (attackVectorFilters?.filters?.find(
-    (filter) => filter.name === "category"
-  )?.options ?? []) as FilterObject[];
+  const attackVectorCategories = attackVectorFilters?.categories || []
 
   const attackVectorCategoriesWithSubcategories = attackVectorCategories.map(
     (category) => ({
@@ -111,19 +109,19 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
   const basicAttackVectorForm = useForm<AttackVectorBasicInfoFormData>({
     resolver: zodResolver(attackVectorBasicInfoSchema),
     defaultValues: {
-      name: attackVectorData?.name || "dsds",
-      description: attackVectorData?.description || "fdwfwfwwf fdwfwfsdv",
+      name: attackVectorData?.name || "",
+      description: attackVectorData?.description || "",
       category:
         attackVectorCategories.find(
           (cat) => cat.id === attackVectorData?.categoryId
-        )?.name || "phishing",
+        )?.name || undefined,
       subCategory:
         attackVectorCategoriesWithSubcategories
           .find((cat) => cat.categoryId === attackVectorData?.categoryId)
           ?.subcategories.find(
             (subCat: FilterObject) =>
               subCat.id === attackVectorData?.subcategoryId
-          )?.name || "email",
+          )?.name || undefined,
       type: attackVectorData?.type || "submission",
     },
     mode: "onChange",

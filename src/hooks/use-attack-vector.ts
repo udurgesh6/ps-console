@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { attackVectorService, generalService } from '@/services'
-import { CreateAttackVectorRequest, UpdateAttackVectorRequest, AttackVector, ApiError, AttackVectorQueryParams, AttackVectorDetailsResponse, UseOperationOptions, FiltersResponse } from '@/types'
+import { CreateAttackVectorRequest, UpdateAttackVectorRequest, AttackVector, ApiError, AttackVectorQueryParams, AttackVectorDetailsResponse, UseOperationOptions, FiltersResponse, FiltersParams } from '@/types'
 import { useOperation } from './use-operations'
 
 export const useGetAttackVectors = (params?: AttackVectorQueryParams) => {
@@ -14,7 +14,7 @@ export const useGetAttackVectorById = (id: string) => {
   return useQuery<AttackVector, ApiError>({
     queryKey: ['attack-vector', id],
     queryFn: () => attackVectorService.getAttackVectorById(id),
-    enabled: !!id,
+    enabled: !!id && id !== 'new',
   })
 }
 
@@ -49,9 +49,9 @@ export const useAttackVectorOperation = (options?: UseOperationOptions) => {
   })
 }
 
-export const useGetAttackVectorFilters = () => {
+export const useGetAttackVectorFilters = (params?: FiltersParams) => {
   return useQuery<FiltersResponse, ApiError>({
     queryKey: ['attack-vector-filters'],
-    queryFn: () => generalService.getFilters(),
+    queryFn: () => generalService.getFilters(params),
   })
 }

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { cn } from "@/lib/utils";
@@ -24,49 +24,60 @@ export const Story: React.FC<StoryProps> = ({
   onCancel,
   className,
   modalClassName,
-  isNextProcessing
+  isNextProcessing,
 }) => {
-  const [internalCurrentStepId, setInternalCurrentStepId] = useState(currentStepId);
+  const stepsRef = useRef(steps);
+  if (stepsRef.current !== steps) {
+    console.log("STEPS ARRAY CHANGED!", {
+      currentStepId,
+      stepsLength: steps.length,
+      timestamp: Date.now()
+    });
+    stepsRef.current = steps;
+  }
   
+  console.log("Story component re-rendered", {
+    currentStepId,
+    stepsLength: steps.length,
+    timestamp: Date.now()
+  });
+  const [internalCurrentStepId, setInternalCurrentStepId] =
+    useState(currentStepId);
+
   const activeStepId = currentStepId || internalCurrentStepId;
-  const currentStep = useMemo(() => 
-    steps.find(step => step.id === activeStepId) || steps[0], 
+  const currentStep = useMemo(
+    () => steps.find((step) => step.id === activeStepId) || steps[0],
     [steps, activeStepId]
   );
-  
-  const currentStepIndex = useMemo(() => 
-    steps.findIndex(step => step.id === activeStepId), 
+
+  const currentStepIndex = useMemo(
+    () => steps.findIndex((step) => step.id === activeStepId),
     [steps, activeStepId]
   );
 
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === steps.length - 1;
-  
-  const canProceed = useMemo(() => {
-  if (!currentStep) {
-    console.log("canProceed: No current step");
-    return false;
-  }
-  
-  const result = currentStep.validation ? currentStep.validation() : true;
-  
-  console.log("canProceed calculation:", {
-    stepId: currentStep.id,
-    hasValidation: !!currentStep.validation,
-    result,
-    currentStep
-  });
-  
-  return result;
-}, [currentStep]);
 
-  const handleStepChange = useCallback((stepId: string) => {
-    if (onStepChange) {
-      onStepChange(stepId);
-    } else {
-      setInternalCurrentStepId(stepId);
+  const canProceed = (() => {
+    if (!currentStep) {
+      return false;
     }
-  }, [onStepChange]);
+
+    const result = currentStep.validation ? currentStep.validation() : true;
+
+    return result;
+  })();
+
+  const handleStepChange = useCallback(
+    (stepId: string) => {
+      if (onStepChange) {
+        onStepChange(stepId);
+      } else {
+        setInternalCurrentStepId(stepId);
+      }
+    },
+    [onStepChange]
+  );
 
   const handleNext = useCallback(() => {
     if (currentStepIndex < steps.length - 1) {
@@ -85,20 +96,28 @@ export const Story: React.FC<StoryProps> = ({
   const handleComplete = useCallback(() => {
     if (onComplete) {
       // Collect data from all steps if needed
-      const storyData = steps.reduce((acc, step) => {
-        acc[step.id] = {
-          title: step.title,
-          isCompleted: step.isCompleted || step.id === activeStepId,
-        };
-        return acc;
-      }, {} as Record<string, unknown>);
-      
+      const storyData = steps.reduce(
+        (acc, step) => {
+          acc[step.id] = {
+            title: step.title,
+            isCompleted: step.isCompleted || step.id === activeStepId,
+          };
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
+
       onComplete(storyData);
     }
   }, [onComplete, steps, activeStepId]);
 
   const StoryContent_Component = () => (
-    <div className={cn("relative border border-gray-200 shadow-lg rounded-3xl flex bg-white min-h-[calc(100vh-9rem)] max-h-[calc(100vh-8rem)]", className)}>
+    <div
+      className={cn(
+        "relative border border-gray-200 shadow-lg rounded-3xl flex bg-white min-h-[calc(100vh-9rem)] max-h-[calc(100vh-8rem)]",
+        className
+      )}
+    >
       {showFlow && (
         <StoryVerticalProgress
           steps={steps}
@@ -111,7 +130,7 @@ export const Story: React.FC<StoryProps> = ({
       {/* Main Content Area */}
       <div className="py-6 pr-6 flex-1 ">
         <div className="flex flex-col border border-gray-200 rounded-xl h-full">
-         {/* Title */}
+          {/* Title */}
           {title && !showProgress && (
             <div className="bg-white border-b border-gray-200 px-6 py-4">
               <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
@@ -120,13 +139,13 @@ export const Story: React.FC<StoryProps> = ({
 
           {/* Step Content with bottom padding to avoid overlap with sticky navigation */}
           <div className="flex-1 rounded-3xl overflow-y-auto pb-10">
-            {steps.map((step) => (
+            {currentStep && (
               <StoryContent
-                key={step.id}
-                step={step}
-                isActive={step.id === activeStepId}
+                key={currentStep.id}
+                step={currentStep}
+                isActive={true}
               />
-            ))}
+            )}
           </div>
 
           {/* Sticky Navigation at bottom of content area */}
@@ -143,7 +162,7 @@ export const Story: React.FC<StoryProps> = ({
               isNextProcessing={isNextProcessing}
             />
           </div>
-      </div>
+        </div>
       </div>
     </div>
   );
@@ -153,10 +172,7 @@ export const Story: React.FC<StoryProps> = ({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
           showCloseButton={true}
-          className={cn(
-            "max-w-7xl sm:max-w-7xl h-[90vh] p-0",
-            modalClassName
-          )}
+          className={cn("max-w-7xl sm:max-w-7xl h-[90vh] p-0", modalClassName)}
           onEscapeKeyDown={onCancel}
         >
           <VisuallyHidden>
@@ -167,7 +183,7 @@ export const Story: React.FC<StoryProps> = ({
       </Dialog>
     );
   }
-  
+
   return (
     <div className="min-h-0 flex-1">
       <StoryContent_Component />

@@ -6,6 +6,7 @@ import { EmployeeForm } from "./components/employee-form";
 import { EmployeeGroupForm } from "./components/employee-group-form";
 import { FileUploadFormWithExcel } from "./components/file-upload-with-excel";
 import { useSidebar } from "@/context/sidebar-context";
+import { ADSyncForm } from "./employees/components/ad-sync-form";
 
 const employeeNavItems: SubNavItem[] = [
   {
@@ -87,12 +88,12 @@ export default function TeamLayout({
       </SidebarSheet>
 
       <SidebarSheet
-        open={openSidebar === "import-groups"}
+        open={openSidebar === "ad-sync"}
         onOpenChange={(open) => !open && closeSidebar()}
-        title="Import Groups"
-        description="Upload a CSV or Excel file to import multiple groups at once."
+        title="Azure AD Sync"
+        description="Configure Azure Active Directory synchronization to import employees and groups."
       >
-        <></>
+        <ADSyncForm onCancel={closeSidebar} />
       </SidebarSheet>
     </>
   );

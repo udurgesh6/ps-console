@@ -1,12 +1,29 @@
 import { FC, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { attackVectorSubCategories } from "@/constants/temporary/attack-vectors";
-import { AttackVectorBasicInfoFormData } from "@/types/attack-vector";
-
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  AttackVectorBasicInfoFormData,
+  FilterObject,
+  FilterOption,
+  ObjectType,
+} from "@/types";
+import { useGetAttackVectorFilters } from "@/hooks";
 
 interface BasicInfoStepProps {
   form: UseFormReturn<AttackVectorBasicInfoFormData>;
@@ -16,11 +33,14 @@ interface BasicInfoStepProps {
 export const BasicInfoStep: FC<BasicInfoStepProps> = ({
   form,
   isSubmitting = false,
-}) => {  
+}) => {
+  const {
+    data: attackVectorFilters,
+    isLoading: isAttackVectorsFiltersLoading,
+    error: attackVectorFiltersError,
+  } = useGetAttackVectorFilters({ objectType: ObjectType.ATTACK_VECTOR });
+
   const selectedCategory = form.watch("category");
-  const availableSubCategories = useMemo(() => {
-    return selectedCategory ? attackVectorSubCategories[selectedCategory] || [] : [];
-  }, [selectedCategory]);
 
   return (
     <Form {...form}>
@@ -30,8 +50,10 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem> 
-                <FormLabel className="text-sm font-medium" required>Name</FormLabel>
+              <FormItem>
+                <FormLabel className="text-sm font-medium" required>
+                  Name
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -53,7 +75,9 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Description</FormLabel>
+                <FormLabel className="text-sm font-medium">
+                  Description
+                </FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
@@ -71,13 +95,15 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
         </div>
 
         <div className="border-t border-gray-200 pt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-sm font-medium" required>Type</FormLabel>
+                  <FormLabel className="text-sm font-medium" required>
+                    Type
+                  </FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={(value: "click" | "submission") => {
@@ -105,7 +131,9 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
               name="category"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full">
-                  <FormLabel className="text-sm font-medium" required>Category</FormLabel>
+                  <FormLabel className="text-sm font-medium" required>
+                    Category
+                  </FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={(value: string) => {
@@ -119,10 +147,13 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="phishing">Phishing</SelectItem>
-                      <SelectItem value="social-engineering">Social Engineering</SelectItem>
-                      <SelectItem value="malware">Malware</SelectItem>
-                      <SelectItem value="credential-harvesting">Credential Harvesting</SelectItem>
+                      {attackVectorFilters?.categories?.map(
+                        (category: FilterObject) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        )
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -135,7 +166,9 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
               name="subCategory"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-sm font-medium" required>Sub Category</FormLabel>
+                  <FormLabel className="text-sm font-medium" required>
+                    Sub Category
+                  </FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
@@ -145,27 +178,26 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
                   >
                     <FormControl>
                       <SelectTrigger className="h-11 w-full">
-                        <SelectValue 
+                        <SelectValue
                           placeholder={
-                            selectedCategory 
-                              ? "Select sub category" 
+                            selectedCategory
+                              ? "Select sub category"
                               : "Select category first"
-                          } 
+                          }
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {availableSubCategories.length > 0 ? (
-                        availableSubCategories.map((sub) => (
-                          <SelectItem key={sub.value} value={sub.value}>
-                            {sub.label}
+                      {attackVectorFilters?.categories
+                        ?.find((category) => category.id === selectedCategory)
+                        ?.subcategories?.map((subCategory: FilterObject) => (
+                          <SelectItem
+                            key={subCategory.id}
+                            value={subCategory.id}
+                          >
+                            {subCategory.name}
                           </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="none" disabled>
-                          No subcategories available
-                        </SelectItem>
-                      )}
+                        ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

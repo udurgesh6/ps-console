@@ -43,31 +43,33 @@ export const attackVectorSchema = z.object({
   agentId: z.string().optional(),
   attackVectorType: z.enum(["vishing", "phishing"]).default("phishing"),
   variableValues: z.record(z.string(), z.string()).optional(),
-})
+});
 
-export type AttackVector = z.infer<typeof attackVectorSchema>
+export type AttackVector = z.infer<typeof attackVectorSchema>;
 
-export const attackVectorsListSchema = z.array(attackVectorSchema)
+export const attackVectorsListSchema = z.array(attackVectorSchema);
 
-export type AttackVectorsList = z.infer<typeof attackVectorsListSchema>
+export type AttackVectorsList = z.infer<typeof attackVectorsListSchema>;
 
 export const attackVectorQueryParamsSchema = z.object({
   limit: z.number().int().positive().optional(),
   offset: z.number().int().nonnegative().optional(),
   query: z.string().optional(),
   sortKey: z.string().optional(),
-  sortDirection: z.enum(['asc', 'desc']).optional(),
+  sortDirection: z.enum(["asc", "desc"]).optional(),
   categoryId: z.uuid().optional(),
   subcategoryId: z.uuid().optional(),
   isActive: z.boolean().optional(),
-})
+});
 
-export type AttackVectorQueryParams = z.infer<typeof attackVectorQueryParamsSchema>
+export type AttackVectorQueryParams = z.infer<
+  typeof attackVectorQueryParamsSchema
+>;
 
 export interface AttackVectorDetailsResponse {
-  attackVectors: AttackVector[]
-  total: number
-  limit: number
+  attackVectors: AttackVector[];
+  total: number;
+  limit: number;
 }
 
 export interface VishingAgent {
@@ -100,69 +102,95 @@ export const attackVectorEmailTemplateSchema = z.object({
 });
 
 export const attackVectorLandingPageSchema = z.object({
-    landingPages: z.array(landingPageSchema).min(1, "At least one landing page is required"),
+  landingPages: z
+    .array(landingPageSchema)
+    .min(1, "At least one landing page is required"),
 });
 
 export const attackVectorFormsSchema = z.object({
-    forms: z.array(formSchema).min(1, "At least one form is required"),
+  forms: z.array(formSchema).min(1, "At least one form is required"),
 });
 
 export const attackVectorCoursesSchema = z.object({
-    courses: z.array(courseSchema).min(1, "At least one course is required"),
+  courses: z.array(courseSchema).min(1, "At least one course is required"),
 });
 
-export const attackVectorTimelineSchema = z.object({
-  tropicality: z.string().min(1, "Please select a campaign theme"),
-  startDate: z.string(),
-  startTime: z.string(),
-  endDate: z.string(),
-  endTime: z.string(),
-}).refine((data) => {
-  if (data.tropicality === "custom") {
-    if (!data.startDate || !data.startTime || !data.endDate || !data.endTime) {
-      return false;
+export const attackVectorTimelineSchema = z
+  .object({
+    tropicality: z.string().min(1, "Please select a campaign theme"),
+    startDate: z.string(),
+    startTime: z.string(),
+    endDate: z.string(),
+    endTime: z.string(),
+  })
+  .refine(
+    (data) => {
+      if (data.tropicality === "custom") {
+        if (
+          !data.startDate ||
+          !data.startTime ||
+          !data.endDate ||
+          !data.endTime
+        ) {
+          return false;
+        }
+        const start = new Date(`${data.startDate}T${data.startTime}`);
+        const end = new Date(`${data.endDate}T${data.endTime}`);
+        return end > start;
+      }
+      return true;
+    },
+    {
+      message: "End date must be after start date",
+      path: ["endDate"],
     }
-    const start = new Date(`${data.startDate}T${data.startTime}`);
-    const end = new Date(`${data.endDate}T${data.endTime}`);
-    return end > start;
-  }
-  return true;
-}, {
-  message: "End date must be after start date",
-  path: ["endDate"],
-});
+  );
 
 // Form schema for creating/updating attack vector
-export const attackVectorFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").max(255),
-  description: z.string().max(1000).optional(),
-  categoryId: z.uuid("Please select a valid category"),
-  subcategoryId: z.uuid("Please select a valid subcategory"),
-  emailTemplateId: z.uuid("Please select a valid email template").optional(),
-  landingPageId: z.uuid("Please select a valid landing page").optional(),
-  formId: z.uuid().optional(),
-  courseIds: z.array(z.string()).optional(),
-  isActive: z.boolean().default(true),
-  startDate: z.number().int().positive().optional(),
-  endDate: z.number().int().positive().optional(),
-}).refine((data) => {
-  if (data.startDate && data.endDate) {
-    return data.endDate > data.startDate;
-  }
-  return true;
-}, {
-  message: "End date must be after start date",
-  path: ["endDate"],
-});
+export const attackVectorFormSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters").max(255),
+    description: z.string().max(1000).optional(),
+    categoryId: z.uuid("Please select a valid category"),
+    subcategoryId: z.uuid("Please select a valid subcategory"),
+    emailTemplateId: z.uuid("Please select a valid email template").optional(),
+    landingPageId: z.uuid("Please select a valid landing page").optional(),
+    formId: z.uuid().optional(),
+    courseIds: z.array(z.string()).optional(),
+    isActive: z.boolean().default(true),
+    startDate: z.number().int().positive().optional(),
+    endDate: z.number().int().positive().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return data.endDate > data.startDate;
+      }
+      return true;
+    },
+    {
+      message: "End date must be after start date",
+      path: ["endDate"],
+    }
+  );
 
-export type AttackVectorBasicInfoFormData = z.infer<typeof attackVectorBasicInfoSchema>;
-export type AttackVectorEmailTemplateFormData = z.infer<typeof attackVectorEmailTemplateSchema>;
-export type AttackVectorLandingPageFormData = z.infer<typeof attackVectorLandingPageSchema>;
+export type AttackVectorBasicInfoFormData = z.infer<
+  typeof attackVectorBasicInfoSchema
+>;
+export type AttackVectorEmailTemplateFormData = z.infer<
+  typeof attackVectorEmailTemplateSchema
+>;
+export type AttackVectorLandingPageFormData = z.infer<
+  typeof attackVectorLandingPageSchema
+>;
 export type AttackVectorFormsFormData = z.infer<typeof attackVectorFormsSchema>;
-export type AttackVectorCoursesFormData = z.infer<typeof attackVectorCoursesSchema>;
-export type AttackVectorTimelineFormData = z.infer<typeof attackVectorTimelineSchema>;
+export type AttackVectorCoursesFormData = z.infer<
+  typeof attackVectorCoursesSchema
+>;
+export type AttackVectorTimelineFormData = z.infer<
+  typeof attackVectorTimelineSchema
+>;
 export type AttackVectorFormData = z.infer<typeof attackVectorFormSchema>;
-
 
 // Form Schemas for Vishing
 export const attackVectorVishingBasicInfoSchema = z.object({
@@ -182,28 +210,32 @@ export const attackVectorVishingCourseSelectionSchema = z.object({
   courseIds: z.array(z.string()).nonempty("At least one course is required"),
 });
 
-export type AttackVectorVishingBasicInfoFormData = z.infer<typeof attackVectorVishingBasicInfoSchema>;
-export type AttackVectorVishingAgentSelectionFormData = z.infer<typeof attackVectorVishingAgentSelectionSchema>;
-export type AttackVectorVishingCourseSelectionFormData = z.infer<typeof attackVectorVishingCourseSelectionSchema>;
-
+export type AttackVectorVishingBasicInfoFormData = z.infer<
+  typeof attackVectorVishingBasicInfoSchema
+>;
+export type AttackVectorVishingAgentSelectionFormData = z.infer<
+  typeof attackVectorVishingAgentSelectionSchema
+>;
+export type AttackVectorVishingCourseSelectionFormData = z.infer<
+  typeof attackVectorVishingCourseSelectionSchema
+>;
 
 // Form schema for creating/updating attack vector
 export interface CreateAttackVectorRequest {
-  name: string
-  description?: string
-  categoryId: string
-  subcategoryId: string
-  emailTemplateId?: string
-  landingPageId?: string
-  formId?: string
-  courseIds?: string[]
-  isActive?: boolean
-  startDate?: number
-  endDate?: number
-  language?: VishingLanguage
+  name: string;
+  description?: string;
+  categoryId: string;
+  subcategoryId: string;
+  emailTemplateId?: string;
+  landingPageId?: string;
+  formId?: string;
+  courseIds?: string[];
+  isActive?: boolean;
+  startDate?: number;
+  endDate?: number;
+  language?: VishingLanguage;
 }
 
 export interface UpdateAttackVectorRequest extends CreateAttackVectorRequest {
-  id: string
+  id: string;
 }
-

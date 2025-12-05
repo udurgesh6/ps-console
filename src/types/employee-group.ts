@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { RiskLevels } from './general'
 
 export const employeeGroupSchema = z.object({
   id: z.uuid(),
@@ -43,12 +44,6 @@ export interface CreateEmployeeGroupRequest {
 
 export interface UpdateEmployeeGroupRequest extends CreateEmployeeGroupRequest {
   id: string;
-}
-
-export interface RiskLevels {
-  low: number
-  medium: number
-  high: number
 }
 
 export interface EmployeeGroupSummaryResponse {

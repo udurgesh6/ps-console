@@ -56,7 +56,7 @@ export const EmailTemplateEditor = ({
 }: EmailTemplateEditorProps) => {
   const params = useParams();
   const id = params?.id as string;
-  
+
   const [isPreviewMode, setIsPreviewMode] = useState<boolean>(() => {
     return id !== "new";
   });
@@ -73,8 +73,8 @@ export const EmailTemplateEditor = ({
 
   const contentEditableRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastValidatedContentRef = useRef<string>("");
+  // const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // const lastValidatedContentRef = useRef<string>("");
 
   const watchedHtmlContent =
     useWatch({
@@ -93,77 +93,69 @@ export const EmailTemplateEditor = ({
   };
 
   // Validation function that updates both local state and form state
-  const performValidation = useCallback(
-    async (html: string) => {
-      if (html === lastValidatedContentRef.current) {
-        return;
-      }
+  // const performValidation = useCallback(
+  //   async (html: string) => {
+  //     if (html === lastValidatedContentRef.current) {
+  //       return;
+  //     }
 
-      lastValidatedContentRef.current = html;
+  //     lastValidatedContentRef.current = html;
 
-      if (!html || html.trim() === "") {
-        const errorMessage = "HTML content cannot be empty";
-        setHtmlError(errorMessage);
-        setIsValidating(false);
-        return;
-      }
+  //     if (!html || html.trim() === "") {
+  //       const errorMessage = "HTML content cannot be empty";
+  //       setHtmlError(errorMessage);
+  //       setIsValidating(false);
+  //       return;
+  //     }
 
-      setIsValidating(true);
+  //     setIsValidating(true);
 
-      try {
-        const validationResult = await validateHtmlOnServer(html);
+  //     try {
+  //       const validationResult = await validateHtmlOnServer(html);
 
-        if (validationResult.valid) {
-          setHtmlError("");
-          // Use setTimeout to break out of the render cycle
-          // setTimeout(() => {
-          //   form.clearErrors("htmlContent");
-          // }, 0);
-        } else {
-          const firstError = validationResult.errors[0];
-          const errorMessage = `${firstError.message}`;
-          setHtmlError(errorMessage);
-        }
-      } catch (error) {
-        console.error("Failed to run server validation:", error);
-        const errorMessage = "Could not connect to the validation server.";
-        setHtmlError(errorMessage);
-      } finally {
-        setIsValidating(false);
-      }
-    },
-    [form, setHtmlError]
-  );
+  //       if (validationResult.valid) {
+  //         setHtmlError("");
+  //       } else {
+  //         const firstError = validationResult.errors[0];
+  //         const errorMessage = `${firstError.message}`;
+  //         setHtmlError(errorMessage);
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to run server validation:", error);
+  //       const errorMessage = "Could not connect to the validation server.";
+  //       setHtmlError(errorMessage);
+  //     } finally {
+  //       setIsValidating(false);
+  //     }
+  //   },
+  //   [form, setHtmlError]
+  // );
 
-  // Effect that watches for HTML content changes with debouncing
   useEffect(() => {
     setEditableContent(watchedHtmlContent);
 
-    // Clear any existing timeout
-    if (validationTimeoutRef.current) {
-      clearTimeout(validationTimeoutRef.current);
-    }
+    // if (validationTimeoutRef.current) {
+    //   clearTimeout(validationTimeoutRef.current);
+    // }
 
-    // Debounce validation for changes (not for initial load)
-    validationTimeoutRef.current = setTimeout(() => {
-      performValidation(watchedHtmlContent);
-    }, 500);
+    // validationTimeoutRef.current = setTimeout(() => {
+    //   performValidation(watchedHtmlContent);
+    // }, 500);
 
-    // Cleanup timeout on unmount or when effect re-runs
-    return () => {
-      if (validationTimeoutRef.current) {
-        clearTimeout(validationTimeoutRef.current);
-      }
-    };
-  }, [watchedHtmlContent, performValidation]);
+    // return () => {
+    //   if (validationTimeoutRef.current) {
+    //     clearTimeout(validationTimeoutRef.current);
+    //   }
+    // };
+  }, [watchedHtmlContent]);
 
   const handleTogglePreview = () => {
     setIsPreviewMode(!isPreviewMode);
   };
 
-  const isPreviewDisabled = () => {
-    return !watchedHtmlContent.trim() || !!htmlError || isValidating;
-  };
+  // const isPreviewDisabled = () => {
+  //   return !watchedHtmlContent.trim() || !!htmlError || isValidating;
+  // };
 
   const handleGenerate = (result: GeneratedTemplateResult) => {
     setGeneratedTemplate(result);
@@ -171,59 +163,65 @@ export const EmailTemplateEditor = ({
     console.log("Generated Template:", result);
   };
 
-  const handleUseTemplate = (data: { from: string; subject: string; html: string }) => {
-    const [prefix, domain] = data.from.split('@');
-    
-    form.setValue('emailPrefix', prefix);
-    form.setValue('emailFromDomain', domain ? `@${domain}` : '');
-    form.setValue('subject', data.subject);
-    form.setValue('htmlContent', data.html);
-    
+  const handleUseTemplate = (data: {
+    from: string;
+    subject: string;
+    html: string;
+  }) => {
+    const [prefix, domain] = data.from.split("@");
+
+    form.setValue("emailPrefix", prefix);
+    form.setValue("emailFromDomain", domain ? `@${domain}` : "");
+    form.setValue("subject", data.subject);
+    form.setValue("htmlContent", data.html);
+
     setIsPreviewModalOpen(false);
-    setIsPreviewMode(true)
-    
-    console.log('Template applied to form:', data);
+    setIsPreviewMode(true);
+
+    console.log("Template applied to form:", data);
   };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.type !== 'text/html' && !file.name.endsWith('.html')) {
-      setHtmlError('Please select a valid HTML file');
+    if (file.type !== "text/html" && !file.name.endsWith(".html")) {
+      setHtmlError("Please select a valid HTML file");
       return;
     }
 
     setIsUploading(true);
-    setHtmlError('');
+    setHtmlError("");
 
     try {
       const content = await file.text();
-      
+
       // Validate the HTML content before setting it
       const validationResult = await validateHtmlOnServer(content);
-      
+
       if (validationResult.valid) {
-        form.setValue('htmlContent', content);
+        form.setValue("htmlContent", content);
         setIsPreviewMode(true);
-        setHtmlError('');
+        setHtmlError("");
       } else {
         const firstError = validationResult.errors[0];
         const errorMessage = `Invalid HTML: ${firstError.message}`;
         setHtmlError(errorMessage);
       }
     } catch (error) {
-      console.error('Error processing file:', error);
-      setHtmlError('Failed to read or validate the HTML file');
+      console.error("Error processing file:", error);
+      setHtmlError("Failed to read or validate the HTML file");
     } finally {
       setIsUploading(false);
       // Reset the input so the same file can be selected again
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -240,14 +238,14 @@ export const EmailTemplateEditor = ({
               onChange={handleFileUpload}
               className="hidden"
             />
-            <Button 
-              size="sm" 
-              variant="outline" 
+            <Button
+              size="sm"
+              variant="outline"
               onClick={handleUploadClick}
               disabled={isUploading}
             >
               <Upload className="w-4 h-4 mr-1" />
-              {isUploading ? 'Uploading...' : 'Upload'}
+              {isUploading ? "Uploading..." : "Upload"}
             </Button>
             <div className="h-4 w-px bg-border" />
             <Button size="sm" onClick={() => setIsCreateWithAIModalOpen(true)}>
@@ -324,7 +322,7 @@ export const EmailTemplateEditor = ({
                   </div>
                 </div>
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="subject"
@@ -347,7 +345,7 @@ export const EmailTemplateEditor = ({
           </div>
 
           <div className="py-6">
-            {isPreviewMode ? (
+            {/* {isPreviewMode ? (
               <div>
                 <div className="flex flex-row items-center justify-between mb-2">
                   <Label className="text-sm font-medium">Preview</Label>
@@ -395,13 +393,13 @@ export const EmailTemplateEditor = ({
                   }}
                 />
               </div>
-            ) : (
-              <FormField
-                control={form.control}
-                name="htmlContent"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex flex-row justify-between items-center">
+            ) : ( */}
+            <FormField
+              control={form.control}
+              name="htmlContent"
+              render={({ field }) => (
+                <FormItem>
+                  {/* <div className="flex flex-row justify-between items-center">
                       <FormLabel>HTML Content</FormLabel>
                       <TooltipProvider>
                         <Tooltip>
@@ -433,31 +431,31 @@ export const EmailTemplateEditor = ({
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                    </div>
+                    </div> */}
 
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter HTML content..."
-                        className={`font-mono text-sm h-[300px] resize-y ${
-                          htmlError
-                            ? "border-red-500 focus-visible:border-0 focus-visible:ring-1 focus-visible:ring-red-500"
-                            : ""
-                        }`}
-                        {...field}
-                        disabled={isSubmitting}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                    {/* {isValidating && (
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter HTML content..."
+                      className={`font-mono text-sm h-[300px] resize-y ${
+                        htmlError
+                          ? "border-red-500 focus-visible:border-0 focus-visible:ring-1 focus-visible:ring-red-500"
+                          : ""
+                      }`}
+                      {...field}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  {/* {isValidating && (
                     <p className="text-sm text-blue-500 mt-2">Validating...</p>
                   )} */}
-                    {!isValidating && htmlError && (
-                      <p className="text-sm text-red-500 mt-2">{htmlError}</p>
-                    )}
-                  </FormItem>
-                )}
-              />
-            )}
+                  {!isValidating && htmlError && (
+                    <p className="text-sm text-red-500 mt-2">{htmlError}</p>
+                  )}
+                </FormItem>
+              )}
+            />
+            {/* )} */}
           </div>
         </div>
       </Form>

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { RiskLevels } from './general'
 
 export const employeeSchema = z.object({
   id: z.uuid(),
@@ -60,12 +61,6 @@ export interface CreateEmployeeRequest {
 
 export interface UpdateEmployeeRequest extends CreateEmployeeRequest {
   id: string
-}
-
-export interface RiskLevels {
-  low: number
-  medium: number
-  high: number
 }
 
 export interface EmployeeSummaryResponse {

@@ -7,14 +7,23 @@ export type FiltersParams = {
 export interface FilterOption {
   id: string
   name: string
+  description?: string
 }
 
 export interface FilterObject {
   id: string
   name: string
   options: FilterOption[] | FilterObject[]
+  subcategories?: FilterObject[]
 }
 
 export interface FiltersResponse {
-  filters: FilterObject[]
+  categories?: FilterObject[]
+  attackTypes?: FilterObject[]
+}
+
+export interface RiskLevels {
+  low: number
+  medium: number
+  high: number
 }
