@@ -1,6 +1,5 @@
 "use client"
 
-// @ts-nocheck
 import { useState, useMemo, useCallback, forwardRef, useImperativeHandle, Ref } from "react";
 import { LibraryFilters } from "./library-filters";
 import { LibraryItems } from "./library-items";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { LibraryProps } from "@/types";
 import { BulkActions } from "../bulk-actions";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface LibraryHandle {
   isSelectEnabled: boolean;
@@ -36,6 +36,8 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   isFilterGroupsLoading = false,
   isItemsLoading = false,
 }, ref: Ref<LibraryHandle>) => {
+
+  console.log(showBulkActions, isItemsLoading)
 
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
@@ -109,10 +111,11 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   const LibraryContent = () => (
     <div className={cn(
       "flex bg-white rounded-3xl shadow-lg border border-gray-200",
-      showInModal ? "h-full" : "h-[calc(100vh-7rem)] max-h-[900px]"
+      showInModal ? "h-full" : "h-[calc(100vh-10rem)] max-h-[800px]"
     )}>
       {/* Filters Section - Full height with border extending to bottom */}
-      {showFilters && filterGroups.length > 0 && (
+      {/* FIXED: Show filters if filterGroups exist OR if loading */}
+      {showFilters && (filterGroups.length > 0 || isFilterGroupsLoading) && (
         <div className="flex-shrink-0 h-full">
           <LibraryFilters
             filterGroups={filterGroups}
@@ -129,6 +132,12 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
       {/* Main Content Area - Full height flex column */}
       <div className="flex-1 rounded-r-3xl flex flex-col h-full overflow-hidden">
         {/* Bulk Actions - Fixed at top, doesn't scroll */}
+        {showBulkActions && isItemsLoading && (
+          <div className="flex flex-row items-center w-full justify-end gap-2 h-10 px-6 pt-8 mb-2">
+            <Skeleton className="h-8 w-24 rounded-3xl" />
+            <Skeleton className="h-8 w-24 rounded-3xl" />
+          </div>
+        )}
         {showBulkActions && !isItemsLoading && (
           <div className={cn(
             "flex-shrink-0",

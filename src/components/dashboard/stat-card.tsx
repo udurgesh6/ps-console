@@ -16,7 +16,6 @@ export const StatCard = ({
   color?: string;
   bgColor?: string;
 }) => {
-  console.log(color)
   return (
     <Card className="py-3 md:py-6 border-0 shadow-sm rounded-3xl">
       <CardContent className="p-6 py-2 border-0">

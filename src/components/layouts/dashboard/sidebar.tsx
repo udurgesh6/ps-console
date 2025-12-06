@@ -1,6 +1,7 @@
 import { navigationItems } from "@/constants/navigation";
+import { getTheme } from "@/constants/theme-config";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
@@ -30,11 +31,11 @@ export const Sidebar = ({
     );
   };
 
-  const toggleSidebar = () => {
-    const newExpanded = !isExpanded;
-    setIsExpanded(newExpanded);
-    onExpandChange?.(newExpanded);
-  };
+  // const toggleSidebar = () => {
+  //   const newExpanded = !isExpanded;
+  //   setIsExpanded(newExpanded);
+  //   onExpandChange?.(newExpanded);
+  // };
 
   const isBaseRouteActive = (
     itemHref: string,
@@ -53,9 +54,10 @@ export const Sidebar = ({
       className={cn(
         "hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-50 bg-gray-50",
         "transition-all duration-300 ease-in-out",
-        isExpanded ? "w-56" : "w-20"
+        // isExpanded ? "w-56" : "w-20"
       )}
     >
+      {/* Toggle button - commented out but available */}
       {/* <button
         onClick={toggleSidebar}
         className={cn(
@@ -71,11 +73,12 @@ export const Sidebar = ({
         )}
       </button> */}
 
+      {/* Collapsed Sidebar */}
       <div
         className={cn(
           "absolute inset-0 w-20 bg-gray-100 border-r",
           "transition-opacity duration-200",
-          isExpanded ? "opacity-0" : "opacity-100"
+          // isExpanded ? "opacity-0" : "opacity-100"
         )}
       >
         <div className="flex items-center justify-center h-16 w-20 border-b bg-gray-100">
@@ -93,20 +96,29 @@ export const Sidebar = ({
               <div key={group.title} className="space-y-1">
                 {group.items.map((item) => {
                   const IconComponent = item.icon;
+                  const theme = item.theme ? getTheme(item.theme) : null;
+                  const isActive = isBaseRouteActive(item.href, pathname);
+                  
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       className={cn(
                         "flex items-center justify-center h-12 w-20 transition-colors",
-                        isBaseRouteActive(item.href, pathname)
-                          ? "bg-gray-50 text-black border-r-0"
-                          : "text-white hover:bg-gray-200 hover:text-gray-900"
+                        isActive
+                          ? "bg-gray-50 border-r-0"
+                          : "hover:bg-gray-200"
                       )}
                       title={item.label}
                     >
                       {IconComponent !== undefined && (
-                        <IconComponent size={18} />
+                        <IconComponent 
+                          size={18} 
+                          className={cn(
+                            "transition-colors",
+                            theme ? theme.colors.icon : "text-gray-600"
+                          )}
+                        />
                       )}
                     </Link>
                   );
@@ -119,20 +131,29 @@ export const Sidebar = ({
               <div key={group.title} className="space-y-1">
                 {group.items.map((item) => {
                   const IconComponent = item.icon;
+                  const theme = item.theme ? getTheme(item.theme) : null;
+                  const isActive = isBaseRouteActive(item.href, pathname);
+                  
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       className={cn(
                         "flex items-center justify-center h-12 w-20 transition-colors",
-                        isBaseRouteActive(item.href, pathname)
-                          ? "bg-gray-50 text-black border-r-0"
-                          : "text-white hover:bg-gray-200 hover:text-gray-900"
+                        isActive
+                          ? "bg-gray-50 border-r-0"
+                          : "hover:bg-gray-200"
                       )}
                       title={item.label}
                     >
                       {IconComponent !== undefined && (
-                        <IconComponent size={18} />
+                        <IconComponent 
+                          size={18} 
+                          className={cn(
+                            "transition-colors",
+                            theme ? theme.colors.icon : "text-gray-600"
+                          )}
+                        />
                       )}
                     </Link>
                   );
@@ -143,11 +164,12 @@ export const Sidebar = ({
         </div>
       </div>
 
+      {/* Expanded Sidebar */}
       <div
         className={cn(
           "absolute inset-0 w-56 bg-gray-100",
           "transition-opacity duration-200",
-          isExpanded ? "opacity-100 delay-150" : "opacity-0 pointer-events-none"
+          // isExpanded ? "opacity-100 delay-150" : "opacity-0 pointer-events-none"
         )}
       >
         {/* Full Logo */}
@@ -165,24 +187,33 @@ export const Sidebar = ({
         <div className="flex-1 flex-col py-0 pt-2 bg-gray-100 overflow-y-auto overflow-x-hidden h-[calc(100vh-4rem)] flex flex-col justify-between">
           <div className="px-5 pl-5 space-y-2">
             {basicNavigationItems.map((navItem) => {
-              const isExpanded = expandedGroups.includes(navItem.title);
+              const isGroupExpanded = expandedGroups.includes(navItem.title);
 
               if (!navItem.showTitle) {
                 return navItem.items.map((item) => {
                   const IconComponent = item.icon;
+                  const theme = item.theme ? getTheme(item.theme) : null;
+                  const isActive = isBaseRouteActive(item.href, pathname);
+
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-2 p-3 text-sm rounded-3xl transition-colors font-medium",
-                        isBaseRouteActive(item.href, pathname)
+                        "flex items-center gap-2 p-3 text-sm rounded-3xl transition-all font-medium",
+                        isActive
                           ? "bg-white shadow-sm text-primary font-semibold"
                           : "text-gray-900 hover:text-gray-900 hover:bg-gray-50"
                       )}
                     >
                       {IconComponent !== undefined && (
-                        <IconComponent size={16} />
+                        <IconComponent 
+                          size={16} 
+                          className={cn(
+                            "transition-colors",
+                            theme ? theme.colors.icon : "text-gray-600"
+                          )}
+                        />
                       )}
                       {item.label}
                     </Link>
@@ -194,33 +225,42 @@ export const Sidebar = ({
                 <div key={navItem.title} className="space-y-2">
                   <button
                     onClick={() => toggleGroup(navItem.title)}
-                    className="w-full flex items-center cursor-pointer justify-between pr-3 pt-2 text-sm font-medium text-white rounded-md transition-colors"
+                    className="w-full flex items-center cursor-pointer justify-between pr-3 pt-2 text-sm font-medium text-gray-700 rounded-md transition-colors hover:text-gray-900"
                   >
                     <span>{navItem.title}</span>
-                    {isExpanded ? (
+                    {isGroupExpanded ? (
                       <ChevronDown size={16} />
                     ) : (
                       <ChevronRight size={16} />
                     )}
                   </button>
 
-                  {isExpanded && (
+                  {isGroupExpanded && (
                     <div className="ml-2 space-y-2">
                       {navItem.items.map((item) => {
                         const IconComponent = item.icon;
+                        const theme = item.theme ? getTheme(item.theme) : null;
+                        const isActive = pathname === item.href;
+
                         return (
                           <Link
                             key={item.href}
                             href={item.href}
                             className={cn(
-                              "flex items-center gap-2 px-2 py-2 text-sm rounded-3xl transition-colors",
-                              pathname === item.href
+                              "flex items-center gap-2 px-2 py-2 text-sm rounded-3xl transition-all",
+                              isActive
                                 ? "bg-gray-200 text-gray-900 font-semibold"
-                                : "text-white hover:text-gray-900 hover:bg-gray-50"
+                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                             )}
                           >
                             {IconComponent !== undefined && (
-                              <IconComponent size={16} />
+                              <IconComponent 
+                                size={16} 
+                                className={cn(
+                                  "transition-colors",
+                                  theme ? theme.colors.icon : "text-gray-600"
+                                )}
+                              />
                             )}
                             {item.label}
                           </Link>
@@ -235,24 +275,33 @@ export const Sidebar = ({
 
           <div className="px-5 pb-10 pl-5 space-y-2">
             {systemNavigationItems.map((navItem) => {
-              const isExpanded = expandedGroups.includes(navItem.title);
+              const isGroupExpanded = expandedGroups.includes(navItem.title);
 
               if (!navItem.showTitle) {
                 return navItem.items.map((item) => {
                   const IconComponent = item.icon;
+                  const theme = item.theme ? getTheme(item.theme) : null;
+                  const isActive = isBaseRouteActive(item.href, pathname);
+
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-2 p-3 text-sm rounded-3xl transition-colors font-medium",
-                        isBaseRouteActive(item.href, pathname)
+                        "flex items-center gap-2 p-3 text-sm rounded-3xl transition-all font-medium",
+                        isActive
                           ? "bg-white shadow-sm text-primary font-semibold"
                           : "text-gray-900 hover:text-gray-900 hover:bg-gray-50"
                       )}
                     >
                       {IconComponent !== undefined && (
-                        <IconComponent size={16} />
+                        <IconComponent 
+                          size={16} 
+                          className={cn(
+                            "transition-colors",
+                            theme ? theme.colors.icon : "text-gray-600"
+                          )}
+                        />
                       )}
                       {item.label}
                     </Link>
@@ -264,33 +313,42 @@ export const Sidebar = ({
                 <div key={navItem.title} className="space-y-2">
                   <button
                     onClick={() => toggleGroup(navItem.title)}
-                    className="w-full flex items-center cursor-pointer justify-between pr-3 pt-2 text-sm font-medium text-white rounded-md transition-colors"
+                    className="w-full flex items-center cursor-pointer justify-between pr-3 pt-2 text-sm font-medium text-gray-700 rounded-md transition-colors hover:text-gray-900"
                   >
                     <span>{navItem.title}</span>
-                    {isExpanded ? (
+                    {isGroupExpanded ? (
                       <ChevronDown size={16} />
                     ) : (
                       <ChevronRight size={16} />
                     )}
                   </button>
 
-                  {isExpanded && (
+                  {isGroupExpanded && (
                     <div className="ml-2 space-y-2">
                       {navItem.items.map((item) => {
                         const IconComponent = item.icon;
+                        const theme = item.theme ? getTheme(item.theme) : null;
+                        const isActive = pathname === item.href;
+
                         return (
                           <Link
                             key={item.href}
                             href={item.href}
                             className={cn(
-                              "flex items-center gap-2 p-3 text-sm rounded-3xl transition-colors",
-                              pathname === item.href
+                              "flex items-center gap-2 p-3 text-sm rounded-3xl transition-all",
+                              isActive
                                 ? "bg-gray-200 text-gray-900 font-medium"
-                                : "text-white hover:text-gray-900 hover:bg-gray-50"
+                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                             )}
                           >
                             {IconComponent !== undefined && (
-                              <IconComponent size={16} />
+                              <IconComponent 
+                                size={16} 
+                                className={cn(
+                                  "transition-colors",
+                                  theme ? theme.colors.icon : "text-gray-600"
+                                )}
+                              />
                             )}
                             {item.label}
                           </Link>

@@ -1,34 +1,42 @@
 "use client";
 
 import { useMemo } from "react";
-import { Library } from "@/components/shared/library/library";
-import type { AttackVector } from "@/types/attack-vector";
-import type { LibraryItem } from "@/types/library";
+import { Library } from "@/components/shared/library";
 import { AttackVectorItem } from "../_components/attack-vector-item";
-import { useGetAttackVectors } from "@/hooks";
+import { useGetAttackVectors, useGetAttackVectorFilters } from "@/hooks";
+import { ObjectType, LibraryItem } from "@/types";
+import { getFilters } from "@/utils/get-filters";
 
 export default function AttackVector() {
-  const { data, error } = useGetAttackVectors();
+  const { data, isLoading, error } = useGetAttackVectors();
+  const { data: filtersData, isLoading: filtersLoading } =
+    useGetAttackVectorFilters({ objectType: ObjectType.ATTACK_VECTOR });
+
+  const filters = getFilters(filtersData);
 
   // Transform AttackVector data to LibraryItem format
   const transformedData = useMemo(() => {
     if (!data?.attackVectors) return [];
-    
-    return data.attackVectors.map((attackVector): LibraryItem => ({
-      id: attackVector.id,
-      name: attackVector.name,
-      description: attackVector.description,
-      type: attackVector.type,
-      category: attackVector.categoryId,
-      subCategory: attackVector.subcategoryId,
-      forms: attackVector.form ? [attackVector.form] : undefined,
-      landingPages: attackVector.landingPage ? [attackVector.landingPage] : undefined,
-      courses: attackVector.courses ? attackVector.courses : undefined,
-      tropicality: attackVector.tropicality,
-      startDate: attackVector.startDate,
-      endDate: attackVector.endDate,
-      status: attackVector.isActive,
-    }));
+
+    return data.attackVectors.map(
+      (attackVector): LibraryItem => ({
+        id: attackVector.id,
+        name: attackVector.name,
+        description: attackVector.description,
+        type: attackVector.type,
+        category: attackVector.categoryId,
+        subCategory: attackVector.subcategoryId,
+        forms: attackVector.form ? [attackVector.form] : undefined,
+        landingPages: attackVector.landingPage
+          ? [attackVector.landingPage]
+          : undefined,
+        courses: attackVector.courses ? attackVector.courses : undefined,
+        tropicality: attackVector.tropicality,
+        startDate: attackVector.startDate,
+        endDate: attackVector.endDate,
+        status: attackVector.isActive,
+      })
+    );
   }, [data?.attackVectors]);
 
   const bulkActions = useMemo(
@@ -46,7 +54,9 @@ export default function AttackVector() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-primary">Failed to load attack vectors: {error.message}</p>
+        <p className="text-primary">
+          Failed to load attack vectors: {error.message}
+        </p>
       </div>
     );
   }
@@ -60,6 +70,9 @@ export default function AttackVector() {
       showBulkActions={true}
       showActionButton={false}
       bulkActions={bulkActions}
+      isItemsLoading={isLoading}
+      isFilterGroupsLoading={filtersLoading}
+      filterGroups={filters}
     />
   );
 }

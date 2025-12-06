@@ -2,13 +2,17 @@
 
 import { useMemo } from "react";
 import { Library } from "@/components/shared/library/library";
-import type { AttackVector } from "@/types/attack-vector";
-import type { LibraryItem } from "@/types/library";
+import { LibraryItem } from "@/types";
 import { AttackVectorItem } from "./_components/attack-vector-item";
-import { useGetAttackVectors } from "@/hooks";
+import { useGetAttackVectorFilters, useGetAttackVectors } from "@/hooks";
+import { ObjectType } from "@/types/operations";
+import { getFilters } from "@/utils/get-filters";
 
 export default function AttackVector() {
-  const { data, error } = useGetAttackVectors();
+  const { data, isLoading, error } = useGetAttackVectors();
+  const { data: filtersData, isLoading: filtersLoading } = useGetAttackVectorFilters({objectType: ObjectType.ATTACK_VECTOR});
+
+  const filters = getFilters(filtersData);
 
   // Transform AttackVector data to LibraryItem format
   const transformedData = useMemo(() => {
@@ -60,6 +64,9 @@ export default function AttackVector() {
       showBulkActions={true}
       showActionButton={false}
       bulkActions={bulkActions}
+      filterGroups={filters}
+      isItemsLoading={isLoading}
+      isFilterGroupsLoading={filtersLoading}
     />
   );
 }
