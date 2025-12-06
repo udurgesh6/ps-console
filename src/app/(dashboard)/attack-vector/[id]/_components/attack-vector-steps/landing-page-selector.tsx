@@ -5,10 +5,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sparkles, Library as LibraryIcon } from "lucide-react";
+import { Sparkles, Library as LibraryIcon, Plus } from "lucide-react";
 import { Library } from "@/components/shared/library";
-import { landingPages } from "@/constants/temporary/landing-pages";
-import { FilterObject, LandingPage, LibraryItem } from "@/types";
+import { LandingPage, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorLandingPageFormData } from "@/types/attack-vector";
 import { useFieldArray } from "react-hook-form";
@@ -17,6 +16,11 @@ import { LandingPageItem } from "./landing-page-item";
 import { LandingPagePreview } from "./landing-page-preview";
 import { TemplateModal } from "./template-modal";
 import { EmailPreviewModal } from "@/app/(dashboard)/templates/components/email-preview-modal";
+import { SidebarSheet } from "@/components/shared/sidebar-sheet";
+import { AddLandingPageForm } from "@/app/(dashboard)/templates/components/add-landing-page";
+import { useSidebar } from "@/context/sidebar-context";
+import { useGetLandingPageFilters, useGetLandingPages } from "@/hooks";
+import { ObjectType } from "@/types";
 
 interface LandingPageSelectorProps {
   form: UseFormReturn<AttackVectorLandingPageFormData>;
@@ -29,10 +33,12 @@ interface GeneratedTemplateResult {
 }
 
 export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
+  const { openSidebar, setOpenSidebar, closeSidebar } = useSidebar();
 
   const [showModal, setShowModal] = useState(false);
   const [isCreateWithAIModalOpen, setIsCreateWithAIModalOpen] = useState(false);
-  const [generatedTemplate, setGeneratedTemplate] = useState<GeneratedTemplateResult | null>(null);
+  const [generatedTemplate, setGeneratedTemplate] =
+    useState<GeneratedTemplateResult | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   const {
@@ -44,46 +50,45 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
     name: "landingPages",
   });
 
-  const filterGroups: FilterObject[] = [
-    {
-      name: "Page Type",
-      id: "category",
-      options: [
-        { name: "Product", id: "product" },
-        { name: "SaaS", id: "saas" },
-        { name: "Event", id: "event" },
-        { name: "Portfolio", id: "portfolio" },
-      ],
-    },
-    {
-      name: "Style",
-      id: "style",
-      options: [
-        { name: "Modern", id: "modern" },
-        { name: "Creative", id: "creative" },
-      ],
-    },
-  ];
+  const {
+    data: filterGroupsData,
+    isLoading: filterGroupsLoading,
+    // error: filterGroupsError,
+  } = useGetLandingPageFilters({ objectType: ObjectType.LANDING_PAGE });
+
+  const { data: landingPagesData, isLoading: landingPagesLoading } =
+    useGetLandingPages();
+
+  const filterGroups = filterGroupsData?.categories || [];
+
+  const landingPageItems: LibraryItem[] =
+    landingPagesData?.landingPages?.map((page) => ({
+      id: page.id,
+      name: page.name,
+      description: page.description,
+      htmlPage: page.htmlPage,
+      createdAt: page.createdAt,
+      updatedAt: page.updatedAt,
+    })) || [];
 
   const handleDone = (selectedItems: LibraryItem[]) => {
     const newSelections = selectedItems as LandingPage[];
 
     if (newSelections.length > 0) {
-      // Replace the existing item with the new selection
-      const newPage = newSelections[0]; // Take the first selected item
+      const newPage = newSelections[0];
       
-      // Remove all existing items and add the new one
       while (selectedPages.length > 0) {
         remove(0);
       }
       append(newPage);
+
+      form.trigger("landingPages");
     }
 
     setShowModal(false);
   };
 
   const handleReplacePage = (newPage: LandingPage) => {
-    // Replace the existing item with the new one
     remove(0);
     append(newPage);
   };
@@ -97,7 +102,11 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
     setIsPreviewModalOpen(true);
   };
 
-  const handleUseTemplate = (data: { from: string; subject: string; html: string }) => {
+  const handleUseTemplate = (data: {
+    from: string;
+    subject: string;
+    html: string;
+  }) => {
     const newLandingPage: LandingPage = {
       id: `generated-${crypto.randomUUID()}`,
       name: data.subject || "Generated Landing Page",
@@ -107,8 +116,7 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    
-    // Replace the existing item with the new generated one
+
     handleReplacePage(newLandingPage);
     setIsPreviewModalOpen(false);
     setGeneratedTemplate(null);
@@ -118,11 +126,15 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
     setShowModal(true);
   };
 
+  const uploadLandingPageTemplate = () => {
+    setOpenSidebar("add-template");
+  };
+
   return (
     <>
       <div className="flex flex-col gap-y-4">
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3">
             {/* Create With AI Option */}
             <button
               type="button"
@@ -152,6 +164,35 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
                 />
               </div>
               <span className="font-medium text-left">Create With AI</span>
+            </button>
+            <button
+              type="button"
+              onClick={uploadLandingPageTemplate}
+              className={cn(
+                "w-full cursor-pointer p-4 border-2 transition-all duration-200",
+                "hover:border-primary hover:shadow-md",
+                "flex items-center gap-3",
+                isCreateWithAIModalOpen
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-background"
+              )}
+            >
+              <div
+                className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                  isCreateWithAIModalOpen ? "bg-primary" : "bg-primary/10"
+                )}
+              >
+                <Plus
+                  className={cn(
+                    "h-5 w-5",
+                    isCreateWithAIModalOpen
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                  )}
+                />
+              </div>
+              <span className="font-medium text-left">Create from Scratch</span>
             </button>
 
             {/* Select From Library Option */}
@@ -233,13 +274,15 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
             showInModal={true}
             isOpen={showModal}
             filterGroups={filterGroups}
-            items={landingPages}
+            items={landingPageItems}
             actionButtonText="Add Selected"
             onActionButtonClick={handleDone}
             onClose={() => setShowModal(false)}
             renderItem={LandingPageItem}
             isSingleSelect={true}
             initialSelectedItems={selectedPages.map((page) => page.id)}
+            isItemsLoading={landingPagesLoading}
+            isFilterGroupsLoading={filterGroupsLoading}
           />
         </DialogContent>
       </Dialog>
@@ -251,7 +294,7 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
         onGenerate={handleGenerate}
         type="landing"
       />
-      
+
       {/* Landing Page Preview Modal */}
       <EmailPreviewModal
         open={isPreviewModalOpen}
@@ -263,6 +306,14 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
         templateType="landing"
         onUseTemplate={handleUseTemplate}
       />
+      <SidebarSheet
+        open={openSidebar === "add-template"}
+        onOpenChange={(open) => !open && closeSidebar()}
+        title="Create New Landing Page"
+        description="Create a new landing page for your phishing simulations."
+      >
+        <AddLandingPageForm />
+      </SidebarSheet>
     </>
   );
 };

@@ -1,10 +1,10 @@
-import { Form } from "@/types";
+import { LibraryItem } from "@/types";
 import { useRef, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FormPreviewProps {
-  item: Form;
+  item: LibraryItem;
   onRemove: () => void;
 }
 
@@ -65,7 +65,7 @@ export const FormPreview = ({
                 height: "auto",
                 minHeight: "400px",
               }}
-              srcDoc={item.htmlTemplate}
+              srcDoc={item.htmlPage}
               sandbox=""
               title={`Form preview for ${item.name}`}
               onLoad={(e) => {

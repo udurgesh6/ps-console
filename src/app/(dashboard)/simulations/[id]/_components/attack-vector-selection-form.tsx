@@ -13,9 +13,10 @@ import { SimulationProfileAttackVectorsFormData } from "@/types";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AttackVectorItem } from "@/app/(dashboard)/attack-vector/components/attack-vector-item";
+import { AttackVectorItem } from "@/app/(dashboard)/attack-vector/_components/attack-vector-item";
 import { cn } from "@/lib/utils";
 import { useGetAttackVectors, useGetAttackVectorFilters } from "@/hooks";
+import { ObjectType } from "@/types";
 
 interface SimulationProfileAttackVectorsStepProps {
   form: UseFormReturn<SimulationProfileAttackVectorsFormData>;
@@ -27,7 +28,7 @@ export const SimulationProfileAttackVectorsStep = ({
   isSubmitting = true,
 }: SimulationProfileAttackVectorsStepProps) => {
   const { data: attackVectorsData, isLoading: attackVectorsLoading, error: attackVectorsError } = useGetAttackVectors();
-  const { data: filterGroupsData, isLoading: filterGroupsLoading, error: filterGroupsError } = useGetAttackVectorFilters();
+  const { data: filterGroupsData, isLoading: filterGroupsLoading, error: filterGroupsError } = useGetAttackVectorFilters({ objectType: ObjectType.ATTACK_VECTOR });
 
   const [showModal, setShowModal] = useState(false);
 
@@ -261,7 +262,7 @@ export const SimulationProfileAttackVectorsStep = ({
           </DialogHeader>
           <Library
             items={attackVectorsData?.attackVectors || []}
-            filterGroups={filterGroupsData?.filters || []}
+            filterGroups={filterGroupsData?.categories || []}
             renderItem={AttackVectorItem}
             showFilters={true}
             showSearch={true}

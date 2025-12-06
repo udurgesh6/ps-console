@@ -1,6 +1,5 @@
 "use client";
 
-import { dummyAwarenessProfiles } from "@/constants/temporary/awareness";
 import {
   AwarenessProfile,
   AwarenessProfileBasicInfoFormData,
@@ -42,7 +41,7 @@ export default function AwarenessPage({ params }: AwarenessPageProps) {
   const [awareness] = useState<AwarenessProfile | null>(() => {
     if (isNewAwareness) return null;
     return (
-      dummyAwarenessProfiles?.find((awareness) => awareness.id === id) || null
+      []?.find((awareness) => awareness === id) || null
     );
   });
 

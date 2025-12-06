@@ -18,6 +18,7 @@ import {
   attackVectorVishingCourseSelectionSchema,
   CreateAttackVectorRequest,
   FilterObject,
+  ObjectType,
   VishingLanguage,
 } from "@/types";
 import { useRouter } from "next/navigation";
@@ -53,7 +54,7 @@ export default function AttackVectorVishingPage({
     data: attackVectorFilters,
     isLoading: isAttackVectorsFiltersLoading,
     error: attackVectorFiltersError,
-  } = useGetAttackVectorFilters();
+  } = useGetAttackVectorFilters({ objectType: ObjectType.ATTACK_VECTOR });
 
   const isLoading =
     isAttackVectorLoading ||
@@ -67,9 +68,7 @@ export default function AttackVectorVishingPage({
     createMutation.error ||
     updateMutation.error;
 
-  const attackVectorCategories = (attackVectorFilters?.filters?.find(
-    (filter) => filter.name === "category"
-  )?.options ?? []) as FilterObject[];
+  const attackVectorCategories = (attackVectorFilters?.categories ?? []) as FilterObject[];
 
   const attackVectorCategoriesWithSubcategories = attackVectorCategories.map(
     (category) => ({

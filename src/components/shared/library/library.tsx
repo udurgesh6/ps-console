@@ -33,6 +33,8 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   renderItem,
   isSingleSelect = false,
   showMaxItems = 4,
+  isFilterGroupsLoading = false,
+  isItemsLoading = false,
 }, ref: Ref<LibraryHandle>) => {
 
   const [selectedFilters, setSelectedFilters] = useState<
@@ -48,6 +50,9 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }));
 
   const filteredItems = useMemo(() => {
+    // Don't filter if loading
+    if (isItemsLoading) return [];
+    
     let result = [...items];
 
     Object.entries(selectedFilters).forEach(([filterKey, selectedValues]) => {
@@ -70,7 +75,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
     }
 
     return result;
-  }, [items, selectedFilters, searchQuery]);
+  }, [items, selectedFilters, searchQuery, isItemsLoading]);
 
   const handleFilterChange = useCallback((filterKey: string, value: string) => {
     setSelectedFilters((prev) => {
@@ -102,7 +107,6 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   }, [onActionButtonClick, selectedItems, items]);
 
   const LibraryContent = () => (
-    // Fixed: Container now uses flex with full height to contain everything properly
     <div className={cn(
       "flex bg-white rounded-3xl shadow-lg border border-gray-200",
       showInModal ? "h-full" : "h-[calc(100vh-7rem)] max-h-[900px]"
@@ -117,6 +121,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
             showSearch={showSearch}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            isFilterGroupsLoading={isFilterGroupsLoading}
           />
         </div>
       )}
@@ -124,7 +129,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
       {/* Main Content Area - Full height flex column */}
       <div className="flex-1 rounded-r-3xl flex flex-col h-full overflow-hidden">
         {/* Bulk Actions - Fixed at top, doesn't scroll */}
-        {showBulkActions && (
+        {showBulkActions && !isItemsLoading && (
           <div className={cn(
             "flex-shrink-0",
             !showInModal && "bg-white border-b rounded-t-3xl border-gray-200 px-6 py-4",
@@ -156,6 +161,7 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
             isSelectEnabled={isSelectEnabled}
             showInModal={showInModal}
             showMaxItems={showMaxItems}
+            isItemsLoading={isItemsLoading}
           />
         </div>
 
@@ -164,10 +170,10 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
           <div className="flex-shrink-0 bg-white w-full flex justify-end border-t border-gray-200 px-6 py-4">
             <Button
               onClick={handleActionButton}
-              disabled={selectedItems.length === 0}
+              disabled={selectedItems.length === 0 || isItemsLoading}
               className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-300"
             >
-              {actionButtonText}
+              {isItemsLoading ? "Loading..." : actionButtonText}
             </Button>
           </div>
         )}

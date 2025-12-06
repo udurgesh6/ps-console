@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FileText, Plus, Library as LibraryIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AttackVector } from "@/types/attack-vector";
-import { Form } from "@/types/form";
+import { SubmissionForm } from "@/types";
 import { Library } from "@/components/shared/library/library";
 import { SidebarSheet } from "@/components/shared/sidebar-sheet";
 import { Input } from "@/components/ui/input";
@@ -63,7 +63,7 @@ export const FormsStep: React.FC<FormsStepProps> = ({
         actionButtonText="Select Form"
         onActionButtonClick={(selected) => {
           console.log("Selected forms:", selected);
-          onDataChange?.({ forms: selected as Form[] });
+          // onDataChange?.({ form: selected as SubmissionForm[] });
           setShowFormLibrary(false);
         }}
         renderItem={(item) => (

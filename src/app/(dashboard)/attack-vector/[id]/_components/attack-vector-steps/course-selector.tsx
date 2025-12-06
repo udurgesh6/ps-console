@@ -5,9 +5,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, BookOpen, X, Loader2 } from "lucide-react";
+import { Plus, BookOpen, X } from "lucide-react";
 import { Library } from "@/components/shared/library";
-import { Course, LibraryItem } from "@/types";
+import { Course, LibraryItem, ObjectType} from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { Card } from "@/components/ui/card";
@@ -18,8 +18,8 @@ import { useSidebar } from "@/context/sidebar-context";
 import { AddCourseForm } from "@/app/(dashboard)/templates/components/add-course";
 import { CourseItem } from "./course-item";
 import { cn } from "@/lib/utils";
-import { courseFilterGroups } from "@/constants/temporary/courses";
-import { useGetCourses } from "@/hooks/use-courses";
+import { useGetCourses, useGetCourseFilters } from "@/hooks";
+
 export interface AttackVectorCourseSelectorFormData {
   courses: Course[];
 }
@@ -30,6 +30,12 @@ interface CourseSelectorProps {
 
 export const CourseSelector = ({ form }: CourseSelectorProps) => {
   const { data: coursesData, error, isLoading } = useGetCourses();
+  const {
+    data: filterGroupsData,
+    isLoading: filterGroupsLoading,
+    error: filterGroupsError,
+  } = useGetCourseFilters({ objectType: ObjectType.COURSE });
+
   const { openSidebar, setOpenSidebar, closeSidebar } = useSidebar();
 
   const [showModal, setShowModal] = useState(false);
@@ -47,21 +53,6 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
     control: form.control,
     name: "courses",
   });
-
-  // const bulkActions = [
-  //   {
-  //     label: "Delete",
-  //     onClick: (items) => console.log("Delete courses:", items),
-  //   },
-  //   {
-  //     label: "Export",
-  //     onClick: (items) => console.log("Export courses:", items),
-  //   },
-  //   {
-  //     label: "Preview",
-  //     onClick: (items) => console.log("Preview courses:", items),
-  //   },
-  // ];
 
   const isSelected = (item: LibraryItem) => {
     return formValues?.some((course) => course?.id === item.id) ?? false;
@@ -83,10 +74,6 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
     remove(index);
   };
 
-  const handleCreateCourse = async () => {
-    // TODO: Replace with actual API call
-  };
-
   const handleCreateNewCourse = () => {
     setOpenSidebar("add-course");
   };
@@ -99,12 +86,8 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
     formValues?.map((course) => course.id) || []
   ).map((id) => id);
 
-  if (isLoading) {
-    return <Loader2 className="animate-spin" />;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
+  if (error || filterGroupsError) {
+    return <div>Error: {error?.message}</div>;
   }
 
   return (
@@ -259,13 +242,15 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
             showActionButton={true}
             showInModal={true}
             isOpen={showModal}
-            filterGroups={courseFilterGroups}
+            filterGroups={filterGroupsData?.categories || []}
             items={coursesData?.courses || []}
             actionButtonText="Add Selected"
             onActionButtonClick={handleDone}
             onClose={() => setShowModal(false)}
             renderItem={CourseItem}
             initialSelectedItems={initialSelectedItems}
+            isItemsLoading={isLoading}
+            isFilterGroupsLoading={filterGroupsLoading}
           />
         </DialogContent>
       </Dialog>
@@ -275,7 +260,7 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
         title="Create New Course"
         description="Create a new training course for your security awareness program."
       >
-        <AddCourseForm onSubmit={handleCreateCourse} onCancel={closeSidebar} />
+        <AddCourseForm />
       </SidebarSheet>
     </>
   );

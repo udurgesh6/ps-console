@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { memo } from "react";
 import { Check } from "lucide-react";
 
 interface Step {
@@ -21,7 +20,7 @@ const cn = (...classes: (string | boolean | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
 };
 
-export const StoryVerticalProgress: React.FC<StoryVerticalProgressProps> = ({
+const StoryVerticalProgressComponent: React.FC<StoryVerticalProgressProps> = ({
   steps,
   currentStepId,
   onStepClick,
@@ -101,3 +100,5 @@ export const StoryVerticalProgress: React.FC<StoryVerticalProgressProps> = ({
     </div>
   );
 };
+
+export const StoryVerticalProgress = memo(StoryVerticalProgressComponent);

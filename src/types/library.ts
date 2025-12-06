@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
-import { Form } from "./form";
 import { Course } from "./course";
 import { LandingPage } from "./landing-page";
 import { AttackVector } from "./attack-vector";
 import { FilterObject } from "./general";
+import { SubmissionForm } from "./form";
 
 // export interface FilterOption {
 //   label: string;
@@ -37,13 +37,14 @@ export interface LibraryItem {
   category?: string;
   subCategory?: string;
   type?: "click" | "submission" | string;
-  forms?: Form[];
+  forms?: SubmissionForm[];
   landingPages?: LandingPage[];
   courses?: Course[];
   tropicality?: string;
   startDate?: number;
   endDate?: number;
   status?: boolean;
+  htmlPage?: string;
 }
 
 export interface BulkAction<TItem = LibraryItem> {
@@ -71,6 +72,8 @@ export interface LibraryProps {
   renderItem?: (item: AttackVector, isSelected: boolean, isSelectEnabled: boolean, showInModal: boolean) => ReactNode;
   isSingleSelect?: boolean;
   showMaxItems?: number;
+  isFilterGroupsLoading?: boolean;
+  isItemsLoading?: boolean;
 }
 
 export interface LibrarySearchProps {
@@ -94,6 +97,7 @@ export interface LibraryItemsProps {
   isSelectEnabled?: boolean;
   showInModal?: boolean;
   showMaxItems?: number;
+  isItemsLoading?: boolean;
 }
 
 export interface LibraryItemProps {
@@ -112,4 +116,5 @@ export interface LibraryFiltersProps {
   showSearch: boolean;
   searchQuery: string;
   onSearchChange: (value: string) => void;
+  isFilterGroupsLoading?: boolean;
 }

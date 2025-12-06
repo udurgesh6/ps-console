@@ -9,6 +9,7 @@ export const CourseItem = (
   isSelectEnabled: boolean,
   showInModal: boolean
 ) => {
+  console.log(item)
   const router = useRouter();
   const course = item as Course;
 

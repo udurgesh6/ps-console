@@ -2,32 +2,10 @@
 
 import { Library } from "@/components/shared/library";
 import { useState } from "react";
-import { landingPages } from "@/constants/temporary/landing-pages";
 import { LandingPageItem } from "../../attack-vector/[id]/_components/attack-vector-steps/landing-page-item";
 
 export default function LandingTemplates() {
   const [showModal, setShowModal] = useState(false);
-
-  const filterGroups = [
-    {
-      title: "Page Type",
-      key: "category",
-      options: [
-        { label: "Product", value: "product", count: 1 },
-        { label: "SaaS", value: "saas", count: 1 },
-        { label: "Event", value: "event", count: 1 },
-        { label: "Portfolio", value: "portfolio", count: 1 },
-      ]
-    },
-    {
-      title: "Style",
-      key: "style",
-      options: [
-        { label: "Modern", value: "modern", count: 2 },
-        { label: "Creative", value: "creative", count: 2 },
-      ]
-    }
-  ];
 
   const bulkActions = [
     {
@@ -58,9 +36,9 @@ export default function LandingTemplates() {
       showActionButton={true}
       showInModal={false}
       isOpen={showModal}
-      filterGroups={filterGroups}
+      // filterGroups={filterGroups}
       bulkActions={bulkActions}
-      items={landingPages}
+      items={[]}
       actionButtonText="Done"
       onActionButtonClick={handleDone}
       onClose={() => setShowModal(false)}

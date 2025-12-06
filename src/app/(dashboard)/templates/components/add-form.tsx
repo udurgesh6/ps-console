@@ -1,198 +1,264 @@
 "use client";
 
 import * as React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Upload } from "lucide-react"; // ADD this import
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import { 
+  SubmissionForm, 
+  SubmissionFormFormData, 
+  submissionFormFormSchema 
+} from "@/types";
+import { useHtmlValidation } from "@/hooks";
+import { 
+  useCreateSubmissionForm, 
+  useUpdateSubmissionForm 
+} from "@/hooks";
+import { useSidebar } from "@/context/sidebar-context";
+import toast from "react-hot-toast"
 
-interface AddFormProps {
-  onSubmit: (data: FormData) => void;
-  onCancel: () => void;
-  isLoading?: boolean;
+interface AddFormComponentProps {
+  submissionFormDetail?: Partial<SubmissionForm>;
 }
 
-export interface FormData {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  htmlTemplate: string;
-}
+export function AddFormComponent({ submissionFormDetail }: AddFormComponentProps) {
+  const { closeSidebar } = useSidebar();
+  const createSubmissionForm = useCreateSubmissionForm();
+  const updateSubmissionForm = useUpdateSubmissionForm();
 
-const CATEGORIES = [
-  { id: "login", name: "Login Form" },
-  { id: "registration", name: "Registration Form" },
-  { id: "payment", name: "Payment Form" },
-  { id: "contact", name: "Contact Form" },
-  { id: "survey", name: "Survey Form" },
-  { id: "feedback", name: "Feedback Form" },
-  { id: "subscription", name: "Subscription Form" },
-  { id: "other", name: "Other" },
-];
+  const [htmlError, setHtmlError] = React.useState<string>("");
+  const [isUploading, setIsUploading] = React.useState<boolean>(false); // ADD
+  const fileInputRef = React.useRef<HTMLInputElement>(null); // ADD
 
-export function AddFormComponent({
-  onSubmit,
-  onCancel,
-  isLoading = false,
-}: AddFormProps) {
-  const [formData, setFormData] = React.useState<FormData>({
-    id: "",
-    name: "",
-    description: "",
-    category: "",
-    htmlTemplate: "",
+  const isEditMode = !!submissionFormDetail?.id;
+
+  const form = useForm<SubmissionFormFormData>({
+    resolver: zodResolver(submissionFormFormSchema),
+    defaultValues: {
+      name: submissionFormDetail?.name || "",
+      description: submissionFormDetail?.description || "",
+      htmlPage: submissionFormDetail?.htmlPage || "",
+    },
   });
 
-  const [showPreview, setShowPreview] = React.useState(false);
+  const htmlContent = form.watch("htmlPage");
+  const isValidating = useHtmlValidation(htmlContent, setHtmlError);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
+  // ADD: Handle file upload
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
-  const handleChange = (
-    field: keyof FormData,
-    value: string
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  // ADD: Handle file change
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.endsWith(".html") && file.type !== "text/html") {
+      toast.error("Please upload an HTML file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const text = await file.text();
+      
+      // Set the HTML content
+      form.setValue("htmlPage", text, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+
+      toast.success("File uploaded successfully");
+    } catch (error) {
+      console.error("Error reading file:", error);
+      toast.error("Failed to upload file. Please try again");
+    } finally {
+      setIsUploading(false);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
-  // const handlePreview = () => {
-  //   setShowPreview(true);
-  // };
+  const handleSubmit = async (data: SubmissionFormFormData) => {
+    // Check for HTML validation errors before submitting
+    if (htmlError) {
+      toast.error("Invalid HTML");
+      return;
+    }
+
+    try {
+      if (isEditMode && submissionFormDetail?.id) {
+        await updateSubmissionForm.mutateAsync({
+          id: submissionFormDetail.id,
+          data,
+        });
+        toast.success("Submission form updated successfully");
+      } else {
+        await createSubmissionForm.mutateAsync(data);
+        toast.success("Submission form created successfully");
+      }
+      closeSidebar();
+    } catch (error) {
+      console.error(error);
+      toast.error(isEditMode 
+          ? "Failed to update submission form" 
+          : "Failed to create submission form");
+    }
+  };
+
+  const isMutating = createSubmissionForm.isPending || updateSubmissionForm.isPending;
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="name">
-            Form Name <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-            placeholder="e.g., Microsoft Login Form"
-            required
-          />
-        </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Form Name <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="e.g., Microsoft Login Form"
+                  {...field}
+                  disabled={isMutating}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="description">
-            Description <span className="text-destructive">*</span>
-          </Label>
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            placeholder="Brief description of this form"
-            rows={3}
-            required
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Brief description of this form"
+                  rows={3}
+                  {...field}
+                  value={field.value || ""}
+                  disabled={isMutating}
+                />
+              </FormControl>
+              <FormDescription>
+                Optional description to help identify this form
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="category">
-            Category <span className="text-destructive">*</span>
-          </Label>
-          <Select
-            value={formData.category}
-            onValueChange={(value) => handleChange("category", value)}
-            required
-          >
-            <SelectTrigger id="category" className="w-full">
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORIES.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="htmlTemplate">
-              HTML Template <span className="text-destructive">*</span>
-            </Label>
-            {/* <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handlePreview}
-              disabled={!formData.htmlTemplate.trim()}
-              className="flex items-center gap-2"
-            >
-              <Eye className="w-4 h-4" />
-              Preview
-            </Button> */}
-          </div>
-          <Textarea
-            id="htmlTemplate"
-            value={formData.htmlTemplate}
-            onChange={(e) => handleChange("htmlTemplate", e.target.value)}
-            placeholder="Enter your HTML form template here..."
-            rows={12}
-            className="font-mono text-sm"
-            required
-          />
-          <p className="text-xs text-muted-foreground">
-            Enter valid HTML content for your form. You can use inline CSS for styling.
-          </p>
-        </div>
+        <FormField
+          control={form.control}
+          name="htmlPage"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center justify-between">
+                <FormLabel>
+                  HTML Template <span className="text-destructive">*</span>
+                  {isValidating && (
+                    <span className="text-xs text-muted-foreground ml-2">
+                      (Validating...)
+                    </span>
+                  )}
+                </FormLabel>
+                {/* ADD: Upload button */}
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".html,text/html"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUploadClick}
+                    disabled={isUploading || isMutating}
+                  >
+                    <Upload className="w-4 h-4 mr-1" />
+                    {isUploading ? "Uploading..." : "Upload HTML"}
+                  </Button>
+                </div>
+              </div>
+              <FormControl>
+                <Textarea
+                  placeholder="Enter your HTML form template here..."
+                  rows={12}
+                  className={`font-mono max-h-[200px] text-sm ${
+                    htmlError
+                      ? "border-red-500 focus-visible:border-0 focus-visible:ring-1 focus-visible:ring-red-500"
+                      : ""
+                  }`}
+                  {...field}
+                  disabled={isMutating}
+                />
+              </FormControl>
+              <FormDescription>
+                Enter valid HTML content for your form or upload an HTML file. You can use inline CSS for styling.
+              </FormDescription>
+              <FormMessage />
+              {!isValidating && htmlError && (
+                <p className="text-sm text-red-500 mt-2">{htmlError}</p>
+              )}
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end gap-3 pt-4 border-t">
           <Button
             type="button"
             variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
+            onClick={closeSidebar}
+            disabled={isMutating}
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating..." : "Create Form"}
+          <Button 
+            type="submit" 
+            disabled={isMutating || isValidating || !!htmlError}
+          >
+            {isMutating
+              ? "Saving..."
+              : isEditMode
+                ? "Update Form"
+                : "Create Form"}
           </Button>
         </div>
       </form>
-
-      {/* Preview Modal */}
-      {showPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold">
-                {formData.name || "Form Preview"}
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPreview(false)}
-              >
-                Close
-              </Button>
-            </div>
-            <div className="flex-1 overflow-auto p-4">
-              <iframe
-                srcDoc={formData.htmlTemplate}
-                className="w-full h-full min-h-[500px] border rounded"
-                title="Form Preview"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    </Form>
   );
 }

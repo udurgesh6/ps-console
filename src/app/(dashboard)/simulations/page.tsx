@@ -4,10 +4,6 @@ import { useMemo, useRef } from "react";
 import { Library, LibraryHandle } from "@/components/shared/library/library";
 import { SimulationProfileItem } from "./_components/simulation-profile-item";
 import { SimulationProfile } from "@/types/simulation-profile";
-import { 
-  dummySimulationProfiles, 
-  simulationProfileFilterGroups 
-} from "@/constants/temporary/simulation-profiles";
 
 export default function SimulationProfiles() {
   const libraryRef = useRef<LibraryHandle>(null);
@@ -42,8 +38,8 @@ export default function SimulationProfiles() {
   return (
     <Library
       ref={libraryRef}
-      items={dummySimulationProfiles}
-      filterGroups={simulationProfileFilterGroups}
+      items={[]}
+      // filterGroups={simulationProfileFilterGroups}
       renderItem={renderSimulationProfile}
       showFilters={true}
       showSearch={true}

@@ -1,10 +1,10 @@
-import React from "react";
+import { memo, FC } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StoryNavigationProps } from "./types";
 
-export const StoryNavigation: React.FC<StoryNavigationProps> = ({
+const StoryNavigationComponent: FC<StoryNavigationProps> = ({
   currentStep,
   steps,
   onNext,
@@ -29,17 +29,15 @@ export const StoryNavigation: React.FC<StoryNavigationProps> = ({
       <div className="flex items-center justify-between rounded-b-3xl">
         {/* Previous Button */}
         <div>
-          { (
-            <Button
-              variant="outline"
-              onClick={onPrevious}
-              className="flex items-center gap-2"
-              disabled={isFirstStep}
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={onPrevious}
+            className="flex items-center gap-2"
+            disabled={isFirstStep}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </Button>
         </div>
 
         {/* Step Info */}
@@ -51,7 +49,7 @@ export const StoryNavigation: React.FC<StoryNavigationProps> = ({
         <div>
           <Button
             onClick={handleNext}
-            disabled={!canProceed || isNextProcessing}
+            // disabled={!canProceed || isNextProcessing}
             className="flex items-center gap-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300"
           >
             {isLastStep ? "Complete" : "Next"}
@@ -63,3 +61,5 @@ export const StoryNavigation: React.FC<StoryNavigationProps> = ({
     </div>
   );
 };
+
+export const StoryNavigation = memo(StoryNavigationComponent);

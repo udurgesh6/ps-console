@@ -2,33 +2,10 @@
 
 import { Library } from "@/components/shared/library";
 import { useState } from "react";
-import { dummyCourses } from "@/constants/temporary/courses";
 import { CourseItem } from "../../attack-vector/[id]/_components/attack-vector-steps/course-item";
 
 export default function Courses() {
   const [showModal, setShowModal] = useState(false);
-
-  const filterGroups = [
-    {
-      title: "Category",
-      key: "category",
-      options: [
-        { label: "Product", value: "product", count: 1 },
-        { label: "SaaS", value: "saas", count: 1 },
-        { label: "Event", value: "event", count: 1 },
-        { label: "Portfolio", value: "portfolio", count: 1 },
-      ]
-    },
-    {
-      title: "Level",
-      key: "level",
-      options: [
-        { label: "Beginner", value: "beginner", count: 2 },
-        { label: "Intermediate", value: "intermediate", count: 2 },
-        { label: "Advanced", value: "advanced", count: 2 },
-      ]
-    }
-  ];
 
   const bulkActions = [
     {
@@ -59,9 +36,9 @@ export default function Courses() {
       showActionButton={true}
       showInModal={false}
       isOpen={showModal}
-      filterGroups={filterGroups}
+      // filterGroups={filterGroups}
       bulkActions={bulkActions}
-      items={dummyCourses}
+      items={[]}
       actionButtonText="Done"
       onActionButtonClick={handleDone}
       onClose={() => setShowModal(false)}

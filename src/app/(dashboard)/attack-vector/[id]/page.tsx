@@ -25,6 +25,7 @@ import {
   useCreateAttackVector,
   useUpdateAttackVector,
   useGetAttackVectorFilters,
+  useHtmlValidation,
 } from "@/hooks";
 import {
   AttackVectorBasicInfoFormData,
@@ -41,7 +42,9 @@ import {
   attackVectorTimelineSchema,
   CreateAttackVectorRequest,
   FilterObject,
+  ObjectType,
 } from "@/types";
+import { availableDomains } from "@/constants/temporary/available-domains";
 
 interface AttackVectorPageProps {
   params: Promise<{ id: string }>;
@@ -65,7 +68,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     data: attackVectorFilters,
     isLoading: isAttackVectorsFiltersLoading,
     error: attackVectorFiltersError,
-  } = useGetAttackVectorFilters();
+  } = useGetAttackVectorFilters({ objectType: ObjectType.ATTACK_VECTOR });
 
   const isLoading =
     isAttackVectorLoading ||
@@ -79,7 +82,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     createMutation.error ||
     updateMutation.error;
 
-  const attackVectorCategories = attackVectorFilters?.categories || []
+  const attackVectorCategories = attackVectorFilters?.categories || [];
 
   const attackVectorCategoriesWithSubcategories = attackVectorCategories.map(
     (category) => ({
@@ -109,7 +112,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
   const basicAttackVectorForm = useForm<AttackVectorBasicInfoFormData>({
     resolver: zodResolver(attackVectorBasicInfoSchema),
     defaultValues: {
-      name: attackVectorData?.name || "",
+      name: attackVectorData?.name || "Amazon Attack",
       description: attackVectorData?.description || "",
       category:
         attackVectorCategories.find(
@@ -134,14 +137,19 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
       ...(attackVectorData?.emailTemplate?.id && {
         id: attackVectorData.emailTemplate.id,
       }),
-      htmlContent: attackVectorData?.emailTemplate?.htmlBody || "",
-      subject: attackVectorData?.emailTemplate?.subject || "",
-      emailPrefix: prefix,
-      emailFromDomain: domain,
+      htmlContent: attackVectorData?.emailTemplate?.htmlBody || "<html></html>",
+      subject: attackVectorData?.emailTemplate?.subject || "Amazon Attack",
+      emailPrefix: prefix || "phish",
+      emailFromDomain: domain || availableDomains[0],
     },
     mode: "onTouched",
     reValidateMode: "onChange",
   });
+
+  const isValidating = useHtmlValidation(
+    emailHtmlTemplateForm.watch("htmlContent"),
+    setHtmlError
+  );
 
   const landingPageSelectorForm = useForm<AttackVectorLandingPageFormData>({
     resolver: zodResolver(attackVectorLandingPageSchema),
@@ -241,15 +249,15 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
           },
         ]
       : []),
-    // {
-    //   id: "landing-pages",
-    //   icon: <GlobeIcon className="h-5 w-5" />,
-    //   title: "Select Target Page",
-    //   description:
-    //     "Choose or build the landing page that hosts the form or delivers the payload.",
-    //   content: <LandingPageSelector form={landingPageSelectorForm} />,
-    //   validation: () => landingPageSelectorForm.formState.isValid,
-    // },
+    {
+      id: "landing-pages",
+      icon: <GlobeIcon className="h-5 w-5" />,
+      title: "Select Target Page",
+      description:
+        "Choose or build the landing page that hosts the form or delivers the payload.",
+      content: <LandingPageSelector form={landingPageSelectorForm} />,
+      validation: () => landingPageSelectorForm.formState.isValid,
+    },
     {
       id: "courses",
       icon: <GlobeIcon className="h-5 w-5" />,
@@ -357,7 +365,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
       allowStepNavigation={true}
       onStepChange={handleStepChange}
       onComplete={handleComplete}
-      isNextProcessing={isNextProcessing || isLoading}
+      isNextProcessing={isNextProcessing || isLoading || isValidating}
     />
   );
 }

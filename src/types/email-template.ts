@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { operationInputSchema } from './operations'
 
 export const emailTemplateSchema = z.object({
   id: z.string(),
@@ -44,3 +45,65 @@ export const emailTemplateFormSchema = z.object({
 })
 
 export type EmailTemplateFormData = z.infer<typeof emailTemplateFormSchema>
+
+
+export const emailTemplateGenerateRequestSchema = z.object({
+  subject: z.string().min(1, 'Subject is required'),
+  details: z.string().min(1, 'Details are required'),
+  colorScheme: z.string().optional(),
+})
+
+export type EmailTemplateGenerateRequest = z.infer<typeof emailTemplateGenerateRequestSchema>
+
+export interface EmailTemplateGenerateResponse {
+  operationId: string
+  message: string
+}
+
+// export const operationInputSchema = z.object({
+//   key: z.string(),
+//   value: z.string(),
+//   valueType: z.string(),
+// })
+
+// export type OperationInput = z.infer<typeof operationInputSchema>
+
+export const operationOutputSchema = z.object({
+  key: z.string(),
+  value: z.string(),
+  valueType: z.string(),
+})
+
+export type OperationOutput = z.infer<typeof operationOutputSchema>
+
+export const operationStatusSchema = z.enum([
+  'processing',
+  'completed',
+  'failed',
+  'pending',
+])
+
+export type OperationStatus = z.infer<typeof operationStatusSchema>
+
+export const operationSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  operationType: z.string(),
+  status: operationStatusSchema,
+  input: z.array(operationInputSchema),
+  output: z.array(operationOutputSchema).nullable(),
+  errorMessage: z.string(),
+  createdAt: z.number().int().positive(),
+  updatedAt: z.number().int().positive(),
+})
+
+export type Operation = z.infer<typeof operationSchema>
+
+export interface EmailTemplateOutput {
+  htmlTemplate: string // Decoded from base64
+}
+
+// Helper type for decoded operation with email template
+export interface EmailTemplateOperation extends Omit<Operation, 'output'> {
+  output: EmailTemplateOutput | null
+}

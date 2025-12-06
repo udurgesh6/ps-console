@@ -4,10 +4,6 @@ import { useMemo, useRef } from "react";
 import { Library, LibraryHandle } from "@/components/shared/library/library";
 import { AwarenessProfileItem } from "./_components/awareness-profile-item";
 import { AwarenessProfile, LibraryItem } from "@/types";
-import { 
-  dummyAwarenessProfiles, 
-  awarenessProfileFilterGroups 
-} from "@/constants/temporary/awareness";
 
 export default function SimulationProfiles() {
   const libraryRef = useRef<LibraryHandle>(null);
@@ -42,8 +38,8 @@ export default function SimulationProfiles() {
   return (
     <Library
       ref={libraryRef}
-      items={dummyAwarenessProfiles}
-      filterGroups={awarenessProfileFilterGroups}
+      items={[]}
+      // filterGroups={awarenessProfileFilterGroups}
       renderItem={renderAwarenessProfile}
       showFilters={true}
       showSearch={true}

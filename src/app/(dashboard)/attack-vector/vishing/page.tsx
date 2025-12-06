@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Library } from "@/components/shared/library/library";
 import type { AttackVector } from "@/types/attack-vector";
 import type { LibraryItem } from "@/types/library";
-import { AttackVectorItem } from "../components/attack-vector-item";
+import { AttackVectorItem } from "../_components/attack-vector-item";
 import { useGetAttackVectors } from "@/hooks";
 
 export default function AttackVector() {

@@ -50,11 +50,8 @@ export const ContextAwareCreateButton = () => {
 
   const pageContext = getPageContext();
 
-  console.log(pageContext);
-
   // Handle different create actions
   const handleCreateAction = (action: string) => {
-    console.log(action, pageContext);
     switch (pageContext.type) {
       case "group":
         if (action === "add") {

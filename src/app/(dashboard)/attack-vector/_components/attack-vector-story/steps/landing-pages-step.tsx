@@ -63,7 +63,7 @@ export const LandingPagesStep: React.FC<LandingPagesStepProps> = ({
         actionButtonText="Select Landing Page"
         onActionButtonClick={(selected) => {
           console.log("Selected landing pages:", selected);
-          onDataChange?.({ landingPages: selected as LandingPage[] });
+          // onDataChange?.({ landingPages: selected as LandingPage[] });
           setShowLandingLibrary(false);
         }}
         renderItem={(item) => (

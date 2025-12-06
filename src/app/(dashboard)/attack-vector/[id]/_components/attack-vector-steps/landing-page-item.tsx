@@ -11,6 +11,7 @@ export const LandingPageItem = (
   isSelectEnabled: boolean,
   showInModal: boolean
 ) => {
+  console.log(item);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.25);
@@ -68,7 +69,7 @@ export const LandingPageItem = (
               width: '600px',
               height: '800px',
             }}
-            srcDoc={item.htmlTemplate}
+            srcDoc={item.htmlTemplate || item.htmlPage}
             sandbox=""
             title={`Landing page preview for ${item.name}`}
           />

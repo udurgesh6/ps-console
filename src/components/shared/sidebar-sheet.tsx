@@ -53,13 +53,13 @@ export function SidebarSheet({
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed right-0 top-0 z-50 h-full w-full bg-white shadow-lg transition-transform duration-300 ease-in-out sm:w-[540px]",
+          "fixed right-0 top-0 z-50 h-full w-full bg-white shadow-lg transition-transform duration-300 ease-in-out sm:w-[540px] flex flex-col",
           open ? "translate-x-0" : "translate-x-full",
           className
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b p-6">
+        <div className="flex items-start justify-between border-b p-6 flex-shrink-0">
           <div className="space-y-1">
             <h2 className="!text-lg !font-medium !leading-6 !m-0 !p-0">{title}</h2>
             {description && (

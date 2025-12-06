@@ -2,7 +2,6 @@
 
 import { PageHeader } from "@/components/shared/page-header";
 import { usePathname } from "next/navigation";
-import { dummyAwarenessProfiles } from "@/constants/temporary/awareness";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 
 export default function AwarenessLayout({
@@ -28,8 +27,8 @@ export default function AwarenessLayout({
   const getAwarenessName = (id: string | null) => {
     if (!id) return "Unknown Awareness";
 
-    const awareness = dummyAwarenessProfiles.find((aw) => aw.id === id);
-    return awareness ? awareness.name : `Awareness ${id}`;
+    const awareness = [].find((aw) => aw === id);
+    return awareness ? awareness : `Awareness ${id}`;
   };
 
   return (

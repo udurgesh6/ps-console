@@ -11,6 +11,7 @@ export const FormItem = (
   isSelectEnabled: boolean,
   showInModal: boolean
 ) => {
+  console.log(item);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.25);
@@ -68,7 +69,7 @@ export const FormItem = (
               width: '400px',
               height: '600px',
             }}
-            srcDoc={item.htmlTemplate}
+            srcDoc={item.htmlTemplate || item.htmlPage}
             sandbox=""
             title={`Form preview for ${item.name}`}
           />

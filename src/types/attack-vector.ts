@@ -2,7 +2,7 @@ import { landingPageSchema } from "./landing-page";
 import { courseSchema } from "./course";
 import z from "zod";
 import { emailTemplateSchema } from "./email-template";
-import { formSchema } from "./form";
+import { submissionFormSchema } from "./form";
 
 export enum Tropicality {
   CUSTOM = "custom",
@@ -29,19 +29,19 @@ export const attackVectorSchema = z.object({
   landingPageId: z.uuid(),
   landingPage: landingPageSchema,
   formId: z.uuid().optional(),
-  form: formSchema.optional(),
+  form: submissionFormSchema.optional(),
   courseIds: z.array(z.uuid()).optional(),
   courses: z.array(courseSchema).optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   startDate: z.number().int().positive().optional(),
   endDate: z.number().int().positive().optional(),
   createdAt: z.number().int().positive(),
   updatedAt: z.number().int().positive(),
-  type: z.enum(["click", "submission"]).default("click"),
-  tropicality: z.enum(Tropicality).default(Tropicality.ALL_YEAR),
-  language: z.enum(VishingLanguage).default(VishingLanguage.ENGLISH),
+  type: z.enum(["click", "submission"]),
+  tropicality: z.enum(Tropicality),
+  language: z.enum(VishingLanguage),
   agentId: z.string().optional(),
-  attackVectorType: z.enum(["vishing", "phishing"]).default("phishing"),
+  attackVectorType: z.enum(["vishing", "phishing"]),
   variableValues: z.record(z.string(), z.string()).optional(),
 });
 
@@ -108,7 +108,18 @@ export const attackVectorLandingPageSchema = z.object({
 });
 
 export const attackVectorFormsSchema = z.object({
-  forms: z.array(formSchema).min(1, "At least one form is required"),
+  forms: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+      description: z.string().optional(),
+      htmlPage: z.string(),
+      // Make these optional since they might not be present when selecting
+      tenantId: z.uuid().optional(),
+      createdAt: z.number().optional(),
+      updatedAt: z.number().optional(),
+    })
+  ).min(1, "At least one form is required"),
 });
 
 export const attackVectorCoursesSchema = z.object({

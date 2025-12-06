@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Library as LibraryIcon, Plus } from "lucide-react";
 import { Library } from "@/components/shared/library";
-import { FilterObject, Form, LibraryItem } from "@/types";
+import { SubmissionForm, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorFormsFormData } from "@/types/attack-vector";
 import { useFieldArray } from "react-hook-form";
@@ -16,8 +16,9 @@ import { FormItem } from "./form-item";
 import { FormPreview } from "./form-preview";
 import { SidebarSheet } from "@/components/shared/sidebar-sheet";
 import { useSidebar } from "@/context/sidebar-context";
-import { sampleFormTemplates } from "@/constants/temporary/forms";
 import { AddFormComponent } from "@/app/(dashboard)/templates/components/add-form";
+import { useGetSubmissionFormFilters, useGetSubmissionForms } from "@/hooks";
+import { ObjectType } from "@/types";
 
 interface FormSelectorProps {
   form: UseFormReturn<AttackVectorFormsFormData>;
@@ -37,54 +38,41 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
     name: "forms",
   });
 
-  const filterGroups: FilterObject[] = [
-    {
-      name: "Form Type",
-      id: "category",
-      options: [
-        { name: "Contact", id: "contact" },
-        { name: "Registration", id: "registration" },
-        { name: "Survey", id: "survey" },
-        { name: "Newsletter", id: "newsletter" },
-      ]
-    },
-    {
-      name: "Complexity",
-      id: "complexity",
-      options: [
-        { name: "Simple", id: "simple" },
-        { name: "Advanced", id: "advanced" },
-      ]
-    }
-  ];
+  const {
+    data: filterGroupsData,
+    isLoading: filterGroupsLoading,
+    error: filterGroupsError,
+  } = useGetSubmissionFormFilters({ objectType: ObjectType.SUBMISSION_FORM });
+  const { data: submissionFormsData, isLoading: submissionFormsLoading } =
+    useGetSubmissionForms();
 
-  // const bulkActions = [
-  //   {
-  //     label: 'Delete',
-  //     onClick: (items) => console.log('Delete form templates:', items),
-  //   },
-  //   {
-  //     label: 'Export',
-  //     onClick: (items) => console.log('Export form templates:', items),
-  //   },
-  //   {
-  //     label: 'Duplicate',
-  //     onClick: (items) => console.log('Duplicate form templates:', items),
-  //   },
-  // ];
+  const filterGroups = filterGroupsData?.categories || [];
+
+  const submissionFormItems: LibraryItem[] =
+    submissionFormsData?.submissionForms?.map((form) => ({
+      id: form.id,
+      name: form.name,
+      description: form.description,
+      htmlPage: form.htmlPage,
+      createdAt: form.createdAt,
+      updatedAt: form.updatedAt,
+    })) || [];
 
   const handleDone = (selectedItems: LibraryItem[]) => {
-    const newSelections = selectedItems as Form[];
+    const newSelections = selectedItems as SubmissionForm[];
 
     if (newSelections.length > 0) {
       // Replace the existing item with the new selection
       const newForm = newSelections[0]; // Take the first selected item
-      
+
       // Remove all existing items and add the new one
       while (selectedForms.length > 0) {
         remove(0);
       }
       append(newForm);
+
+      // Trigger validation after updating
+      form.trigger("forms");
     }
 
     setShowModal(false);
@@ -97,10 +85,6 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
   const handleCreateFromScratch = () => {
     setOpenSidebar("add-template");
   };
-
-  const handleCreateTemplate = async () => {
-    // TODO: Replace with actual API call
-  }
 
   return (
     <>
@@ -123,7 +107,9 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
               <div
                 className={cn(
                   "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
-                  openSidebar === "add-template" ? "bg-primary" : "bg-primary/10"
+                  openSidebar === "add-template"
+                    ? "bg-primary"
+                    : "bg-primary/10"
                 )}
               >
                 <Plus
@@ -195,12 +181,20 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
               No Forms Selected
             </h3>
             <p className="text-gray-500 mb-6 max-w-xl">
-              Choose forms for your attack vector. You can create new
-              forms or select from your existing library.
+              Choose forms for your attack vector. You can create new forms or
+              select from your existing library.
             </p>
           </div>
         )}
+
+        {/* Error State */}
+        {filterGroupsError && (
+          <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
+            Failed to load filters. Using default categories.
+          </div>
+        )}
       </div>
+
       {/* Library Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -216,16 +210,17 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
             showInModal={true}
             isOpen={showModal}
             filterGroups={filterGroups}
-            items={sampleFormTemplates}
+            items={submissionFormItems}
             actionButtonText="Add Selected"
             onActionButtonClick={handleDone}
             onClose={() => setShowModal(false)}
             renderItem={FormItem}
             isSingleSelect={true}
+            isFilterGroupsLoading={filterGroupsLoading}
+            isItemsLoading={submissionFormsLoading}
           />
         </DialogContent>
       </Dialog>
-
 
       <SidebarSheet
         open={openSidebar === "add-template"}
@@ -233,10 +228,7 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
         title="Create New Template"
         description="Create a new template for your phishing simulations."
       >
-        <AddFormComponent
-          onSubmit={handleCreateTemplate}
-          onCancel={closeSidebar}
-        />
+        <AddFormComponent />
       </SidebarSheet>
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { cn } from "@/lib/utils";
@@ -26,25 +26,11 @@ export const Story: React.FC<StoryProps> = ({
   modalClassName,
   isNextProcessing,
 }) => {
-  const stepsRef = useRef(steps);
-  if (stepsRef.current !== steps) {
-    console.log("STEPS ARRAY CHANGED!", {
-      currentStepId,
-      stepsLength: steps.length,
-      timestamp: Date.now()
-    });
-    stepsRef.current = steps;
-  }
-  
-  console.log("Story component re-rendered", {
-    currentStepId,
-    stepsLength: steps.length,
-    timestamp: Date.now()
-  });
   const [internalCurrentStepId, setInternalCurrentStepId] =
     useState(currentStepId);
 
   const activeStepId = currentStepId || internalCurrentStepId;
+  
   const currentStep = useMemo(
     () => steps.find((step) => step.id === activeStepId) || steps[0],
     [steps, activeStepId]
@@ -58,15 +44,12 @@ export const Story: React.FC<StoryProps> = ({
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === steps.length - 1;
 
-  const canProceed = (() => {
+  const canProceed = useMemo(() => {
     if (!currentStep) {
       return false;
     }
-
-    const result = currentStep.validation ? currentStep.validation() : true;
-
-    return result;
-  })();
+    return currentStep.validation ? currentStep.validation() : true;
+  }, [currentStep]);
 
   const handleStepChange = useCallback(
     (stepId: string) => {
@@ -95,7 +78,6 @@ export const Story: React.FC<StoryProps> = ({
 
   const handleComplete = useCallback(() => {
     if (onComplete) {
-      // Collect data from all steps if needed
       const storyData = steps.reduce(
         (acc, step) => {
           acc[step.id] = {
@@ -111,7 +93,7 @@ export const Story: React.FC<StoryProps> = ({
     }
   }, [onComplete, steps, activeStepId]);
 
-  const StoryContent_Component = () => (
+  const StoryContent_Component = useMemo(() => (
     <div
       className={cn(
         "relative border border-gray-200 shadow-lg rounded-3xl flex bg-white min-h-[calc(100vh-9rem)] max-h-[calc(100vh-8rem)]",
@@ -127,17 +109,14 @@ export const Story: React.FC<StoryProps> = ({
         />
       )}
 
-      {/* Main Content Area */}
       <div className="py-6 pr-6 flex-1 ">
         <div className="flex flex-col border border-gray-200 rounded-xl h-full">
-          {/* Title */}
           {title && !showProgress && (
             <div className="bg-white border-b border-gray-200 px-6 py-4">
               <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
             </div>
           )}
 
-          {/* Step Content with bottom padding to avoid overlap with sticky navigation */}
           <div className="flex-1 rounded-3xl overflow-y-auto pb-10">
             {currentStep && (
               <StoryContent
@@ -148,7 +127,6 @@ export const Story: React.FC<StoryProps> = ({
             )}
           </div>
 
-          {/* Sticky Navigation at bottom of content area */}
           <div className="sticky bottom-0 z-10 mt-auto ">
             <StoryNavigation
               currentStep={currentStep}
@@ -165,7 +143,24 @@ export const Story: React.FC<StoryProps> = ({
         </div>
       </div>
     </div>
-  );
+  ), [
+    className,
+    showFlow,
+    steps,
+    activeStepId,
+    allowStepNavigation,
+    handleStepChange,
+    title,
+    showProgress,
+    currentStep,
+    handleNext,
+    handlePrevious,
+    handleComplete,
+    isFirstStep,
+    isLastStep,
+    canProceed,
+    isNextProcessing,
+  ]);
 
   if (showInModal) {
     return (
@@ -178,7 +173,7 @@ export const Story: React.FC<StoryProps> = ({
           <VisuallyHidden>
             <DialogTitle>{title || "Story Dialog"}</DialogTitle>
           </VisuallyHidden>
-          <StoryContent_Component />
+          {StoryContent_Component}
         </DialogContent>
       </Dialog>
     );
@@ -186,7 +181,7 @@ export const Story: React.FC<StoryProps> = ({
 
   return (
     <div className="min-h-0 flex-1">
-      <StoryContent_Component />
+      {StoryContent_Component}
     </div>
   );
 };
