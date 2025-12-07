@@ -1,5 +1,5 @@
 import { UseFormReturn, Controller } from "react-hook-form";
-import { Sparkles } from "lucide-react";
+import { Sparkles, CalendarIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -9,6 +9,15 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface AttackVectorTimelineFormData {
   tropicality: string;
@@ -65,10 +74,22 @@ export const TimelineSelector = ({
     }
   };
 
+  // Helper function to convert string date to Date object
+  const stringToDate = (dateString: string): Date | undefined => {
+    if (!dateString) return undefined;
+    return new Date(dateString);
+  };
+
+  // Helper function to convert Date object to string (YYYY-MM-DD)
+  const dateToString = (date: Date | undefined): string => {
+    if (!date) return "";
+    return format(date, "yyyy-MM-dd");
+  };
+
   return (
     <div className="space-y-8">
       <div className="space-y-4 bg-card">
-        <>
+        {/* <>
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <h4 className="text-sm font-medium">Attack Vector Theme</h4>
@@ -77,9 +98,12 @@ export const TimelineSelector = ({
             Select a seasonal theme or choose &quot;Custom Timeline&quot; to set
             specific dates
           </p>
-        </>
+        </> */}
 
         <div className="space-y-2">
+          <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Attack Vector Theme
+          </Label>
           <Controller
             control={control}
             name="tropicality"
@@ -140,7 +164,34 @@ export const TimelineSelector = ({
                   control={control}
                   name="startDate"
                   render={({ field }) => (
-                    <Input type="date" disabled={isSubmitting} {...field} />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          disabled={isSubmitting}
+                          className={cn(
+                            "w-full justify-start text-left font-normal h-11",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value
+                            ? format(stringToDate(field.value)!, "PPP")
+                            : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={stringToDate(field.value)}
+                          onSelect={(date) => {
+                            field.onChange(dateToString(date));
+                          }}
+                          disabled={isSubmitting}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   )}
                 />
                 {/* Fixed height error container */}
@@ -161,7 +212,14 @@ export const TimelineSelector = ({
                   control={control}
                   name="startTime"
                   render={({ field }) => (
-                    <Input type="time" disabled={isSubmitting} {...field} />
+                    <Input
+                      type="time"
+                      id="time-picker"
+                      step="1"
+                      placeholder="10:00:00 AM"
+                      className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                      {...field}
+                    />
                   )}
                 />
                 <p className="text-sm text-muted-foreground">
@@ -188,12 +246,40 @@ export const TimelineSelector = ({
                   control={control}
                   name="endDate"
                   render={({ field }) => (
-                    <Input
-                      type="date"
-                      disabled={isSubmitting}
-                      {...field}
-                      min={startDateValue}
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          disabled={isSubmitting}
+                          className={cn(
+                            "w-full justify-start text-left font-normal h-11",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value
+                            ? format(stringToDate(field.value)!, "PPP")
+                            : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={stringToDate(field.value)}
+                          onSelect={(date) => {
+                            field.onChange(dateToString(date));
+                          }}
+                          disabled={(date) => {
+                            // Disable dates before start date
+                            if (startDateValue && date) {
+                              return date < stringToDate(startDateValue)!;
+                            }
+                            return isSubmitting;
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   )}
                 />
                 {/* Fixed height error container */}
@@ -214,7 +300,14 @@ export const TimelineSelector = ({
                   control={control}
                   name="endTime"
                   render={({ field }) => (
-                    <Input type="time" disabled={isSubmitting} {...field} />
+                    <Input
+                      type="time"
+                      id="time-picker"
+                      step="1"
+                      placeholder="10:00:00 AM"
+                      className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                      {...field}
+                    />
                   )}
                 />
                 <p className="text-sm text-muted-foreground">
