@@ -1,8 +1,8 @@
-import { landingPageSchema } from "./landing-page";
-import { courseSchema } from "./course";
+import { LandingPage, landingPageSchema } from "./landing-page";
+import { Course, courseSchema } from "./course";
 import z from "zod";
-import { emailTemplateSchema } from "./email-template";
-import { submissionFormSchema } from "./form";
+import { EmailTemplate, emailTemplateSchema } from "./email-template";
+import { SubmissionForm, submissionFormSchema } from "./form";
 
 export enum Tropicality {
   CUSTOM = "custom",
@@ -108,18 +108,20 @@ export const attackVectorLandingPageSchema = z.object({
 });
 
 export const attackVectorFormsSchema = z.object({
-  forms: z.array(
-    z.object({
-      id: z.uuid(),
-      name: z.string(),
-      description: z.string().optional(),
-      htmlPage: z.string(),
-      // Make these optional since they might not be present when selecting
-      tenantId: z.uuid().optional(),
-      createdAt: z.number().optional(),
-      updatedAt: z.number().optional(),
-    })
-  ).min(1, "At least one form is required"),
+  forms: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        name: z.string(),
+        description: z.string().optional(),
+        htmlPage: z.string(),
+        // Make these optional since they might not be present when selecting
+        tenantId: z.uuid().optional(),
+        createdAt: z.number().optional(),
+        updatedAt: z.number().optional(),
+      })
+    )
+    .min(1, "At least one form is required"),
 });
 
 export const attackVectorCoursesSchema = z.object({
@@ -128,32 +130,42 @@ export const attackVectorCoursesSchema = z.object({
 
 export const attackVectorTimelineSchema = z
   .object({
-    tropicality: z.string().min(1, "Please select a campaign theme"),
-    startDate: z.string(),
-    startTime: z.string(),
-    endDate: z.string(),
-    endTime: z.string(),
+    tropicality: z.string(),
+    startDate: z.string().min(1, "Start date is required"),
+    startTime: z.string().min(1, "Start time is required"),
+    endDate: z.string().min(1, "End date is required"),
+    endTime: z.string().min(1, "End time is required"),
   })
   .refine(
     (data) => {
-      if (data.tropicality === "custom") {
-        if (
-          !data.startDate ||
-          !data.startTime ||
-          !data.endDate ||
-          !data.endTime
-        ) {
-          return false;
-        }
-        const start = new Date(`${data.startDate}T${data.startTime}`);
-        const end = new Date(`${data.endDate}T${data.endTime}`);
-        return end > start;
+      // Only validate if custom timeline
+      if (data.tropicality !== "custom") return true;
+
+      // Check if all required fields are filled
+      if (
+        !data.startDate ||
+        !data.startTime ||
+        !data.endDate ||
+        !data.endTime
+      ) {
+        return true; // Let individual field validations handle empty fields
       }
-      return true;
+
+      // Combine date and time into full datetime strings
+      const startDateTime = new Date(`${data.startDate}T${data.startTime}`);
+      const endDateTime = new Date(`${data.endDate}T${data.endTime}`);
+
+      // Check if dates are valid
+      if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+        return false;
+      }
+
+      // Compare full datetimes
+      return endDateTime > startDateTime;
     },
     {
-      message: "End date must be after start date",
-      path: ["endDate"],
+      message: "End date and time must be after start date and time",
+      path: ["endTime"], // Changed from endDate to endTime so error appears in the right place
     }
   );
 
@@ -231,19 +243,45 @@ export type AttackVectorVishingCourseSelectionFormData = z.infer<
   typeof attackVectorVishingCourseSelectionSchema
 >;
 
-// Form schema for creating/updating attack vector
+export enum AttackVectorType {
+  CLICK = "Click",
+  SUBMISSION = "Submission",
+  ATTACHMENT = "Attachment",
+}
+
+export const attackTypeMap: Record<string, AttackVectorType> = {
+  click: AttackVectorType.CLICK,
+  submission: AttackVectorType.SUBMISSION,
+  attachment: AttackVectorType.ATTACHMENT,
+};
+
 export interface CreateAttackVectorRequest {
   name: string;
   description?: string;
   categoryId: string;
   subcategoryId: string;
-  emailTemplateId?: string;
-  landingPageId?: string;
-  formId?: string;
-  courseIds?: string[];
+  attackType?: AttackVectorType;
+  emailTemplateId?: string; // Can send ID OR complete object
+  emailTemplate?: {
+    id?: string; // Optional - if updating existing template
+    name: string; // Required - name of the email template
+    htmlBody: string; // Required - the HTML content
+    subject: string; // Required
+    senderEmail: string; // Required - e.g., "phish@example.com"
+    senderDisplayName?: string;
+    description?: string;
+  };
+  landingPageId?: string; // Can send ID OR complete object
+  landingPage?: LandingPage; // Can send complete object OR just ID
+  submissionFormId?: string; // Changed from formId - single ID, not array
+  submissionForm?: SubmissionForm; // Can send complete object OR just ID
+  courseId?: string[]; // Changed from courseIds - note: singular name but array type per spec
+  course?: Course[]; // Can send complete objects OR just IDs
   isActive?: boolean;
-  startDate?: number;
-  endDate?: number;
+  startDate?: number; // Unix timestamp in SECONDS (not milliseconds)
+  endDate?: number; // Unix timestamp in SECONDS (not milliseconds)
+  agentId?: string; // For vishing agents
+  variableValues?: Record<string, string>; // For vishing agent variables
   language?: VishingLanguage;
 }
 

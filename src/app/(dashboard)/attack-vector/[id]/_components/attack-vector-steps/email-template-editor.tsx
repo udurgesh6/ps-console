@@ -124,7 +124,7 @@ export const EmailTemplateEditor = ({
     <>
       <Form {...form}>
         <div className="bg-white rounded-lg">
-          <div className="flex items-center justify-end mb-6 gap-2 h-4 pt-4">
+          <div className="flex items-center justify-end mb-8 gap-2 h-4 pt-4">
             <Input
               ref={fileInputRef}
               type="file"
@@ -198,7 +198,7 @@ export const EmailTemplateEditor = ({
                       )}
                     />
                   </div>
-                  <div className="mt-1 min-h-[20px]">
+                  <div className="mt-1">
                     {form.formState.errors.emailPrefix && (
                       <p className="text-sm font-medium text-destructive">
                         {form.formState.errors.emailPrefix.message}

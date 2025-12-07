@@ -28,6 +28,7 @@ import {
   useHtmlValidation,
 } from "@/hooks";
 import {
+  attackTypeMap,
   AttackVectorBasicInfoFormData,
   attackVectorBasicInfoSchema,
   AttackVectorCoursesFormData,
@@ -40,6 +41,7 @@ import {
   attackVectorLandingPageSchema,
   AttackVectorTimelineFormData,
   attackVectorTimelineSchema,
+  AttackVectorType,
   CreateAttackVectorRequest,
   FilterObject,
   ObjectType,
@@ -84,14 +86,6 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
 
   const attackVectorCategories = attackVectorFilters?.categories || [];
 
-  const attackVectorCategoriesWithSubcategories = attackVectorCategories.map(
-    (category) => ({
-      categoryId: category.id,
-      categoryName: category.name,
-      subcategories: category.options as FilterObject[],
-    })
-  );
-
   const [htmlError, setHtmlError] = useState("");
   const [currentStepId, setCurrentStepId] = useState("basic-info");
   const [isNextProcessing, setIsNextProcessing] = useState(false);
@@ -114,17 +108,8 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     defaultValues: {
       name: attackVectorData?.name || "Amazon Attack",
       description: attackVectorData?.description || "",
-      category:
-        attackVectorCategories.find(
-          (cat) => cat.id === attackVectorData?.categoryId
-        )?.name || undefined,
-      subCategory:
-        attackVectorCategoriesWithSubcategories
-          .find((cat) => cat.categoryId === attackVectorData?.categoryId)
-          ?.subcategories.find(
-            (subCat: FilterObject) =>
-              subCat.id === attackVectorData?.subcategoryId
-          )?.name || undefined,
+      category: attackVectorData?.categoryId || "",
+      subCategory: attackVectorData?.subcategoryId || "",
       type: attackVectorData?.type || "submission",
     },
     mode: "onChange",
@@ -185,16 +170,16 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     defaultValues: {
       tropicality: attackVectorData?.tropicality || "custom",
       startDate: attackVectorData?.startDate
-        ? new Date(attackVectorData.startDate).toISOString().split("T")[0]
+        ? new Date(attackVectorData.startDate * 1000).toISOString().split("T")[0]
         : "",
       startTime: attackVectorData?.startDate
-        ? new Date(attackVectorData.startDate).toTimeString().slice(0, 5)
+        ? new Date(attackVectorData.startDate * 1000).toTimeString().slice(0, 5)
         : "",
       endDate: attackVectorData?.endDate
-        ? new Date(attackVectorData.endDate).toISOString().split("T")[0]
+        ? new Date(attackVectorData.endDate * 1000).toISOString().split("T")[0]
         : "",
       endTime: attackVectorData?.endDate
-        ? new Date(attackVectorData.endDate).toTimeString().slice(0, 5)
+        ? new Date(attackVectorData.endDate * 1000).toTimeString().slice(0, 5)
         : "",
     },
     mode: "onTouched",
@@ -265,7 +250,9 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
       description:
         "Select the courses that will be associated with this attack vector.",
       content: <CourseSelector form={coursesSelectorForm} />,
-      validation: () => coursesSelectorForm.formState.isValid,
+      validation: () => {
+        return true;
+      },
     },
     {
       id: "timeline",
@@ -292,44 +279,48 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
       const coursesData = coursesSelectorForm.getValues();
       const timelineData = timelineSelectorForm.getValues();
 
-      const category = attackVectorCategories.find(
-        (cat) => cat.name === basicInfoData.category
-      );
-      const subcategory = attackVectorCategoriesWithSubcategories
-        .find((cat) => cat.categoryName === basicInfoData.category)
-        ?.subcategories.find(
-          (subCat: FilterObject) => subCat.name === basicInfoData.subCategory
-        );
-
+      // Convert milliseconds to seconds for Unix timestamp
       const startDateTime =
         timelineData.tropicality === "custom" &&
         timelineData.startDate &&
         timelineData.startTime
-          ? new Date(
-              `${timelineData.startDate}T${timelineData.startTime}`
-            ).getTime()
+          ? Math.floor(
+              new Date(
+                `${timelineData.startDate}T${timelineData.startTime}`
+              ).getTime() / 1000
+            )
           : undefined;
 
       const endDateTime =
         timelineData.tropicality === "custom" &&
         timelineData.endDate &&
         timelineData.endTime
-          ? new Date(
-              `${timelineData.endDate}T${timelineData.endTime}`
-            ).getTime()
+          ? Math.floor(
+              new Date(
+                `${timelineData.endDate}T${timelineData.endTime}`
+              ).getTime() / 1000
+            )
           : undefined;
 
       const requestData: CreateAttackVectorRequest = {
         name: basicInfoData.name,
         description: basicInfoData.description,
-        categoryId: category?.id || "",
-        subcategoryId: subcategory?.id || "",
+        categoryId: basicInfoData.category,
+        subcategoryId: basicInfoData.subCategory,
+        attackType: attackTypeMap[basicInfoData.type] || AttackVectorType.CLICK,
+        // Send complete email template object instead of just ID
+        emailTemplate: {
+          ...(emailHtmlTemplateData.id && { id: emailHtmlTemplateData.id }),
+          name: emailHtmlTemplateData.subject || basicInfoData.name, // Use subject as name, fallback to attack vector name
+          htmlBody: emailHtmlTemplateData.htmlContent,
+          subject: emailHtmlTemplateData.subject,
+          senderEmail: `${emailHtmlTemplateData.emailPrefix}@${emailHtmlTemplateData.emailFromDomain.replace(/^@/, '')}`, // Remove leading @ if present
+        },
         landingPageId: landingPageData.landingPages[0]?.id,
-        emailTemplateId: emailHtmlTemplateData.id,
         ...(basicInfoData.type === "submission" && {
-          formsId: formData.forms.map((form) => form.id),
+          submissionFormId: formData.forms[0]?.id,
         }),
-        courseIds: coursesData.courses.map((course) => course.id),
+        courseId: coursesData.courses.map((course) => course.id),
         startDate: startDateTime,
         endDate: endDateTime,
       };

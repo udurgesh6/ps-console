@@ -10,12 +10,12 @@ import {
 import {
   AttackVectorCoursesFormData,
   attackVectorCoursesSchema,
+  AttackVectorTimelineFormData,
+  attackVectorTimelineSchema,
   AttackVectorVishingAgentSelectionFormData,
   attackVectorVishingAgentSelectionSchema,
   AttackVectorVishingBasicInfoFormData,
   attackVectorVishingBasicInfoSchema,
-  AttackVectorVishingCourseSelectionFormData,
-  attackVectorVishingCourseSelectionSchema,
   CreateAttackVectorRequest,
   FilterObject,
   ObjectType,
@@ -24,11 +24,12 @@ import {
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { InfoIcon } from "lucide-react";
+import { CalendarIcon, InfoIcon } from "lucide-react";
 import { BasicInfoStep } from "./_components/vishing-steps/basic-info-step";
 import { Story } from "@/components/shared/story";
 import { AgentSelectionStep } from "./_components/vishing-steps/agent-selection-step";
 import { CourseSelector } from "../../[id]/_components/attack-vector-steps/course-selector";
+import { TimelineSelector } from "../../[id]/_components/attack-vector-steps/timeline-selector";
 
 interface AttackVectorVishingPageProps {
   params: Promise<{ id: string }>;
@@ -68,7 +69,8 @@ export default function AttackVectorVishingPage({
     createMutation.error ||
     updateMutation.error;
 
-  const attackVectorCategories = (attackVectorFilters?.categories ?? []) as FilterObject[];
+  const attackVectorCategories = (attackVectorFilters?.categories ??
+    []) as FilterObject[];
 
   const attackVectorCategoriesWithSubcategories = attackVectorCategories.map(
     (category) => ({
@@ -131,6 +133,29 @@ export default function AttackVectorVishingPage({
     reValidateMode: "onChange",
   });
 
+  const timelineSelectorForm = useForm<AttackVectorTimelineFormData>({
+    resolver: zodResolver(attackVectorTimelineSchema),
+    defaultValues: {
+      tropicality: attackVectorData?.tropicality || "custom",
+      startDate: attackVectorData?.startDate
+        ? new Date(attackVectorData.startDate * 1000)
+            .toISOString()
+            .split("T")[0]
+        : "",
+      startTime: attackVectorData?.startDate
+        ? new Date(attackVectorData.startDate * 1000).toTimeString().slice(0, 5)
+        : "",
+      endDate: attackVectorData?.endDate
+        ? new Date(attackVectorData.endDate * 1000).toISOString().split("T")[0]
+        : "",
+      endTime: attackVectorData?.endDate
+        ? new Date(attackVectorData.endDate * 1000).toTimeString().slice(0, 5)
+        : "",
+    },
+    mode: "onTouched",
+    reValidateMode: "onChange",
+  });
+
   const attackVectorVishingSteps = [
     {
       id: "basic-info",
@@ -174,9 +199,17 @@ export default function AttackVectorVishingPage({
         "Select courses for your attack vector, to start collecting data from the target.",
       content: <CourseSelector form={courseSelectionForm} />,
       validation: () => {
-        const isValid = courseSelectionForm.formState.isValid;
-        return isValid;
+        return true;
       },
+    },
+    {
+      id: "timeline",
+      icon: <CalendarIcon className="h-5 w-5" />,
+      title: "Season",
+      description:
+        "Choose a seasonal theme or set a custom timeline for when this attack vector will be active.",
+      content: <TimelineSelector form={timelineSelectorForm} />,
+      validation: () => timelineSelectorForm.formState.isValid,
     },
   ];
 
@@ -188,6 +221,8 @@ export default function AttackVectorVishingPage({
     setIsNextProcessing(true);
     try {
       const basicInfoData = basicAttackVectorVishingForm.getValues();
+      const agentData = agentSelectionForm.getValues();
+      const courseData = courseSelectionForm.getValues();
 
       const category = attackVectorCategories.find(
         (cat) => cat.name === basicInfoData.category
@@ -204,6 +239,9 @@ export default function AttackVectorVishingPage({
         categoryId: category?.id || "",
         subcategoryId: subcategory?.id || "",
         language: basicInfoData.language,
+        agentId: agentData.agentId,
+        variableValues: agentData.variableValues,
+        courseId: courseData.courses.map((course) => course.id),
       };
 
       if (isNewVishingVector) {

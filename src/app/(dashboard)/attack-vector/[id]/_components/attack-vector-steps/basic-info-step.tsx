@@ -20,7 +20,6 @@ import {
 import {
   AttackVectorBasicInfoFormData,
   FilterObject,
-  FilterOption,
   ObjectType,
 } from "@/types";
 import { useGetAttackVectorFilters } from "@/hooks";
@@ -41,6 +40,17 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
   } = useGetAttackVectorFilters({ objectType: ObjectType.ATTACK_VECTOR });
 
   const selectedCategory = form.watch("category");
+
+  // Get subcategories for the selected category
+  const selectedCategorySubcategories = useMemo(() => {
+    if (!selectedCategory || !attackVectorFilters?.categories) return [];
+    
+    const category = attackVectorFilters.categories.find(
+      (cat: FilterObject) => cat.id === selectedCategory
+    );
+    
+    return category?.subcategories || [];
+  }, [selectedCategory, attackVectorFilters?.categories]);
 
   return (
     <Form {...form}>
@@ -138,6 +148,8 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
                     value={field.value}
                     onValueChange={(value: string) => {
                       field.onChange(value);
+                      // Reset subcategory when category changes
+                      form.setValue("subCategory", "");
                     }}
                     disabled={isSubmitting}
                   >
@@ -188,16 +200,14 @@ export const BasicInfoStep: FC<BasicInfoStepProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {attackVectorFilters?.categories
-                        ?.find((category) => category.id === selectedCategory)
-                        ?.subcategories?.map((subCategory: FilterObject) => (
-                          <SelectItem
-                            key={subCategory.id}
-                            value={subCategory.id}
-                          >
-                            {subCategory.name}
-                          </SelectItem>
-                        ))}
+                      {selectedCategorySubcategories.map((subCategory: FilterObject) => (
+                        <SelectItem
+                          key={subCategory.id}
+                          value={subCategory.id}
+                        >
+                          {subCategory.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

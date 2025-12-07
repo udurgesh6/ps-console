@@ -11,7 +11,6 @@ export const FormItem = (
   isSelectEnabled: boolean,
   showInModal: boolean
 ) => {
-  console.log(item);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.25);

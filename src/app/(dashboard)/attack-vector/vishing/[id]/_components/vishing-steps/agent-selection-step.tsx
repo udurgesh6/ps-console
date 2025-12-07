@@ -1,10 +1,11 @@
-import { FC, JSX, useMemo } from "react";
+import { FC, JSX, useMemo, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetVishingAgents } from "@/hooks";
-import { Loader2, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { AttackVectorVishingAgentSelectionFormData, VishingAgent } from "@/types";
 
 interface AgentSelectionStepProps {
@@ -23,13 +24,27 @@ export const AgentSelectionStep: FC<AgentSelectionStepProps> = ({
     return data?.vishingAgents?.find((agent: VishingAgent) => agent.id === selectedAgentId);
   }, [selectedAgentId, data?.vishingAgents]);
 
+  // Initialize variable values when agent is selected
+  useEffect(() => {
+    if (selectedAgent && selectedAgent.agentVariables) {
+      const currentValues = form.getValues("variableValues") || {};
+      const initializedValues: Record<string, string> = {};
+      
+      // Initialize all variables with empty strings if not already set
+      selectedAgent.agentVariables.forEach((variable) => {
+        initializedValues[variable] = currentValues[variable] || "";
+      });
+      
+      form.setValue("variableValues", initializedValues);
+    }
+  }, [selectedAgent, form]);
+
   // Function to render prompt with editable variables
   const renderPromptWithVariables = (prompt: string, variables: string[]) => {
     if (!variables || variables.length === 0) {
       return <p className="text-sm text-gray-700 leading-relaxed">{prompt}</p>;
     }
 
-    // let processedPrompt = prompt;
     const variablePositions: Array<{ variable: string; index: number }> = [];
 
     // Find all variable positions
@@ -68,6 +83,7 @@ export const AgentSelectionStep: FC<AgentSelectionStepProps> = ({
             render={({ field }) => (
               <Input
                 {...field}
+                value={field.value || ""} // Ensure controlled input with fallback to empty string
                 placeholder={variable}
                 disabled={isSubmitting}
                 className="inline-flex h-7 px-2 py-1 mx-1 text-sm border-0 rounded-3xl focus-visible:ring-0 focus-visible:border-gray-600 min-w-[120px] max-w-[200px] bg-gray-100"
@@ -96,8 +112,35 @@ export const AgentSelectionStep: FC<AgentSelectionStepProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-black" />
+      <div className="space-y-8">
+        {/* Agent Selection Skeleton */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" /> {/* Label */}
+            <Skeleton className="h-11 w-full rounded-md" /> {/* Select */}
+          </div>
+          <Skeleton className="h-16 w-full rounded-md" /> {/* Description */}
+        </div>
+
+        {/* Vishing Prompt Skeleton */}
+        <div className="border-t border-gray-200 pt-6 space-y-6">
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-32" /> {/* Title */}
+            <Skeleton className="h-3 w-96" /> {/* Subtitle */}
+            
+            {/* Prompt box skeleton */}
+            <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/5" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+
+          {/* Info box skeleton */}
+          <Skeleton className="h-24 w-full rounded-lg" />
+        </div>
       </div>
     );
   }

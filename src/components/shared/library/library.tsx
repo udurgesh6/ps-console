@@ -37,8 +37,6 @@ export const Library = forwardRef<LibraryHandle, LibraryProps>(({
   isItemsLoading = false,
 }, ref: Ref<LibraryHandle>) => {
 
-  console.log(showBulkActions, isItemsLoading)
-
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({});

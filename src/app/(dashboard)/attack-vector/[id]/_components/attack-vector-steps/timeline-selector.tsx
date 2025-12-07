@@ -130,14 +130,8 @@ export const TimelineSelector = ({
       {isCustomTimeline && (
         <>
           <div className="grid gap-6 md:grid-cols-2">
+            {/* Start Date & Time Column */}
             <div className="space-y-4">
-              {/* <div className="space-y-2">
-                <h4 className="text-sm font-medium">Start Date & Time</h4>
-                <p className="text-xs text-muted-foreground">
-                  When should this attack vector begin?
-                </p>
-              </div> */}
-
               <div className="space-y-2">
                 <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Start Date
@@ -149,11 +143,14 @@ export const TimelineSelector = ({
                     <Input type="date" disabled={isSubmitting} {...field} />
                   )}
                 />
-                {errors.startDate && (
-                  <p className="text-sm font-medium text-destructive">
-                    {errors.startDate.message}
-                  </p>
-                )}
+                {/* Fixed height error container */}
+                <div className="min-h-[20px]">
+                  {errors.startDate && (
+                    <p className="text-sm font-medium text-destructive">
+                      {errors.startDate.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -170,22 +167,19 @@ export const TimelineSelector = ({
                 <p className="text-sm text-muted-foreground">
                   Time in your local timezone
                 </p>
-                {errors.startTime && (
-                  <p className="text-sm font-medium text-destructive">
-                    {errors.startTime.message}
-                  </p>
-                )}
+                {/* Fixed height error container */}
+                <div className="min-h-[20px]">
+                  {errors.startTime && (
+                    <p className="text-sm font-medium text-destructive">
+                      {errors.startTime.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
+            {/* End Date & Time Column */}
             <div className="space-y-4">
-              {/* <div className="space-y-2">
-                <h4 className="text-sm font-medium">End Date & Time</h4>
-                <p className="text-xs text-muted-foreground">
-                  When should this attack vector end?
-                </p>
-              </div> */}
-
               <div className="space-y-2">
                 <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   End Date
@@ -202,11 +196,14 @@ export const TimelineSelector = ({
                     />
                   )}
                 />
-                {errors.endDate && (
-                  <p className="text-sm font-medium text-destructive">
-                    {errors.endDate.message}
-                  </p>
-                )}
+                {/* Fixed height error container */}
+                <div className="min-h-[20px]">
+                  {errors.endDate && (
+                    <p className="text-sm font-medium text-destructive">
+                      {errors.endDate.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -223,11 +220,14 @@ export const TimelineSelector = ({
                 <p className="text-sm text-muted-foreground">
                   Time in your local timezone
                 </p>
-                {errors.endTime && (
-                  <p className="text-sm font-medium text-destructive">
-                    {errors.endTime.message}
-                  </p>
-                )}
+                {/* Fixed height error container */}
+                <div className="min-h-[20px]">
+                  {errors.endTime && (
+                    <p className="text-sm font-medium text-destructive">
+                      {errors.endTime.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

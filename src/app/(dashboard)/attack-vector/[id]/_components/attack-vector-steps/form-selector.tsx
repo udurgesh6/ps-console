@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Library as LibraryIcon, Plus } from "lucide-react";
 import { Library } from "@/components/shared/library";
-import { SubmissionForm, LibraryItem } from "@/types";
+import { SubmissionForm, LibraryItem, ObjectType } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorFormsFormData } from "@/types/attack-vector";
 import { useFieldArray } from "react-hook-form";
@@ -18,7 +18,7 @@ import { SidebarSheet } from "@/components/shared/sidebar-sheet";
 import { useSidebar } from "@/context/sidebar-context";
 import { AddFormComponent } from "@/app/(dashboard)/templates/components/add-form";
 import { useGetSubmissionFormFilters, useGetSubmissionForms } from "@/hooks";
-import { ObjectType } from "@/types";
+import { getFilters } from "@/utils/get-filters";
 
 interface FormSelectorProps {
   form: UseFormReturn<AttackVectorFormsFormData>;
@@ -46,7 +46,7 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
   const { data: submissionFormsData, isLoading: submissionFormsLoading } =
     useGetSubmissionForms();
 
-  const filterGroups = filterGroupsData?.categories || [];
+  const filters = getFilters(filterGroupsData);
 
   const submissionFormItems: LibraryItem[] =
     submissionFormsData?.submissionForms?.map((form) => ({
@@ -209,7 +209,7 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
             showActionButton={true}
             showInModal={true}
             isOpen={showModal}
-            filterGroups={filterGroups}
+            filterGroups={filters}
             items={submissionFormItems}
             actionButtonText="Add Selected"
             onActionButtonClick={handleDone}

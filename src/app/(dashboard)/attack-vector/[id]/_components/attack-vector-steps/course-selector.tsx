@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, BookOpen, X } from "lucide-react";
 import { Library } from "@/components/shared/library";
-import { Course, LibraryItem, ObjectType} from "@/types";
+import { Course, LibraryItem, ObjectType } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { Card } from "@/components/ui/card";
@@ -58,6 +58,11 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
     return formValues?.some((course) => course?.id === item.id) ?? false;
   };
 
+  useEffect(() => {
+    console.log("selectedCourses changed:", selectedCourses);
+    console.log("formValues changed:", formValues);
+  }, [selectedCourses, formValues]);
+
   const handleDone = (selectedItems: LibraryItem[]) => {
     const newSelections = selectedItems as Course[];
 
@@ -67,11 +72,16 @@ export const CourseSelector = ({ form }: CourseSelectorProps) => {
 
     coursesToAppend.forEach((course) => append(course));
 
+    // Trigger validation after appending
+    form.trigger("courses");
+
     setShowModal(false);
   };
 
   const handleRemoveCourse = (index: number) => {
     remove(index);
+    // Trigger validation after removing
+    form.trigger("courses");
   };
 
   const handleCreateNewCourse = () => {
