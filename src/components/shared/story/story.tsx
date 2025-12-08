@@ -44,12 +44,68 @@ export const Story: React.FC<StoryProps> = ({
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === steps.length - 1;
 
+  // Calculate which steps are valid
+  const stepValidationStatus = useMemo(() => {
+    const status: Record<string, boolean> = {};
+    
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      status[step.id] = step.validation ? step.validation() : true;
+    }
+    
+    return status;
+  }, [steps]);
+
+  // Check if all steps up to a certain index are valid
+  const areAllPreviousStepsValid = useCallback(
+    (targetIndex: number) => {
+      for (let i = 0; i < targetIndex; i++) {
+        if (!stepValidationStatus[steps[i].id]) {
+          return false;
+        }
+      }
+      return true;
+    },
+    [steps, stepValidationStatus]
+  );
+
+  // Current step validation
   const canProceed = useMemo(() => {
     if (!currentStep) {
       return false;
     }
-    return currentStep.validation ? currentStep.validation() : true;
-  }, [currentStep]);
+    return stepValidationStatus[currentStep.id];
+  }, [currentStep, stepValidationStatus]);
+
+  // Check if a step can be navigated to
+  const canNavigateToStep = useCallback(
+    (stepId: string, stepIndex: number) => {
+      // Can't navigate if navigation is disabled
+      if (!allowStepNavigation) return false;
+
+      // Can always go back to completed steps
+      if (stepIndex < currentStepIndex) return true;
+
+      // Can navigate to the next step only if current step is valid
+      if (stepIndex === currentStepIndex + 1) {
+        return stepValidationStatus[steps[currentStepIndex].id];
+      }
+
+      // Can navigate to future steps only if all previous steps are valid
+      if (stepIndex > currentStepIndex) {
+        return areAllPreviousStepsValid(stepIndex);
+      }
+
+      return false;
+    },
+    [
+      allowStepNavigation,
+      currentStepIndex,
+      stepValidationStatus,
+      steps,
+      areAllPreviousStepsValid,
+    ]
+  );
 
   const handleStepChange = useCallback(
     (stepId: string) => {
@@ -63,11 +119,11 @@ export const Story: React.FC<StoryProps> = ({
   );
 
   const handleNext = useCallback(() => {
-    if (currentStepIndex < steps.length - 1) {
+    if (currentStepIndex < steps.length - 1 && canProceed) {
       const nextStep = steps[currentStepIndex + 1];
       handleStepChange(nextStep.id);
     }
-  }, [currentStepIndex, steps, handleStepChange]);
+  }, [currentStepIndex, steps, handleStepChange, canProceed]);
 
   const handlePrevious = useCallback(() => {
     if (currentStepIndex > 0) {
@@ -96,7 +152,7 @@ export const Story: React.FC<StoryProps> = ({
   const StoryContent_Component = useMemo(() => (
     <div
       className={cn(
-        "relative border border-gray-200 shadow-lg rounded-3xl flex bg-white min-h-[calc(100vh-9rem)] max-h-[calc(100vh-8rem)]",
+        "relative border border-gray-200 shadow-lg rounded-3xl flex flex-col lg:flex-row bg-white min-h-[calc(100vh-9rem)] max-h-[calc(100vh-8rem)]",
         className
       )}
     >
@@ -104,16 +160,18 @@ export const Story: React.FC<StoryProps> = ({
         <StoryVerticalProgress
           steps={steps}
           currentStepId={activeStepId}
-          onStepClick={allowStepNavigation ? handleStepChange : undefined}
+          onStepClick={handleStepChange}
           allowNavigation={allowStepNavigation}
+          canNavigateToStep={canNavigateToStep}
+          stepValidationStatus={stepValidationStatus}
         />
       )}
 
-      <div className="py-6 pr-6 flex-1 ">
+      <div className="py-4 lg:py-6 px-4 lg:pr-6 flex-1 min-w-0">
         <div className="flex flex-col border border-gray-200 rounded-xl h-full">
           {title && !showProgress && (
-            <div className="bg-white border-b border-gray-200 px-6 py-4">
-              <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+            <div className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 lg:py-4">
+              <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
             </div>
           )}
 
@@ -127,7 +185,7 @@ export const Story: React.FC<StoryProps> = ({
             )}
           </div>
 
-          <div className="sticky bottom-0 z-10 mt-auto ">
+          <div className="sticky bottom-0 z-10 mt-auto">
             <StoryNavigation
               currentStep={currentStep}
               steps={steps}
@@ -160,6 +218,8 @@ export const Story: React.FC<StoryProps> = ({
     isLastStep,
     canProceed,
     isNextProcessing,
+    canNavigateToStep,
+    stepValidationStatus,
   ]);
 
   if (showInModal) {

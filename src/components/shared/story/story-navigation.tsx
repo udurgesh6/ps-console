@@ -25,23 +25,24 @@ const StoryNavigationComponent: FC<StoryNavigationProps> = ({
   };
 
   return (
-    <div className={cn("bg-white border-t border-gray-200 px-6 py-4 rounded-b-3xl", className)}>
-      <div className="flex items-center justify-between rounded-b-3xl">
+    <div className={cn("bg-white border-t border-gray-200 px-4 lg:px-6 py-3 lg:py-4 rounded-b-3xl", className)}>
+      <div className="flex items-center justify-between rounded-b-3xl gap-2">
         {/* Previous Button */}
         <div>
           <Button
             variant="outline"
             onClick={onPrevious}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 lg:gap-2 text-sm lg:text-base px-3 lg:px-4"
             disabled={isFirstStep}
           >
             <ChevronLeft className="w-4 h-4" />
-            Previous
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Prev</span>
           </Button>
         </div>
 
         {/* Step Info */}
-        <div className="text-sm text-gray-500">
+        <div className="text-xs lg:text-sm text-gray-500">
           Step {steps.findIndex(s => s.id === currentStep.id) + 1} of {steps.length}
         </div>
 
@@ -49,8 +50,8 @@ const StoryNavigationComponent: FC<StoryNavigationProps> = ({
         <div>
           <Button
             onClick={handleNext}
-            // disabled={!canProceed || isNextProcessing}
-            className="flex items-center gap-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300"
+            disabled={!canProceed || isNextProcessing}
+            className="flex items-center gap-1 lg:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm lg:text-base px-3 lg:px-4"
           >
             {isLastStep ? "Complete" : "Next"}
             {!isLastStep && <ChevronRight className="w-4 h-4" />}
