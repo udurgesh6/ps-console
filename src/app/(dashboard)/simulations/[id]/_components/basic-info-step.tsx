@@ -23,6 +23,7 @@ import {
   FilterObject,
 } from "@/types";
 import { useGetSimulationProfileFilters } from "@/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SimulationProfileBasicInfoStepProps {
   form: UseFormReturn<SimulationProfileBasicInfoFormData>;
@@ -39,18 +40,6 @@ export const SimulationProfileBasicInfoStep: FC<
   } = useGetSimulationProfileFilters({
     objectType: ObjectType.SIMULATION_PROFILE,
   });
-
-  const selectedCategory = form.watch("category");
-
-  const selectedCategorySubcategories = useMemo(() => {
-    if (!selectedCategory || !simulationProfileFilters?.categories) return [];
-
-    const category = simulationProfileFilters.categories.find(
-      (cat: FilterObject) => cat.id === selectedCategory
-    );
-
-    return category?.subcategories || [];
-  }, [selectedCategory, simulationProfileFilters?.categories]);
 
   return (
     <Form {...form}>
@@ -127,16 +116,21 @@ export const SimulationProfileBasicInfoStep: FC<
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {(simulationProfileFilters?.categories || []).map(
-                        (category: FilterObject) => (
-                          <SelectItem
-                            key={category.id}
-                            value={category.id}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        )
+                      {isSimulationProfileFiltersLoading && (
+                        <div className="flex flex-col gap-2">
+                          <Skeleton className="h-6" />
+                          <Skeleton className="h-6" />
+                          <Skeleton className="h-6" />
+                        </div>
                       )}
+                      {!isSimulationProfileFiltersLoading &&
+                        (simulationProfileFilters?.categories || []).map(
+                          (category: FilterObject) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                            </SelectItem>
+                          )
+                        )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
