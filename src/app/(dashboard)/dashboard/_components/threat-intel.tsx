@@ -2,14 +2,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Users, BarChart2 } from "lucide-react";
 import { ChartHeading } from "@/components/charts/chart-heading";
 import { DetailCard } from "@/components/shared/detail-card";
-import { dummySimulationProfiles } from "@/constants/temporary/simulation-profiles";
+// import { dummySimulationProfiles } from "@/constants/temporary/simulation-profiles";
 import { COLOR_SCHEMES } from "@/constants/colors";
 import { ChartWrapper } from "@/components/layouts/dashboard/chart-wrapper";
 
 const threatsData = [
   {
     id: 1,
-    name: dummySimulationProfiles[0].name,
+    name: "Simulation 1",
     severity: "High",
     trend: "increasing",
     detected: 127,
@@ -17,7 +17,7 @@ const threatsData = [
   },
   {
     id: 2,
-    name: dummySimulationProfiles[1].name,
+    name: "Simulation 2",
     severity: "Medium",
     trend: "stable",
     detected: 89,
@@ -25,7 +25,7 @@ const threatsData = [
   },
   {
     id: 3,
-    name: dummySimulationProfiles[2].name,
+    name: "Simulation 3",
     severity: "High",
     trend: "decreasing",
     detected: 45,

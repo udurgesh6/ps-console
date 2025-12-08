@@ -10,7 +10,7 @@ import { Library } from "@/components/shared/library";
 import { LandingPage, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorLandingPageFormData } from "@/types/attack-vector";
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, useWatch } from "react-hook-form";  // ✅ Add useWatch
 import { cn } from "@/lib/utils";
 import { LandingPageItem } from "./landing-page-item";
 import { LandingPagePreview } from "./landing-page-preview";
@@ -43,9 +43,13 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
 
   const {
     fields: selectedPages,
-    append,
     remove,
   } = useFieldArray({
+    control: form.control,
+    name: "landingPages",
+  });
+
+  const formValues = useWatch({
     control: form.control,
     name: "landingPages",
   });
@@ -53,7 +57,6 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
   const {
     data: filterGroupsData,
     isLoading: filterGroupsLoading,
-    // error: filterGroupsError,
   } = useGetLandingPageFilters({ objectType: ObjectType.LANDING_PAGE });
 
   const { data: landingPagesData, isLoading: landingPagesLoading } =
@@ -67,30 +70,46 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
       name: page.name,
       description: page.description,
       htmlPage: page.htmlPage,
+      tenantId: page.tenantId,
       createdAt: page.createdAt,
       updatedAt: page.updatedAt,
     })) || [];
 
+  const initialSelectedItems = (
+    formValues?.map((page) => page?.id) || []
+  ).filter(Boolean);
+
   const handleDone = (selectedItems: LibraryItem[]) => {
     const newSelections = selectedItems as LandingPage[];
+
+    console.log('Selected items:', selectedItems);
+    console.log('New selections:', newSelections);
 
     if (newSelections.length > 0) {
       const newPage = newSelections[0];
       
-      while (selectedPages.length > 0) {
-        remove(0);
-      }
-      append(newPage);
+      console.log('Current pages before:', form.getValues("landingPages"));
 
-      form.trigger("landingPages");
+      form.setValue("landingPages", [newPage], {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+
+      console.log('Pages after setValue:', form.getValues("landingPages"));
+      console.log('Form errors:', form.formState.errors);
+      console.log('Form isValid:', form.formState.isValid);
     }
 
     setShowModal(false);
   };
 
   const handleReplacePage = (newPage: LandingPage) => {
-    remove(0);
-    append(newPage);
+    form.setValue("landingPages", [newPage], {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
   };
 
   const handleCreateWithAI = () => {
@@ -238,7 +257,10 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
                 <LandingPagePreview
                   key={page.id}
                   item={page}
-                  onRemove={() => remove(index)}
+                  onRemove={() => {
+                    remove(index);
+                    form.trigger("landingPages");
+                  }}
                 />
               ))}
             </div>
@@ -280,7 +302,7 @@ export const LandingPageSelector = ({ form }: LandingPageSelectorProps) => {
             onClose={() => setShowModal(false)}
             renderItem={LandingPageItem}
             isSingleSelect={true}
-            initialSelectedItems={selectedPages.map((page) => page.id)}
+            initialSelectedItems={initialSelectedItems}
             isItemsLoading={landingPagesLoading}
             isFilterGroupsLoading={filterGroupsLoading}
           />

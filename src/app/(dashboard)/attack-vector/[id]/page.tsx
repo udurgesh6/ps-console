@@ -188,6 +188,8 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     reValidateMode: "onChange",
   });
 
+  console.log(formSelectorForm.getValues("forms"))
+
   const attackVectorSteps = [
     {
       id: "basic-info",

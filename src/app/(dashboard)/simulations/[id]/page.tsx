@@ -5,8 +5,8 @@ import {
   DAY_OF_WEEK_MAP,
   DayOfWeek,
   SimulationProfile,
-  SimulationProfileAttackVectorsFormData,
-  simulationProfileAttackVectorsSchema,
+  SimulationProfileAttackVectorsFormUIData,
+  simulationProfileAttackVectorsFormSchema,
   SimulationProfileBasicInfoFormData,
   SimulationProfileScheduleFormData,
   simulationProfileScheduleSchema,
@@ -92,10 +92,10 @@ export default function SimulationPage({ params }: SimulationPageProps) {
     });
 
   const attackVectorSelectionForm =
-    useForm<SimulationProfileAttackVectorsFormData>({
-      resolver: zodResolver(simulationProfileAttackVectorsSchema),
+    useForm<SimulationProfileAttackVectorsFormUIData>({
+      resolver: zodResolver(simulationProfileAttackVectorsFormSchema),
       defaultValues: {
-        attackVectorIds: [],
+        attackVectors: [],
       },
       mode: "onTouched",
       reValidateMode: "onChange",
@@ -134,9 +134,10 @@ export default function SimulationPage({ params }: SimulationPageProps) {
         employeeGroupIds: simulation.employeeGroupIds || [],
       });
 
-      // Attack Vectors
+      // Attack Vectors - convert IDs to empty array since we need full objects
+      // In a real implementation, you'd fetch the full attack vector objects by IDs
       attackVectorSelectionForm.reset({
-        attackVectorIds: simulation.attackVectorIds || [],
+        attackVectors: [], // TODO: Fetch full attack vector objects by simulation.attackVectorIds
       });
 
       // Schedule - determine if autonomous or scheduled mode
@@ -290,7 +291,10 @@ export default function SimulationPage({ params }: SimulationPageProps) {
           isSubmitting={isSubmitting}
         />
       ),
-      validation: () => attackVectorSelectionForm.formState.isValid,
+      validation: () => {
+        const values = attackVectorSelectionForm.getValues();
+        return values.attackVectors.length > 0;
+      },
     },
     {
       id: "schedule",
@@ -312,8 +316,11 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       // Combine all form data
       const basicInfo = basicSimulationProfileForm.getValues();
       const targetSelection = targetSelectionForm.getValues();
-      const attackVectors = attackVectorSelectionForm.getValues();
+      const attackVectorsUI = attackVectorSelectionForm.getValues();
       const schedule = scheduleForm.getValues();
+
+      // Convert attack vectors UI data to API format
+      const attackVectorIds = attackVectorsUI.attackVectors.map(av => av.id);
 
       // Convert schedule data to API format
       const scheduleAPIData = convertScheduleFormToAPI(
@@ -328,7 +335,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
         description: basicInfo.description,
         categoryId: basicInfo.category,
         employeeGroupIds: targetSelection.employeeGroupIds,
-        attackVectorIds: attackVectors.attackVectorIds,
+        attackVectorIds: attackVectorIds,
         ...scheduleAPIData,
       };
 

@@ -15,7 +15,7 @@ import { AiEngineStatus } from "./_components/ai-engine-status";
 import { RecentSimulations } from "./_components/recent-simulations";
 import { ThreatIntel } from "./_components/threat-intel";
 // import { employees } from "@/constants/temporary/employees";
-import { dummySimulationProfiles } from "@/constants/temporary/simulation-profiles";
+// import { dummySimulationProfiles } from "@/constants/temporary/simulation-profiles";
 import { Top } from "./_components/top";
 import { SubNavItem } from "@/components/shared/sub-nav";
 import { ChartHeading } from "@/components/charts/chart-heading";
@@ -35,7 +35,7 @@ export default function Dashboard() {
     },
     {
       title: "Active Simulations",
-      value: String(dummySimulationProfiles.length),
+      value: String(0),
       icon: Mail,
       description: "23 scheduled today",
       color: COLOR_SCHEMES.communication.notification.main,

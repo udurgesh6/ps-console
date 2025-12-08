@@ -64,6 +64,19 @@ export const simulationProfileAttackVectorsSchema = z.object({
     .min(1, "At least one attack vector must be selected"),
 });
 
+// Extended attack vectors schema for form UI with full objects
+export const simulationProfileAttackVectorsFormSchema = z.object({
+  attackVectors: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    emailTemplate: z.object({
+      subject: z.string().optional(),
+      htmlBody: z.string(),
+    }),
+  })),
+});
+
 // Time regex
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -303,6 +316,9 @@ export type SimulationProfileTargetSelectionFormData = z.infer<
 >;
 export type SimulationProfileAttackVectorsFormData = z.infer<
   typeof simulationProfileAttackVectorsSchema
+>;
+export type SimulationProfileAttackVectorsFormUIData = z.infer<
+  typeof simulationProfileAttackVectorsFormSchema
 >;
 export type SimulationProfileScheduleFormData = z.infer<
   typeof simulationProfileScheduleSchema

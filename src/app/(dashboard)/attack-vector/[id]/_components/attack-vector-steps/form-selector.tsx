@@ -10,7 +10,7 @@ import { Library } from "@/components/shared/library";
 import { SubmissionForm, LibraryItem, ObjectType } from "@/types";
 import { UseFormReturn } from "react-hook-form";
 import { AttackVectorFormsFormData } from "@/types/attack-vector";
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, useWatch } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { FormItem } from "./form-item";
 import { FormPreview } from "./form-preview";
@@ -31,9 +31,13 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
 
   const {
     fields: selectedForms,
-    append,
     remove,
   } = useFieldArray({
+    control: form.control,
+    name: "forms",
+  });
+
+  const formValues = useWatch({
     control: form.control,
     name: "forms",
   });
@@ -51,6 +55,7 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
   const submissionFormItems: LibraryItem[] =
     submissionFormsData?.submissionForms?.map((form) => ({
       id: form.id,
+      tenantId: form.tenantId,
       name: form.name,
       description: form.description,
       htmlPage: form.htmlPage,
@@ -58,23 +63,30 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
       updatedAt: form.updatedAt,
     })) || [];
 
+  const initialSelectedItems = (
+    formValues?.map((form) => form?.id) || []
+  ).filter(Boolean);
+
   const handleDone = (selectedItems: LibraryItem[]) => {
+    console.log('Selected items from library:', selectedItems);
+    
     const newSelections = selectedItems as SubmissionForm[];
 
     if (newSelections.length > 0) {
-      // Replace the existing item with the new selection
-      const newForm = newSelections[0]; // Take the first selected item
+      const newForm = newSelections[0];
+      
+      console.log('New form to add:', newForm);
+      console.log('Current forms before:', form.getValues("forms"));
 
-      // Remove all existing items and add the new one
-      while (selectedForms.length > 0) {
-        remove(0);
-      }
-      append(newForm);
+      form.setValue("forms", [newForm], {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
 
-      // Force re-validation of the entire form
-      setTimeout(() => {
-        form.trigger("forms");
-      }, 0);
+      console.log('Forms after setValue:', form.getValues("forms"));
+      console.log('Form errors:', form.formState.errors);
+      console.log('Form isValid:', form.formState.isValid);
     }
 
     setShowModal(false);
@@ -169,7 +181,11 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
                 <FormPreview
                   key={formItem.id}
                   item={formItem}
-                  onRemove={() => remove(index)}
+                  onRemove={() => {
+                    remove(index);
+                    // Trigger validation after remove
+                    form.trigger("forms");
+                  }}
                 />
               ))}
             </div>
@@ -218,6 +234,7 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
             onClose={() => setShowModal(false)}
             renderItem={FormItem}
             isSingleSelect={true}
+            initialSelectedItems={initialSelectedItems}
             isFilterGroupsLoading={filterGroupsLoading}
             isItemsLoading={submissionFormsLoading}
           />

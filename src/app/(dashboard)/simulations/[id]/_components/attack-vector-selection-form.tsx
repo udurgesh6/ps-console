@@ -5,11 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sparkles, Library as LibraryIcon, X } from "lucide-react";
+import { Library as LibraryIcon, X } from "lucide-react";
 import { Library } from "@/components/shared/library";
 import { AttackVector, LibraryItem } from "@/types";
 import { UseFormReturn } from "react-hook-form";
-import { SimulationProfileAttackVectorsFormData } from "@/types";
+import { SimulationProfileAttackVectorsFormUIData } from "@/types";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,13 +19,13 @@ import { useGetAttackVectors, useGetAttackVectorFilters } from "@/hooks";
 import { ObjectType } from "@/types";
 
 interface SimulationProfileAttackVectorsStepProps {
-  form: UseFormReturn<SimulationProfileAttackVectorsFormData>;
+  form: UseFormReturn<SimulationProfileAttackVectorsFormUIData>;
   isSubmitting?: boolean;
 }
 
 export const SimulationProfileAttackVectorsStep = ({
   form,
-  isSubmitting = true,
+  isSubmitting = false,
 }: SimulationProfileAttackVectorsStepProps) => {
   const { data: attackVectorsData, isLoading: attackVectorsLoading, error: attackVectorsError } = useGetAttackVectors();
   const { data: filterGroupsData, isLoading: filterGroupsLoading, error: filterGroupsError } = useGetAttackVectorFilters({ objectType: ObjectType.ATTACK_VECTOR });
@@ -46,39 +46,35 @@ export const SimulationProfileAttackVectorsStep = ({
     name: "attackVectors",
   });
 
-  const letAIDecide = useWatch({
-    control: form.control,
-    name: "letAIDecideAttackVectors",
-  });
-
   const isSelected = (item: LibraryItem) => {
-    return attackVectorValues.some((page) => page.id === item.id);
+    return attackVectorValues?.some((attackVector) => attackVector?.id === item.id) ?? false;
   };
 
   const handleDone = (selectedItems: LibraryItem[]) => {
     const newSelections = selectedItems as AttackVector[];
+    
+    console.log('Selected items:', selectedItems);
+    console.log('Current attack vectors:', attackVectorValues);
+    
     const vectorsToAppend = newSelections.filter(
       (newItem) => !isSelected(newItem)
     );
-    vectorsToAppend.forEach((page) => append(page));
+    
+    console.log('Vectors to append:', vectorsToAppend);
+    
+    vectorsToAppend.forEach((vector) => append(vector));
+    
+    form.trigger("attackVectors");
+    
     setShowModal(false);
   };
 
   const handleRemoveAttackVector = (index: number) => {
     remove(index);
-  };
-
-  const handleLetAIDecide = () => {
-    // Clear any manually selected attack vectors
-    // form.setValue("attackVectors", []);
-    // Set the AI decision flag
-    form.setValue("letAIDecideAttackVectors", true);
+    form.trigger("attackVectors");
   };
 
   const handleSelectFromLibrary = () => {
-    // Unset the AI decision flag
-    form.setValue("letAIDecideAttackVectors", false);
-    // Open the library modal
     setShowModal(true);
   };
 
@@ -86,100 +82,79 @@ export const SimulationProfileAttackVectorsStep = ({
   const error = attackVectorsError || filterGroupsError;
 
   if (isLoading) {
-    return <></>
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-6">
+        <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+          <LibraryIcon className="w-8 h-8 text-primary" />
+        </div>
+        <p className="text-gray-500">Loading attack vectors...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <></>;
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed border-red-200 rounded-lg bg-red-50/50">
+        <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+          <X className="w-8 h-8 text-red-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-red-900 mb-2">
+          Error Loading Attack Vectors
+        </h3>
+        <p className="text-red-600 mb-4">
+          {attackVectorsError?.message || filterGroupsError?.message || "Failed to load data"}
+        </p>
+        <Button onClick={() => window.location.reload()} variant="outline">
+          Retry
+        </Button>
+      </div>
+    );
   }
+
+  const initialSelectedItems = (
+    attackVectorValues?.map((av) => av?.id) || []
+  ).filter(Boolean);
 
   return (
     <div className="flex flex-col gap-y-4">
       <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2">
-          {/* Let AI Decide Option */}
-          <button
-            type="button"
-            onClick={handleLetAIDecide}
-            disabled={isSubmitting}
+        {/* Select From Library Button */}
+        <button
+          type="button"
+          onClick={handleSelectFromLibrary}
+          disabled={isSubmitting}
+          className={cn(
+            "w-full p-4 border-2 transition-all duration-200 rounded-lg",
+            "hover:border-primary hover:shadow-md",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            "flex items-center gap-3",
+            selectedAttackVectors.length > 0
+              ? "border-primary bg-primary/5 shadow-md"
+              : "border-border bg-background"
+          )}
+        >
+          <div
             className={cn(
-              "w-full p-4 border-2 transition-all duration-200",
-              "hover:border-primary hover:shadow-md",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex items-center gap-3",
-              letAIDecide
-                ? "border-primary bg-primary/5 shadow-md"
-                : "border-border bg-background"
+              "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+              selectedAttackVectors.length > 0
+                ? "bg-primary"
+                : "bg-primary/10"
             )}
           >
-            <div
+            <LibraryIcon
               className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
-                letAIDecide ? "bg-primary" : "bg-primary/10"
+                "h-5 w-5",
+                selectedAttackVectors.length > 0
+                  ? "text-primary-foreground"
+                  : "text-primary"
               )}
-            >
-              <Sparkles
-                className={cn(
-                  "h-5 w-5",
-                  letAIDecide ? "text-primary-foreground" : "text-primary"
-                )}
-              />
-            </div>
-            <span className="font-medium text-left">Let AI Decide</span>
-          </button>
-
-          {/* Select From Library Option */}
-          <button
-            type="button"
-            onClick={handleSelectFromLibrary}
-            disabled={isSubmitting}
-            className={cn(
-              "w-full p-4 border-2 transition-all duration-200",
-              "hover:border-primary hover:shadow-md",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex items-center gap-3",
-              !letAIDecide && selectedAttackVectors.length > 0
-                ? "border-primary bg-primary/5 shadow-md"
-                : "border-border bg-background"
-            )}
-          >
-            <div
-              className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
-                !letAIDecide && selectedAttackVectors.length > 0
-                  ? "bg-primary"
-                  : "bg-primary/10"
-              )}
-            >
-              <LibraryIcon
-                className={cn(
-                  "h-5 w-5",
-                  !letAIDecide && selectedAttackVectors.length > 0
-                    ? "text-primary-foreground"
-                    : "text-primary"
-                )}
-              />
-            </div>
-            <span className="font-medium text-left">Select From Library</span>
-          </button>
-        </div>
+            />
+          </div>
+          <span className="font-medium text-left">Select Attack Vectors From Library</span>
+        </button>
       </div>
 
-      {/* Show AI Decision Banner */}
-      {letAIDecide && (
-        <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-3">
-          <Sparkles className="h-5 w-5 text-primary flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">AI-Powered Selection Enabled</p>
-            <p className="text-xs text-muted-foreground">
-              Attack vectors will be automatically selected based on your
-              simulation profile
-            </p>
-          </div>
-        </div>
-      )}
-
-      {!letAIDecide && selectedAttackVectors.length > 0 && (
+      {selectedAttackVectors.length > 0 ? (
         <div className="space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {selectedAttackVectors.map((av, index) => {
@@ -252,9 +227,20 @@ export const SimulationProfileAttackVectorsStep = ({
             })}
           </div>
         </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed border-gray-200 rounded-lg bg-gray-50/50">
+          <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+            <LibraryIcon className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No Attack Vectors Selected
+          </h3>
+          <p className="text-gray-500 mb-6 max-w-xl">
+            Choose attack vectors for your simulation profile. Click the button above to select from your library.
+          </p>
+        </div>
       )}
 
-      {/* Library Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -270,10 +256,12 @@ export const SimulationProfileAttackVectorsStep = ({
             showActionButton={true}
             showInModal={true}
             isOpen={showModal}
-            initialSelectedItems={attackVectorValues.map(av => av.id)}
+            initialSelectedItems={initialSelectedItems}
             onActionButtonClick={handleDone}
             onClose={() => setShowModal(false)}
             isSingleSelect={false}
+            isItemsLoading={attackVectorsLoading}
+            isFilterGroupsLoading={filterGroupsLoading}
           />
         </DialogContent>
       </Dialog>

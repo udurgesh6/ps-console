@@ -9,6 +9,7 @@ import {
   AwarenessProfileEmployeeGroupsFormData,
   AwarenessProfileTimelineFormData,
   baseAwarenessProfileTimelineSchema,
+  SimulationProfileTargetSelectionFormData,
 } from "@/types";
 import { useRouter } from "next/navigation";
 import { use } from "react";
@@ -40,9 +41,7 @@ export default function AwarenessPage({ params }: AwarenessPageProps) {
   // Find existing simulation if editing
   const [awareness] = useState<AwarenessProfile | null>(() => {
     if (isNewAwareness) return null;
-    return (
-      []?.find((awareness) => awareness === id) || null
-    );
+    return []?.find((awareness) => awareness === id) || null;
   });
 
   useEffect(() => {
@@ -63,15 +62,17 @@ export default function AwarenessPage({ params }: AwarenessPageProps) {
     shouldFocusError: false,
   });
 
-  const targetSelectionForm = useForm<AwarenessProfileEmployeeGroupsFormData>({
-    resolver: zodResolver(simulationProfileTargetSelectionSchema),
-    defaultValues: {
-      employeeGroups: awareness?.employeeGroups || [],
-    },
-    mode: "onTouched",
-    reValidateMode: "onChange",
-    shouldFocusError: false,
-  });
+  const targetSelectionForm = useForm<SimulationProfileTargetSelectionFormData>(
+    {
+      resolver: zodResolver(simulationProfileTargetSelectionSchema),
+      defaultValues: {
+        employeeGroupIds: [],
+      },
+      mode: "onTouched",
+      reValidateMode: "onChange",
+      shouldFocusError: false,
+    }
+  );
 
   const courseSelectionForm = useForm<AwarenessProfileCoursesFormData>({
     resolver: zodResolver(awarenessProfileCoursesSchema),
@@ -128,7 +129,6 @@ export default function AwarenessPage({ params }: AwarenessPageProps) {
         <SimulationProfileTargetSelectionStep
           form={targetSelectionForm}
           isSubmitting={isNextProcessing}
-          availableGroups={[]}
         />
       ),
       validation: () => targetSelectionForm.formState.isValid,
@@ -138,11 +138,7 @@ export default function AwarenessPage({ params }: AwarenessPageProps) {
       icon: <Book className="h-5 w-5" />,
       title: "Select Courses",
       description: "Choose courses to include in this awareness profile.",
-      content: (
-        <CourseSelector
-          form={courseSelectionForm}
-        />
-      ),
+      content: <CourseSelector form={courseSelectionForm} />,
       validation: () => courseSelectionForm.formState.isValid,
     },
     {

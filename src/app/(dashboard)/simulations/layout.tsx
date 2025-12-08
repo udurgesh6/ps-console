@@ -4,8 +4,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
-import dummySimulationProfiles from "@/constants/temporary/simulation-profiles";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
+import { SimulationProfile } from "@/types";
 
 export default function SimulationsLayout({
   children,
@@ -30,8 +30,8 @@ export default function SimulationsLayout({
 
   const getSimulationName = (id: string | null) => {
     if (!id) return "Unknown Simulation";
-
-    const simulation = dummySimulationProfiles.find((sim) => sim.id === id);
+    const simulationProfiles = [] as SimulationProfile[];
+    const simulation = simulationProfiles.find((sim) => sim.id === id);
     return simulation ? simulation.name : `Simulation ${id}`;
   };
 
