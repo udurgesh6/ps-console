@@ -31,7 +31,7 @@ export default function TemplatesLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { openSidebar, setOpenSidebar, closeSidebar } = useSidebar()
+  const { openSidebar, closeSidebar } = useSidebar()
 
   const handleCreateTemplate = async () => {
     // TODO: Replace with actual API call

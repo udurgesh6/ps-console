@@ -3,26 +3,28 @@
 import { Library } from "@/components/shared/library";
 import { useState } from "react";
 import { LandingPageItem } from "../../attack-vector/[id]/_components/attack-vector-steps/landing-page-item";
+import { useGetLandingPageFilters, useGetLandingPages } from "@/hooks";
+import { LibraryItem, ObjectType } from "@/types";
+import { getFilters } from "@/utils/get-filters";
 
 export default function LandingTemplates() {
   const [showModal, setShowModal] = useState(false);
 
+  const { data: filterGroupsData, isLoading: filterGroupsLoading } =
+    useGetLandingPageFilters({ objectType: ObjectType.LANDING_PAGE });
+  const { data: landingPagesData, isLoading: landingPagesLoading } =
+    useGetLandingPages();
+
+  const filters = getFilters(filterGroupsData);
+
   const bulkActions = [
     {
       label: 'Delete',
-      onClick: (items) => console.log('Delete landing templates:', items),
-    },
-    // {
-    //   label: 'Export',
-    //   onClick: (items) => console.log('Export landing templates:', items),
-    // },
-    // {
-    //   label: 'Preview',
-    //   onClick: (items) => console.log('Preview landing templates:', items),
-    // },
+      onClick: (items: LibraryItem[]) => console.log('Delete landing templates:', items),
+    }
   ];
 
-  const handleDone = (selectedItems) => {
+  const handleDone = (selectedItems: LibraryItem[]) => {
     console.log('Selected landing templates:', selectedItems);
     setShowModal(false);
   };
@@ -36,13 +38,15 @@ export default function LandingTemplates() {
       showActionButton={true}
       showInModal={false}
       isOpen={showModal}
-      // filterGroups={filterGroups}
+      filterGroups={filters}
       bulkActions={bulkActions}
-      items={[]}
+      items={landingPagesData?.landingPages || []}
       actionButtonText="Done"
       onActionButtonClick={handleDone}
       onClose={() => setShowModal(false)}
       renderItem={LandingPageItem}
+      isItemsLoading={landingPagesLoading}
+      isFilterGroupsLoading={filterGroupsLoading}
     />
   );
 }

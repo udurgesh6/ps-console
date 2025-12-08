@@ -109,18 +109,7 @@ export const attackVectorLandingPageSchema = z.object({
 
 export const attackVectorFormsSchema = z.object({
   forms: z
-    .array(
-      z.object({
-        id: z.uuid(),
-        name: z.string(),
-        description: z.string().optional(),
-        htmlPage: z.string(),
-        // Make these optional since they might not be present when selecting
-        tenantId: z.uuid().optional(),
-        createdAt: z.number().optional(),
-        updatedAt: z.number().optional(),
-      })
-    )
+    .array(submissionFormSchema)
     .min(1, "At least one form is required"),
 });
 

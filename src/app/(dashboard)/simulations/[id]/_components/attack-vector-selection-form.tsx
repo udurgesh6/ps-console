@@ -13,7 +13,7 @@ import { SimulationProfileAttackVectorsFormData } from "@/types";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AttackVectorItem } from "@/app/(dashboard)/attack-vector/_components/attack-vector-item";
+import { AttackVectorItem } from "@/app/(dashboard)/attack-vector/components/attack-vector-item";
 import { cn } from "@/lib/utils";
 import { useGetAttackVectors, useGetAttackVectorFilters } from "@/hooks";
 import { ObjectType } from "@/types";

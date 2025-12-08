@@ -2,6 +2,9 @@
 
 import dummySimulationProfiles from "@/constants/temporary/simulation-profiles";
 import {
+  convertScheduleFormToAPI,
+  DAY_OF_WEEK_MAP,
+  DayOfWeek,
   SimulationProfile,
   SimulationProfileAttackVectorsFormData,
   simulationProfileAttackVectorsSchema,
@@ -60,7 +63,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       defaultValues: {
         name: simulation?.name || "",
         description: simulation?.description || "",
-        category: simulation?.category || undefined,
+        category: simulation?.categoryId || undefined,
         // simulationFrequency: simulation?.simulationFrequency || 15,
         // simulationInterval: simulation?.simulationInterval || "monthly",
       },
@@ -73,7 +76,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
     {
       resolver: zodResolver(simulationProfileTargetSelectionSchema),
       defaultValues: {
-        employeeGroups: simulation?.employeeGroups || [],
+        employeeGroupIds: simulation?.employeeGroupIds || [],
       },
       mode: "onTouched",
       reValidateMode: "onChange",
@@ -85,43 +88,63 @@ export default function SimulationPage({ params }: SimulationPageProps) {
     useForm<SimulationProfileAttackVectorsFormData>({
       resolver: zodResolver(simulationProfileAttackVectorsSchema),
       defaultValues: {
-        attackVectors: simulation?.attackVectors || [],
-        letAIDecideAttackVectors: simulation?.letAIDecideAttackVectors || false,
+        attackVectorIds: simulation?.attackVectorIds || [],
       },
       mode: "onTouched",
       reValidateMode: "onChange",
       shouldFocusError: false,
     });
 
-  console.log(attackVectorSelectionForm)
+  console.log(attackVectorSelectionForm);
 
   const scheduleForm = useForm<SimulationProfileScheduleFormData>({
     resolver: zodResolver(simulationProfileScheduleSchema),
-    defaultValues: simulation?.isAutonomous
-      ? {
-          isAutonomous: true,
-          simulationInterval: simulation.simulationInterval ?? 7,
-          simulationFrequency: simulation.simulationFrequency ?? 4,
-          startDate: simulation.startDate
-            ? simulation.startDate.toISOString().split("T")[0]
-            : "",
-          endDate: simulation.endDate
-            ? simulation.endDate.toISOString().split("T")[0]
-            : "",
-          timezone: simulation.timezone ?? "Asia/Kolkata",
-        }
-      : {
-          isAutonomous: false,
-          schedule: simulation?.schedule ?? {
-            type: "weekly",
-            timeOfDay: "",
-            timezone: "Asia/Kolkata",
-            dayOfWeek: [],
-          },
-        },
+    defaultValues: {
+      scheduleType: simulation?.scheduleType || "weekly",
+      minimumSimulationInterval: simulation?.minimumSimulationInterval || 1,
+      maximumSimulationInterval: simulation?.maximumSimulationInterval || 7,
+      startDate: simulation?.startDate
+        ? new Date(simulation.startDate).toISOString().split("T")[0]
+        : "",
+      endDate: simulation?.endDate
+        ? new Date(simulation.endDate).toISOString().split("T")[0]
+        : "",
+      startTime: simulation?.startDate
+        ? new Date(simulation.startDate).toTimeString().slice(0, 5)
+        : "09:00",
+      endTime: simulation?.endDate
+        ? new Date(simulation.endDate).toTimeString().slice(0, 5)
+        : "17:00",
+      // Type-specific defaults
+      ...(simulation?.scheduleType === "weekly" ||
+      simulation?.scheduleType === "bi-weekly"
+        ? {
+            dayOfWeek: simulation.launchPreference
+              ? [
+                  Object.entries(DAY_OF_WEEK_MAP).find(
+                    ([_, v]) => v === simulation.launchPreference
+                  )?.[0] as DayOfWeek,
+                ]
+              : [],
+          }
+        : {}),
+      ...(simulation?.scheduleType === "monthly"
+        ? {
+            dayOfMonth: simulation.launchPreference || 1,
+          }
+        : {}),
+      ...(simulation?.scheduleType === "custom"
+        ? {
+            specificDates: simulation.launchDates
+              ? simulation.launchDates.map(
+                  (ts) => new Date(ts).toISOString().split("T")[0]
+                )
+              : [],
+          }
+        : {}),
+    } as SimulationProfileScheduleFormData,
     mode: "onTouched",
     reValidateMode: "onChange",
-    // CRITICAL FIX: Disable scroll to error
     shouldFocusError: false,
   });
 
@@ -150,7 +173,6 @@ export default function SimulationPage({ params }: SimulationPageProps) {
         <SimulationProfileTargetSelectionStep
           form={targetSelectionForm}
           isSubmitting={isNextProcessing}
-          availableGroups={[]}
         />
       ),
       validation: () => targetSelectionForm.formState.isValid,
@@ -185,10 +207,32 @@ export default function SimulationPage({ params }: SimulationPageProps) {
   ];
 
   const handleComplete = (data: Record<string, unknown>) => {
+    // Combine all form data
+    const basicInfo = basicSimulationProfileForm.getValues();
+    const targetSelection = targetSelectionForm.getValues();
+    const attackVectors = attackVectorSelectionForm.getValues();
+    const schedule = scheduleForm.getValues();
+
+    // Convert schedule data to API format
+    const scheduleAPIData = convertScheduleFormToAPI(schedule);
+
+    const completeData: Partial<SimulationProfile> = {
+      name: basicInfo.name,
+      description: basicInfo.description,
+      categoryId: basicInfo.category,
+      employeeGroupIds: targetSelection.employeeGroupIds,
+      attackVectorIds: attackVectors.attackVectorIds,
+      ...scheduleAPIData,
+    };
+
     console.log(
       `${isNewSimulation ? "Created" : "Updated"} simulation with data:`,
-      data
+      completeData
     );
+
+    // TODO: Make API call here
+    // await createSimulation(completeData);
+
     router.push("/simulations");
   };
 

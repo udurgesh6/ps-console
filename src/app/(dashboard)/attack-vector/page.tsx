@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Library } from "@/components/shared/library/library";
 import { LibraryItem } from "@/types";
-import { AttackVectorItem } from "./_components/attack-vector-item";
+import { AttackVectorItem } from "./components/attack-vector-item";
 import { useGetAttackVectorFilters, useGetAttackVectors } from "@/hooks";
 import { ObjectType } from "@/types/operations";
 import { getFilters } from "@/utils/get-filters";

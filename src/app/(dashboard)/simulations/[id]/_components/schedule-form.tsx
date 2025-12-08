@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,7 +17,6 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -25,17 +24,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   CalendarIcon,
   X,
+  Clock,
   Sparkles,
   Calendar as CalendarRegular,
-  Clock,
 } from "lucide-react";
 import { format } from "date-fns";
-import { ScheduleTypeValue, SimulationProfileScheduleFormData } from "@/types";
+import { SimulationProfileScheduleFormData } from "@/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -54,21 +52,6 @@ const DAYS_OF_WEEK = [
   { value: "sunday", label: "Sunday" },
 ] as const;
 
-const MONTHS = [
-  { value: 1, label: "January" },
-  { value: 2, label: "February" },
-  { value: 3, label: "March" },
-  { value: 4, label: "April" },
-  { value: 5, label: "May" },
-  { value: 6, label: "June" },
-  { value: 7, label: "July" },
-  { value: 8, label: "August" },
-  { value: 9, label: "September" },
-  { value: 10, label: "October" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
-];
-
 const TIMEZONES = [
   { value: "America/New_York", label: "Eastern Time (ET)" },
   { value: "America/Chicago", label: "Central Time (CT)" },
@@ -83,149 +66,120 @@ const TIMEZONES = [
   { value: "Australia/Sydney", label: "Sydney (AEDT)" },
 ];
 
-// Helper function to calculate max frequency based on interval
-const calculateMaxFrequency = (intervalDays: number): number => {
-  return Math.ceil(30 / intervalDays);
-};
-
 export const SimulationProfileScheduleStep: FC<
   SimulationProfileScheduleStepProps
 > = ({ form, isSubmitting = false }) => {
   const isAutonomous = form.watch("isAutonomous");
-  const scheduleType = form.watch("schedule.type");
+  const scheduleType = form.watch("scheduleType");
   const startDate = form.watch("startDate");
-  const endDate = form.watch("endDate");
-  const simulationInterval = form.watch("simulationInterval");
-  const simulationFrequency = form.watch("simulationFrequency");
 
-  // Update max frequency when interval changes
-  useEffect(() => {
-    if (isAutonomous && simulationInterval) {
-      const maxFreq = calculateMaxFrequency(simulationInterval);
-
-      // If current frequency exceeds the new max, adjust it
-      if (simulationFrequency && simulationFrequency > maxFreq) {
-        form.setValue("simulationFrequency", maxFreq, {
-          shouldValidate: false,
-        });
-      }
-    }
-  }, [simulationInterval, isAutonomous, form, simulationFrequency]);
-
-  const handleScheduleModeChange = (value: string) => {
-    const autonomous = value === "autonomous";
+  const handleModeChange = (autonomous: boolean) => {
+    form.clearErrors();
 
     if (autonomous) {
+      // Autonomous mode - reset the entire form with autonomous defaults
       form.reset({
         isAutonomous: true,
-        simulationInterval: 7,
-        simulationFrequency: 4,
-        startDate: "",
-        endDate: "",
-        startTime: "",
-        endTime: "",
-        timezone:
-          form.getValues("timezone") ||
-          form.getValues("schedule.timezone") ||
-          "Asia/Kolkata",
-      });
+        minimumSimulationInterval: 1,
+        maximumSimulationInterval: 7,
+        timezone: form.getValues("timezone") || "Asia/Kolkata",
+        startDate: form.getValues("startDate") || "",
+        endDate: form.getValues("endDate") || "",
+        startTime: form.getValues("startTime") || "09:00",
+        endTime: form.getValues("endTime") || "17:00",
+      } as SimulationProfileScheduleFormData);
     } else {
+      // Scheduled mode - reset with scheduled defaults
       form.reset({
         isAutonomous: false,
-        schedule: {
-          type: "weekly",
-          dayOfWeek: [],
-          timeOfDay: "",
-          timezone:
-            form.getValues("timezone") ||
-            form.getValues("schedule.timezone") ||
-            "Asia/Kolkata",
-        },
-      });
+        scheduleType: "weekly",
+        dayOfWeek: [],
+        timezone: form.getValues("timezone") || "Asia/Kolkata",
+        startDate: form.getValues("startDate") || "",
+        endDate: form.getValues("endDate") || "",
+        startTime: form.getValues("startTime") || "09:00",
+        endTime: form.getValues("endTime") || "17:00",
+      } as SimulationProfileScheduleFormData);
     }
   };
 
-  const handleScheduleTypeChange = (newType: ScheduleTypeValue) => {
-    console.log("handleScheduleTypeChange called with:", newType);
-
-    // Clear all errors before changing type
+  const handleScheduleTypeChange = (
+    newType: "weekly" | "bi-weekly" | "monthly" | "custom"
+  ) => {
     form.clearErrors();
 
-    const currentSchedule = form.getValues("schedule");
-    const baseValues = {
-      type: newType,
-      timeOfDay: currentSchedule?.timeOfDay || "",
-      timezone: currentSchedule?.timezone || "Asia/Kolkata",
-    };
+    const currentValues = form.getValues();
 
+    // Reset type-specific fields based on new schedule type
     switch (newType) {
       case "weekly":
       case "bi-weekly":
-        form.setValue(
-          "schedule",
+        form.reset(
           {
-            ...baseValues,
-            type: newType,
+            isAutonomous: false,
+            scheduleType: newType,
             dayOfWeek: [],
-          },
-          { shouldValidate: false, shouldDirty: true, shouldTouch: true }
+            timezone: currentValues.timezone,
+            startDate: currentValues.startDate,
+            endDate: currentValues.endDate,
+            startTime: currentValues.startTime,
+            endTime: currentValues.endTime,
+          } as SimulationProfileScheduleFormData,
+          {
+            keepErrors: false,
+            keepDirty: false,
+          }
         );
         break;
 
       case "monthly":
-        form.setValue(
-          "schedule",
+        form.reset(
           {
-            ...baseValues,
-            type: "monthly",
+            isAutonomous: false,
+            scheduleType: newType,
             dayOfMonth: 1,
-          },
-          { shouldValidate: false, shouldDirty: true, shouldTouch: true }
-        );
-        break;
-
-      case "quarterly":
-        form.setValue(
-          "schedule",
+            timezone: currentValues.timezone,
+            startDate: currentValues.startDate,
+            endDate: currentValues.endDate,
+            startTime: currentValues.startTime,
+            endTime: currentValues.endTime,
+          } as SimulationProfileScheduleFormData,
           {
-            ...baseValues,
-            type: "quarterly",
-            monthsOfYear: [],
-            dayOfMonth: 1,
-          },
-          { shouldValidate: false, shouldDirty: true, shouldTouch: true }
+            keepErrors: false,
+            keepDirty: false,
+          }
         );
         break;
 
       case "custom":
-        form.setValue(
-          "schedule",
+        form.reset(
           {
-            ...baseValues,
-            type: "custom",
+            isAutonomous: false,
+            scheduleType: newType,
             specificDates: [],
-          },
-          { shouldValidate: false, shouldDirty: true, shouldTouch: true }
+            timezone: currentValues.timezone,
+            startDate: currentValues.startDate,
+            endDate: currentValues.endDate,
+            startTime: currentValues.startTime,
+            endTime: currentValues.endTime,
+          } as SimulationProfileScheduleFormData,
+          {
+            keepErrors: false,
+            keepDirty: false,
+          }
         );
         break;
     }
-
-    // Force trigger watch by also setting the type field specifically
-    form.setValue("schedule.type", newType, { shouldValidate: false });
   };
 
-  const renderManualScheduleFields = () => {
-    console.log(
-      "renderManualScheduleFields called with scheduleType:",
-      scheduleType
-    );
+  const renderScheduleTypeFields = () => {
     switch (scheduleType) {
       case "weekly":
       case "bi-weekly":
         return (
           <FormField
             control={form.control}
-            name="schedule.dayOfWeek"
+            name="dayOfWeek"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium" required>
@@ -272,7 +226,7 @@ export const SimulationProfileScheduleStep: FC<
         return (
           <FormField
             control={form.control}
-            name="schedule.dayOfMonth"
+            name="dayOfMonth"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium" required>
@@ -313,255 +267,87 @@ export const SimulationProfileScheduleStep: FC<
           />
         );
 
-      case "quarterly":
+      case "custom":
         return (
-          <>
-            <FormField
-              control={form.control}
-              name="schedule.monthsOfYear"
-              render={() => (
+          <FormField
+            control={form.control}
+            name="specificDates"
+            render={({ field }) => {
+              const selectedDates = field.value || [];
+              return (
                 <FormItem>
                   <FormLabel className="text-sm font-medium" required>
-                    Select Months (Max 4)
+                    Select Specific Dates
                   </FormLabel>
                   <FormDescription className="text-xs text-gray-500">
-                    Choose up to 4 months for quarterly execution
+                    Choose multiple specific dates for the simulation
                   </FormDescription>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-2">
-                    {MONTHS.map((month) => (
-                      <FormField
-                        key={month.value}
-                        control={form.control}
-                        name="schedule.monthsOfYear"
-                        render={({ field }) => {
-                          const value =
-                            (field.value as number[] | undefined) || [];
-                          return (
-                            <FormItem
-                              key={month.value}
-                              className="flex items-center space-x-2 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={value.includes(month.value)}
-                                  onCheckedChange={(checked) => {
-                                    const newValue = checked
-                                      ? [...value, month.value]
-                                      : value.filter((m) => m !== month.value);
-                                    field.onChange(newValue);
-                                  }}
-                                  disabled={
-                                    isSubmitting ||
-                                    (value.length >= 4 &&
-                                      !value.includes(month.value))
-                                  }
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal cursor-pointer">
-                                {month.label}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
+                  <div className="space-y-3">
+                    <FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal h-11",
+                              !selectedDates.length && "text-muted-foreground"
+                            )}
+                            disabled={isSubmitting}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDates.length > 0
+                              ? `${selectedDates.length} date${selectedDates.length > 1 ? "s" : ""} selected`
+                              : "Pick dates"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="multiple"
+                            selected={selectedDates.map((d) => new Date(d))}
+                            onSelect={(dates) => {
+                              const formattedDates =
+                                dates?.map((d) => format(d, "yyyy-MM-dd")) ||
+                                [];
+                              field.onChange(formattedDates);
+                            }}
+                            disabled={(date) => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              return date < today;
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+
+                    {selectedDates.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedDates.map((date) => (
+                          <Badge
+                            key={date}
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
+                            {format(new Date(date), "MMM dd, yyyy")}
+                            <X
+                              className="h-3 w-3 cursor-pointer hover:text-destructive"
+                              onClick={() => {
+                                field.onChange(
+                                  selectedDates.filter((d) => d !== date)
+                                );
+                              }}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="schedule.dayOfMonth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium" required>
-                    Day of Month
-                  </FormLabel>
-                  <FormDescription className="text-xs text-gray-500">
-                    Enter the day of the month (1-31) for the selected quarters
-                  </FormDescription>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={31}
-                      placeholder="e.g., 15"
-                      value={field.value ?? ""}
-                      onChange={(e) => {
-                        const inputValue = e.target.value;
-                        if (inputValue === "") {
-                          field.onChange(undefined);
-                        } else {
-                          const numValue = parseInt(inputValue);
-                          if (
-                            !isNaN(numValue) &&
-                            numValue >= 1 &&
-                            numValue <= 31
-                          ) {
-                            field.onChange(numValue);
-                          }
-                        }
-                      }}
-                      disabled={isSubmitting}
-                      className="text-base h-11"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        );
-
-      case "custom":
-        return (
-          <>
-            <FormField
-              control={form.control}
-              name="schedule.specificDates"
-              render={({ field }) => {
-                const selectedDates = field.value || [];
-                return (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium" required>
-                      Select Specific Dates
-                    </FormLabel>
-                    <FormDescription className="text-xs text-gray-500">
-                      Choose multiple specific dates for the simulation
-                    </FormDescription>
-                    <div className="space-y-3">
-                      <FormControl>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal h-11",
-                                !selectedDates.length && "text-muted-foreground"
-                              )}
-                              disabled={isSubmitting}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {selectedDates.length > 0
-                                ? `${selectedDates.length} date${selectedDates.length > 1 ? "s" : ""} selected`
-                                : "Pick dates"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="multiple"
-                              selected={selectedDates.map((d) => new Date(d))}
-                              onSelect={(dates) => {
-                                const formattedDates =
-                                  dates?.map((d) => format(d, "yyyy-MM-dd")) ||
-                                  [];
-                                field.onChange(formattedDates);
-                              }}
-                              disabled={(date) => {
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
-                                return date < today;
-                              }}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormControl>
-
-                      {selectedDates.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {selectedDates.map((date) => (
-                            <Badge
-                              key={date}
-                              variant="secondary"
-                              className="flex items-center gap-1"
-                            >
-                              {format(new Date(date), "MMM dd, yyyy")}
-                              <X
-                                className="h-3 w-3 cursor-pointer hover:text-destructive"
-                                onClick={() => {
-                                  field.onChange(
-                                    selectedDates.filter((d) => d !== date)
-                                  );
-                                }}
-                              />
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-
-            {/* Time and Timezone for Custom */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <FormField
-                control={form.control}
-                name="schedule.timeOfDay"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium" required>
-                      Time of Day
-                    </FormLabel>
-                    <FormDescription className="text-xs text-gray-500">
-                      24-hour format (HH:MM)
-                    </FormDescription>
-                    <FormControl>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                        <Input
-                          {...field}
-                          type="time"
-                          placeholder="14:30"
-                          disabled={isSubmitting}
-                          className="text-base h-11 pl-10"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="schedule.timezone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium" required>
-                      Timezone
-                    </FormLabel>
-                    <FormDescription className="text-xs text-gray-500">
-                      Select your timezone
-                    </FormDescription>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={isSubmitting}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="h-11 w-full">
-                          <SelectValue placeholder="Select timezone" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {TIMEZONES.map((tz) => (
-                          <SelectItem key={tz.value} value={tz.value}>
-                            {tz.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </>
+              );
+            }}
+          />
         );
 
       default:
@@ -572,19 +358,26 @@ export const SimulationProfileScheduleStep: FC<
   return (
     <Form {...form}>
       <div className="space-y-8">
-        {/* Schedule Mode Selection */}
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2">
-            {/* Autonomous Scheduling */}
+        {/* Mode Selection */}
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-sm font-medium mb-1">Scheduling Mode</h4>
+            <p className="text-xs text-muted-foreground">
+              Choose between AI-powered autonomous scheduling or fixed schedule
+              patterns
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Autonomous Mode */}
             <button
               type="button"
-              onClick={() => handleScheduleModeChange("autonomous")}
+              onClick={() => handleModeChange(true)}
               disabled={isSubmitting}
               className={cn(
-                "w-full p-4 border-2 transition-all duration-200",
+                "w-full p-4 border-2 rounded-lg transition-all duration-200",
                 "hover:border-primary hover:shadow-md",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                "flex items-center gap-3",
+                "flex items-start gap-3 text-left",
                 isAutonomous
                   ? "border-primary bg-primary/5 shadow-md"
                   : "border-border bg-background"
@@ -603,21 +396,24 @@ export const SimulationProfileScheduleStep: FC<
                   )}
                 />
               </div>
-              <span className="font-medium text-left">
-                Autonomous Scheduling
-              </span>
+              <div className="flex-1">
+                <p className="font-medium text-sm mb-1">Autonomous Mode</p>
+                <p className="text-xs text-muted-foreground">
+                  AI dynamically schedules simulations within defined intervals
+                </p>
+              </div>
             </button>
 
-            {/* Manual Scheduling */}
+            {/* Scheduled Mode */}
             <button
               type="button"
-              onClick={() => handleScheduleModeChange("manual")}
+              onClick={() => handleModeChange(false)}
               disabled={isSubmitting}
               className={cn(
-                "w-full p-4 border-2 transition-all duration-200",
+                "w-full p-4 border-2 rounded-lg transition-all duration-200",
                 "hover:border-primary hover:shadow-md",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                "flex items-center gap-3",
+                "flex items-start gap-3 text-left",
                 !isAutonomous
                   ? "border-primary bg-primary/5 shadow-md"
                   : "border-border bg-background"
@@ -636,7 +432,12 @@ export const SimulationProfileScheduleStep: FC<
                   )}
                 />
               </div>
-              <span className="font-medium text-left">Manual Scheduling</span>
+              <div className="flex-1">
+                <p className="font-medium text-sm mb-1">Scheduled Mode</p>
+                <p className="text-xs text-muted-foreground">
+                  Set fixed patterns like weekly, monthly, or custom dates
+                </p>
+              </div>
             </button>
           </div>
         </div>
@@ -644,105 +445,183 @@ export const SimulationProfileScheduleStep: FC<
         {/* Autonomous Mode Fields */}
         {isAutonomous && (
           <div className="space-y-6">
-            <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-3">
-              <Sparkles className="h-5 w-5 text-primary flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">
-                  Autonomous Scheduling Enabled
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  AI will dynamically schedule simulations within your defined
-                  parameters
-                </p>
-              </div>
-            </div>
+            {/* Simulation Intervals */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="minimumSimulationInterval"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium" required>
+                      Minimum Simulation Interval (Days)
+                    </FormLabel>
+                    <FormDescription className="text-xs text-gray-500">
+                      Minimum days between simulations (1-365)
+                    </FormDescription>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={365}
+                        placeholder="e.g., 7"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (inputValue === "") {
+                            field.onChange(undefined);
+                          } else {
+                            const numValue = parseInt(inputValue);
+                            if (
+                              !isNaN(numValue) &&
+                              numValue >= 1 &&
+                              numValue <= 365
+                            ) {
+                              field.onChange(numValue);
+                            }
+                          }
+                        }}
+                        disabled={isSubmitting}
+                        className="text-base h-11"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Simulation Interval Slider */}
+              <FormField
+                control={form.control}
+                name="maximumSimulationInterval"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium" required>
+                      Maximum Simulation Interval (Days)
+                    </FormLabel>
+                    <FormDescription className="text-xs text-gray-500">
+                      Maximum days between simulations (1-365)
+                    </FormDescription>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={365}
+                        placeholder="e.g., 30"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (inputValue === "") {
+                            field.onChange(undefined);
+                          } else {
+                            const numValue = parseInt(inputValue);
+                            if (
+                              !isNaN(numValue) &&
+                              numValue >= 1 &&
+                              numValue <= 365
+                            ) {
+                              field.onChange(numValue);
+                            }
+                          }
+                        }}
+                        disabled={isSubmitting}
+                        className="text-base h-11"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Scheduled Mode Fields */}
+        {!isAutonomous && (
+          <div className="space-y-6">
+            {/* Schedule Type Selection */}
             <FormField
-              key="simulationInterval"
               control={form.control}
-              name="simulationInterval"
+              name="scheduleType"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between mb-2">
-                    <FormLabel className="text-sm font-medium" required>
-                      Simulation Interval (Days)
-                    </FormLabel>
-                    <span className="text-sm font-semibold text-primary">
-                      {field.value || 7} days
-                    </span>
-                  </div>
-                  <FormDescription className="text-xs text-gray-500 mb-4">
-                    Set how many days between each simulation (1-28 days)
+                  <FormLabel className="text-sm font-medium" required>
+                    Schedule Type
+                  </FormLabel>
+                  <FormDescription className="text-xs text-gray-500">
+                    Choose how frequently simulations should run
                   </FormDescription>
-                  <div>
-                    <Slider
-                      min={1}
-                      max={28}
-                      step={1}
-                      value={[field.value || 7]}
-                      onValueChange={field.onChange}
-                      disabled={isSubmitting}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                    <span>1 day</span>
-                    <span>28 days</span>
-                  </div>
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      handleScheduleTypeChange(
+                        value as "weekly" | "bi-weekly" | "monthly" | "custom"
+                      );
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="h-11 w-full">
+                        <SelectValue placeholder="Select schedule type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="bi-weekly">Bi-Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="custom">Custom</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Simulation Frequency Slider */}
-            <FormField
-              key="simulationFrequency"
-              control={form.control}
-              name="simulationFrequency"
-              render={({ field }) => {
-                const maxFreq = simulationInterval
-                  ? calculateMaxFrequency(simulationInterval)
-                  : 30;
+            {/* Type-Specific Fields */}
+            {scheduleType && (
+              <div className="space-y-6">{renderScheduleTypeFields()}</div>
+            )}
+          </div>
+        )}
 
-                return (
-                  <FormItem>
-                    <div className="flex items-center justify-between mb-2">
-                      <FormLabel className="text-sm font-medium" required>
-                        Simulation Frequency (Per Month)
-                      </FormLabel>
-                      <span className="text-sm font-semibold text-primary">
-                        {field.value || 1} times
-                      </span>
-                    </div>
-                    <FormDescription className="text-xs text-gray-500 mb-4">
-                      Set how many simulations per month (max {maxFreq} based on
-                      interval)
-                    </FormDescription>
+        {/* Common Fields for Both Modes */}
+        {(isAutonomous || scheduleType) && (
+          <>
+            {/* Timezone Selection */}
+            <FormField
+              control={form.control}
+              name="timezone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium" required>
+                    Timezone
+                  </FormLabel>
+                  <FormDescription className="text-xs text-gray-500">
+                    Select timezone for scheduling (dates and times will be
+                    converted to UTC)
+                  </FormDescription>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isSubmitting}
+                  >
                     <FormControl>
-                      <div>
-                        <Slider
-                          min={1}
-                          max={maxFreq}
-                          step={1}
-                          value={[field.value || 1]}
-                          onValueChange={field.onChange}
-                          disabled={isSubmitting}
-                          className="w-full"
-                        />
-                      </div>
+                      <SelectTrigger className="h-11 w-full">
+                        <SelectValue placeholder="Select timezone" />
+                      </SelectTrigger>
                     </FormControl>
-                    <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                      <span>1 time</span>
-                      <span>{maxFreq} times</span>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
+                    <SelectContent>
+                      {TIMEZONES.map((tz) => (
+                        <SelectItem key={tz.value} value={tz.value}>
+                          {tz.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            {/* Campaign Timeline with Calendar */}
+            {/* Campaign Timeline */}
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium mb-1">Campaign Timeline</h4>
@@ -751,7 +630,7 @@ export const SimulationProfileScheduleStep: FC<
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Start Date with Calendar */}
+                {/* Start Date */}
                 <FormField
                   control={form.control}
                   name="startDate"
@@ -803,7 +682,7 @@ export const SimulationProfileScheduleStep: FC<
                   )}
                 />
 
-                {/* End Date with Calendar */}
+                {/* End Date */}
                 <FormField
                   control={form.control}
                   name="endDate"
@@ -865,6 +744,12 @@ export const SimulationProfileScheduleStep: FC<
 
             {/* Time Range */}
             <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium mb-1">Time Window</h4>
+                <p className="text-xs text-muted-foreground">
+                  Define the time range when simulations can be launched
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Start Time */}
                 <FormField
@@ -925,206 +810,6 @@ export const SimulationProfileScheduleStep: FC<
                 />
               </div>
             </div>
-
-            {/* Timezone */}
-            <FormField
-              control={form.control}
-              name="timezone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium" required>
-                    Timezone
-                  </FormLabel>
-                  <FormDescription className="text-xs text-gray-500">
-                    Select your timezone for scheduling
-                  </FormDescription>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-11 w-full">
-                        <SelectValue placeholder="Select timezone" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {TIMEZONES.map((tz) => (
-                        <SelectItem key={tz.value} value={tz.value}>
-                          {tz.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Timeline Summary for Autonomous */}
-            {startDate &&
-              endDate &&
-              simulationInterval &&
-              simulationFrequency && (
-                <div className="rounded-lg border bg-muted/50 p-4">
-                  <h4 className="text-sm font-medium mb-2">Campaign Summary</h4>
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>
-                      <span className="font-medium text-foreground">
-                        Duration:
-                      </span>{" "}
-                      {format(new Date(startDate), "MMM dd, yyyy")} -{" "}
-                      {format(new Date(endDate), "MMM dd, yyyy")}
-                    </p>
-                    <p>
-                      <span className="font-medium text-foreground">
-                        Interval:
-                      </span>{" "}
-                      {simulationInterval} days between simulations
-                    </p>
-                    <p>
-                      <span className="font-medium text-foreground">
-                        Frequency:
-                      </span>{" "}
-                      {simulationFrequency} simulations per month
-                    </p>
-                    <p className="mt-2 pt-2 border-t">
-                      <span className="font-medium text-foreground">
-                        Estimated Total:
-                      </span>{" "}
-                      {(() => {
-                        const start = new Date(startDate);
-                        const end = new Date(endDate);
-                        const totalDays = Math.ceil(
-                          (end.getTime() - start.getTime()) /
-                            (1000 * 60 * 60 * 24)
-                        );
-                        const months = totalDays / 30;
-                        const estimatedTotal = Math.round(
-                          simulationFrequency * months
-                        );
-                        return `~${estimatedTotal} simulations`;
-                      })()}
-                    </p>
-                  </div>
-                </div>
-              )}
-          </div>
-        )}
-
-        {/* Manual Mode Fields */}
-        {!isAutonomous && (
-          <>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="schedule.type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium" required>
-                      Schedule Type
-                    </FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        handleScheduleTypeChange(value as ScheduleTypeValue);
-                      }}
-                      disabled={isSubmitting}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="h-11 w-full">
-                          <SelectValue placeholder="Select schedule type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="bi-weekly">Bi-Weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="quarterly">Quarterly</SelectItem>
-                        <SelectItem value="custom">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Type-Specific Fields */}
-            {scheduleType && (
-              <div className="border-t border-gray-200 pt-6 space-y-6">
-                {renderManualScheduleFields()}
-              </div>
-            )}
-
-            {/* Time and Timezone */}
-            {scheduleType && scheduleType !== "custom" && (
-              <div className="border-t border-gray-200 pt-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="schedule.timeOfDay"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium" required>
-                          Time of Day
-                        </FormLabel>
-                        <FormDescription className="text-xs text-gray-500">
-                          24-hour format (HH:MM)
-                        </FormDescription>
-                        <FormControl>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                            <Input
-                              {...field}
-                              type="time"
-                              placeholder="14:30"
-                              disabled={isSubmitting}
-                              className="text-base h-11 pl-10"
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="schedule.timezone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium" required>
-                          Timezone
-                        </FormLabel>
-                        <FormDescription className="text-xs text-gray-500">
-                          Select your timezone
-                        </FormDescription>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          disabled={isSubmitting}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="h-11 w-full">
-                              <SelectValue placeholder="Select timezone" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {TIMEZONES.map((tz) => (
-                              <SelectItem key={tz.value} value={tz.value}>
-                                {tz.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>

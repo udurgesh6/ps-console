@@ -49,7 +49,7 @@ const StoryNavigationComponent: FC<StoryNavigationProps> = ({
         <div>
           <Button
             onClick={handleNext}
-            disabled={!canProceed || isNextProcessing}
+            // disabled={!canProceed || isNextProcessing}
             className="flex items-center gap-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-300"
           >
             {isLastStep ? "Complete" : "Next"}

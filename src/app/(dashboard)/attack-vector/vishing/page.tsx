@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Library } from "@/components/shared/library";
-import { AttackVectorItem } from "../_components/attack-vector-item";
+import { AttackVectorItem } from "../components/attack-vector-item";
 import { useGetAttackVectors, useGetAttackVectorFilters } from "@/hooks";
 import { ObjectType, LibraryItem } from "@/types";
 import { getFilters } from "@/utils/get-filters";
