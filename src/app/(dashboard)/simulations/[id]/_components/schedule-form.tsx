@@ -80,8 +80,8 @@ export const SimulationProfileScheduleStep: FC<
       // Autonomous mode - reset the entire form with autonomous defaults
       form.reset({
         isAutonomous: true,
-        minimumSimulationInterval: 1,
-        maximumSimulationInterval: 7,
+        minSimulationInterval: 1,
+        maxSimulationFrequency: 7,
         timezone: form.getValues("timezone") || "Asia/Kolkata",
         startDate: form.getValues("startDate") || "",
         endDate: form.getValues("endDate") || "",
@@ -449,7 +449,7 @@ export const SimulationProfileScheduleStep: FC<
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
-                name="minimumSimulationInterval"
+                name="minSimulationInterval"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium" required>
@@ -491,7 +491,7 @@ export const SimulationProfileScheduleStep: FC<
 
               <FormField
                 control={form.control}
-                name="maximumSimulationInterval"
+                name="maxSimulationFrequency"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium" required>

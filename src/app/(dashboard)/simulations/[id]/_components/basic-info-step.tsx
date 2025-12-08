@@ -1,21 +1,57 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-// import { Slider } from "@/components/ui/slider";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { SimulationProfileBasicInfoFormData } from "@/types";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  ObjectType,
+  SimulationProfileBasicInfoFormData,
+  FilterObject,
+} from "@/types";
+import { useGetSimulationProfileFilters } from "@/hooks";
 
 interface SimulationProfileBasicInfoStepProps {
   form: UseFormReturn<SimulationProfileBasicInfoFormData>;
   isSubmitting?: boolean;
 }
 
-export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepProps> = ({
-  form,
-  isSubmitting = false,
-}) => {
+export const SimulationProfileBasicInfoStep: FC<
+  SimulationProfileBasicInfoStepProps
+> = ({ form, isSubmitting = false }) => {
+  const {
+    data: simulationProfileFilters,
+    isLoading: isSimulationProfileFiltersLoading,
+    error: simulationProfileFiltersError,
+  } = useGetSimulationProfileFilters({
+    objectType: ObjectType.SIMULATION_PROFILE,
+  });
+
+  const selectedCategory = form.watch("category");
+
+  const selectedCategorySubcategories = useMemo(() => {
+    if (!selectedCategory || !simulationProfileFilters?.categories) return [];
+
+    const category = simulationProfileFilters.categories.find(
+      (cat: FilterObject) => cat.id === selectedCategory
+    );
+
+    return category?.subcategories || [];
+  }, [selectedCategory, simulationProfileFilters?.categories]);
+
   return (
     <Form {...form}>
       <div className="space-y-8">
@@ -26,7 +62,9 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium" required>Name</FormLabel>
+                <FormLabel className="text-sm font-medium" required>
+                  Name
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -48,7 +86,9 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium" required>Description</FormLabel>
+                <FormLabel className="text-sm font-medium" required>
+                  Description
+                </FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
@@ -65,7 +105,7 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
           />
         </div>
 
-        {/* Category and Interval Section */}
+        {/* Category Section */}
         <div className="border-t border-gray-200 pt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <FormField
@@ -73,7 +113,9 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
               name="category"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-sm font-medium" required>Category</FormLabel>
+                  <FormLabel className="text-sm font-medium" required>
+                    Category
+                  </FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
@@ -85,15 +127,16 @@ export const SimulationProfileBasicInfoStep: FC<SimulationProfileBasicInfoStepPr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="high-priority">High Priority</SelectItem>
-                      <SelectItem value="department-specific">Department Specific</SelectItem>
-                      <SelectItem value="technical">Technical</SelectItem>
-                      <SelectItem value="organization-wide">Organization Wide</SelectItem>
-                      <SelectItem value="customer-facing">Customer Facing</SelectItem>
-                      <SelectItem value="onboarding">Onboarding</SelectItem>
-                      <SelectItem value="remote-workers">Remote Workers</SelectItem>
-                      <SelectItem value="seasonal">Seasonal</SelectItem>
-                      <SelectItem value="compliance">Compliance</SelectItem>
+                      {(simulationProfileFilters?.categories || []).map(
+                        (category: FilterObject) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        )
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

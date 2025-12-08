@@ -1,6 +1,5 @@
 "use client";
 
-import dummySimulationProfiles from "@/constants/temporary/simulation-profiles";
 import {
   convertScheduleFormToAPI,
   DAY_OF_WEEK_MAP,
@@ -11,22 +10,28 @@ import {
   SimulationProfileBasicInfoFormData,
   SimulationProfileScheduleFormData,
   simulationProfileScheduleSchema,
+  simulationProfileBasicInfoSchema,
+  simulationProfileTargetSelectionSchema,
+  SimulationProfileTargetSelectionFormData,
+  CreateSimulationProfileRequest,
+  UpdateSimulationProfileRequest,
 } from "@/types";
 import { useRouter } from "next/navigation";
-import { use } from "react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Story } from "@/components/shared/story";
 import { InfoIcon, UsersIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { simulationProfileBasicInfoSchema } from "@/types";
 import { SimulationProfileBasicInfoStep } from "./_components/basic-info-step";
 import { SimulationProfileTargetSelectionStep } from "./_components/target-selection-form";
-import { simulationProfileTargetSelectionSchema } from "@/types";
-import { SimulationProfileTargetSelectionFormData } from "@/types";
-// import { groups } from "@/constants/temporary/groups";
 import { SimulationProfileAttackVectorsStep } from "./_components/attack-vector-selection-form";
 import { SimulationProfileScheduleStep } from "./_components/schedule-form";
+import {
+  useGetSimulationProfileById,
+  useCreateSimulationProfile,
+  useUpdateSimulationProfile,
+} from "@/hooks";
+import toast from "react-hot-toast";
 
 interface SimulationPageProps {
   params: Promise<{ id: string }>;
@@ -37,88 +42,135 @@ export default function SimulationPage({ params }: SimulationPageProps) {
   const { id } = use(params);
 
   const [currentStepId, setCurrentStepId] = useState("basic-info");
-  const [isNextProcessing] = useState(false);
 
   // Determine if this is a new simulation or editing existing one
   const isNewSimulation = id === "new";
 
-  // Find existing simulation if editing
-  const [simulation] = useState<SimulationProfile | null>(() => {
-    if (isNewSimulation) return null;
-    return (
-      dummySimulationProfiles?.find((simulation) => simulation.id === id) ||
-      null
-    );
-  });
+  // Fetch existing simulation if editing
+  const {
+    data: simulation,
+    isLoading: isLoadingSimulation,
+    isError,
+  } = useGetSimulationProfileById(id);
+
+  // Mutations
+  const createMutation = useCreateSimulationProfile();
+  const updateMutation = useUpdateSimulationProfile();
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   useEffect(() => {
-    if (!isNewSimulation && !simulation) {
+    if (!isNewSimulation && isError) {
+      toast.error("Simulation profile not found");
       router.push("/dashboard/simulations");
     }
-  }, [simulation, router, isNewSimulation]);
+  }, [isError, router, isNewSimulation]);
 
+  // Form initialization
   const basicSimulationProfileForm =
     useForm<SimulationProfileBasicInfoFormData>({
       resolver: zodResolver(simulationProfileBasicInfoSchema),
       defaultValues: {
-        name: simulation?.name || "",
-        description: simulation?.description || "",
-        category: simulation?.categoryId || undefined,
-        // simulationFrequency: simulation?.simulationFrequency || 15,
-        // simulationInterval: simulation?.simulationInterval || "monthly",
+        name: "",
+        description: "",
+        category: undefined,
       },
       mode: "onTouched",
       reValidateMode: "onChange",
       shouldFocusError: false,
     });
 
-  const targetSelectionForm = useForm<SimulationProfileTargetSelectionFormData>(
-    {
+  const targetSelectionForm =
+    useForm<SimulationProfileTargetSelectionFormData>({
       resolver: zodResolver(simulationProfileTargetSelectionSchema),
       defaultValues: {
-        employeeGroupIds: simulation?.employeeGroupIds || [],
+        employeeGroupIds: [],
       },
       mode: "onTouched",
       reValidateMode: "onChange",
       shouldFocusError: false,
-    }
-  );
+    });
 
   const attackVectorSelectionForm =
     useForm<SimulationProfileAttackVectorsFormData>({
       resolver: zodResolver(simulationProfileAttackVectorsSchema),
       defaultValues: {
-        attackVectorIds: simulation?.attackVectorIds || [],
+        attackVectorIds: [],
       },
       mode: "onTouched",
       reValidateMode: "onChange",
       shouldFocusError: false,
     });
 
-  console.log(attackVectorSelectionForm);
-
   const scheduleForm = useForm<SimulationProfileScheduleFormData>({
     resolver: zodResolver(simulationProfileScheduleSchema),
     defaultValues: {
-      scheduleType: simulation?.scheduleType || "weekly",
-      minimumSimulationInterval: simulation?.minimumSimulationInterval || 1,
-      maximumSimulationInterval: simulation?.maximumSimulationInterval || 7,
-      startDate: simulation?.startDate
-        ? new Date(simulation.startDate).toISOString().split("T")[0]
-        : "",
-      endDate: simulation?.endDate
-        ? new Date(simulation.endDate).toISOString().split("T")[0]
-        : "",
-      startTime: simulation?.startDate
-        ? new Date(simulation.startDate).toTimeString().slice(0, 5)
-        : "09:00",
-      endTime: simulation?.endDate
-        ? new Date(simulation.endDate).toTimeString().slice(0, 5)
-        : "17:00",
-      // Type-specific defaults
-      ...(simulation?.scheduleType === "weekly" ||
-      simulation?.scheduleType === "bi-weekly"
-        ? {
+      isAutonomous: true,
+      minSimulationInterval: 1,
+      maxSimulationFrequency: 7,
+      timezone: "Asia/Kolkata",
+      startDate: "",
+      endDate: "",
+      startTime: "09:00",
+      endTime: "17:00",
+    } as SimulationProfileScheduleFormData,
+    mode: "onTouched",
+    reValidateMode: "onChange",
+    shouldFocusError: false,
+  });
+
+  // Populate forms when simulation data is loaded
+  useEffect(() => {
+    if (simulation && !isNewSimulation) {
+      // Basic Info
+      basicSimulationProfileForm.reset({
+        name: simulation.name || "",
+        description: simulation.description || "",
+        category: simulation.categoryId || undefined,
+      });
+
+      // Target Selection
+      targetSelectionForm.reset({
+        employeeGroupIds: simulation.employeeGroupIds || [],
+      });
+
+      // Attack Vectors
+      attackVectorSelectionForm.reset({
+        attackVectorIds: simulation.attackVectorIds || [],
+      });
+
+      // Schedule - determine if autonomous or scheduled mode
+      const isAutonomous = !simulation.scheduleType;
+
+      if (isAutonomous) {
+        // Autonomous mode
+        scheduleForm.reset({
+          isAutonomous: true,
+          minSimulationInterval: simulation.minSimulationInterval || 1,
+          maxSimulationFrequency: simulation.maxSimulationFrequency || 7,
+          timezone: "Asia/Kolkata", // You might want to store this
+          startDate: simulation.startDate
+            ? new Date(simulation.startDate).toISOString().split("T")[0]
+            : "",
+          endDate: simulation.endDate
+            ? new Date(simulation.endDate).toISOString().split("T")[0]
+            : "",
+          startTime: simulation.startDate
+            ? new Date(simulation.startDate).toTimeString().slice(0, 5)
+            : "09:00",
+          endTime: simulation.endDate
+            ? new Date(simulation.endDate).toTimeString().slice(0, 5)
+            : "17:00",
+        } as SimulationProfileScheduleFormData);
+      } else {
+        // Scheduled mode
+        const scheduleType = simulation.scheduleType!;
+        let scheduleData: SimulationProfileScheduleFormData;
+
+        if (scheduleType === "weekly" || scheduleType === "bi-weekly") {
+          scheduleData = {
+            isAutonomous: false,
+            scheduleType,
             dayOfWeek: simulation.launchPreference
               ? [
                   Object.entries(DAY_OF_WEEK_MAP).find(
@@ -126,27 +178,76 @@ export default function SimulationPage({ params }: SimulationPageProps) {
                   )?.[0] as DayOfWeek,
                 ]
               : [],
-          }
-        : {}),
-      ...(simulation?.scheduleType === "monthly"
-        ? {
+            timezone: "Asia/Kolkata",
+            startDate: simulation.startDate
+              ? new Date(simulation.startDate).toISOString().split("T")[0]
+              : "",
+            endDate: simulation.endDate
+              ? new Date(simulation.endDate).toISOString().split("T")[0]
+              : "",
+            startTime: simulation.startDate
+              ? new Date(simulation.startDate).toTimeString().slice(0, 5)
+              : "09:00",
+            endTime: simulation.endDate
+              ? new Date(simulation.endDate).toTimeString().slice(0, 5)
+              : "17:00",
+          } as SimulationProfileScheduleFormData;
+        } else if (scheduleType === "monthly") {
+          scheduleData = {
+            isAutonomous: false,
+            scheduleType,
             dayOfMonth: simulation.launchPreference || 1,
-          }
-        : {}),
-      ...(simulation?.scheduleType === "custom"
-        ? {
+            timezone: "Asia/Kolkata",
+            startDate: simulation.startDate
+              ? new Date(simulation.startDate).toISOString().split("T")[0]
+              : "",
+            endDate: simulation.endDate
+              ? new Date(simulation.endDate).toISOString().split("T")[0]
+              : "",
+            startTime: simulation.startDate
+              ? new Date(simulation.startDate).toTimeString().slice(0, 5)
+              : "09:00",
+            endTime: simulation.endDate
+              ? new Date(simulation.endDate).toTimeString().slice(0, 5)
+              : "17:00",
+          } as SimulationProfileScheduleFormData;
+        } else {
+          // custom
+          scheduleData = {
+            isAutonomous: false,
+            scheduleType,
             specificDates: simulation.launchDates
               ? simulation.launchDates.map(
                   (ts) => new Date(ts).toISOString().split("T")[0]
                 )
               : [],
-          }
-        : {}),
-    } as SimulationProfileScheduleFormData,
-    mode: "onTouched",
-    reValidateMode: "onChange",
-    shouldFocusError: false,
-  });
+            timezone: "Asia/Kolkata",
+            startDate: simulation.startDate
+              ? new Date(simulation.startDate).toISOString().split("T")[0]
+              : "",
+            endDate: simulation.endDate
+              ? new Date(simulation.endDate).toISOString().split("T")[0]
+              : "",
+            startTime: simulation.startDate
+              ? new Date(simulation.startDate).toTimeString().slice(0, 5)
+              : "09:00",
+            endTime: simulation.endDate
+              ? new Date(simulation.endDate).toTimeString().slice(0, 5)
+              : "17:00",
+          } as SimulationProfileScheduleFormData;
+        }
+
+        scheduleForm.reset(scheduleData);
+      }
+    }
+  }, [
+    simulation,
+    isNewSimulation,
+    basicSimulationProfileForm,
+    targetSelectionForm,
+    attackVectorSelectionForm,
+    scheduleForm,
+  ]);
 
   const simulationSteps = [
     {
@@ -158,7 +259,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       content: (
         <SimulationProfileBasicInfoStep
           form={basicSimulationProfileForm}
-          isSubmitting={isNextProcessing}
+          isSubmitting={isSubmitting}
         />
       ),
       validation: () => basicSimulationProfileForm.formState.isValid,
@@ -172,7 +273,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       content: (
         <SimulationProfileTargetSelectionStep
           form={targetSelectionForm}
-          isSubmitting={isNextProcessing}
+          isSubmitting={isSubmitting}
         />
       ),
       validation: () => targetSelectionForm.formState.isValid,
@@ -186,7 +287,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       content: (
         <SimulationProfileAttackVectorsStep
           form={attackVectorSelectionForm}
-          isSubmitting={isNextProcessing}
+          isSubmitting={isSubmitting}
         />
       ),
       validation: () => attackVectorSelectionForm.formState.isValid,
@@ -199,46 +300,71 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       content: (
         <SimulationProfileScheduleStep
           form={scheduleForm}
-          isSubmitting={isNextProcessing}
+          isSubmitting={isSubmitting}
         />
       ),
       validation: () => scheduleForm.formState.isValid,
     },
   ];
 
-  const handleComplete = (data: Record<string, unknown>) => {
-    // Combine all form data
-    const basicInfo = basicSimulationProfileForm.getValues();
-    const targetSelection = targetSelectionForm.getValues();
-    const attackVectors = attackVectorSelectionForm.getValues();
-    const schedule = scheduleForm.getValues();
+  const handleComplete = async () => {
+    try {
+      // Combine all form data
+      const basicInfo = basicSimulationProfileForm.getValues();
+      const targetSelection = targetSelectionForm.getValues();
+      const attackVectors = attackVectorSelectionForm.getValues();
+      const schedule = scheduleForm.getValues();
 
-    // Convert schedule data to API format
-    const scheduleAPIData = convertScheduleFormToAPI(schedule);
+      // Convert schedule data to API format
+      const scheduleAPIData = convertScheduleFormToAPI(
+        schedule,
+        schedule.timezone
+      );
 
-    const completeData: Partial<SimulationProfile> = {
-      name: basicInfo.name,
-      description: basicInfo.description,
-      categoryId: basicInfo.category,
-      employeeGroupIds: targetSelection.employeeGroupIds,
-      attackVectorIds: attackVectors.attackVectorIds,
-      ...scheduleAPIData,
-    };
+      const requestData:
+        | CreateSimulationProfileRequest
+        | UpdateSimulationProfileRequest = {
+        name: basicInfo.name,
+        description: basicInfo.description,
+        categoryId: basicInfo.category,
+        employeeGroupIds: targetSelection.employeeGroupIds,
+        attackVectorIds: attackVectors.attackVectorIds,
+        ...scheduleAPIData,
+      };
 
-    console.log(
-      `${isNewSimulation ? "Created" : "Updated"} simulation with data:`,
-      completeData
-    );
+      if (isNewSimulation) {
+        await createMutation.mutateAsync(requestData);
+        toast.success("Simulation profile created successfully");
+      } else {
+        await updateMutation.mutateAsync({
+          id,
+          data: { ...requestData, id },
+        });
+        toast.success("Simulation profile updated successfully");
+      }
 
-    // TODO: Make API call here
-    // await createSimulation(completeData);
-
-    router.push("/simulations");
+      router.push("/dashboard/simulations");
+    } catch (error) {
+      toast.error(
+        isNewSimulation
+          ? "Failed to create simulation profile"
+          : "Failed to update simulation profile"
+      );
+      console.error("Error saving simulation profile:", error);
+    }
   };
 
   const handleStepChange = (stepId: string) => {
     setCurrentStepId(stepId);
   };
+
+  if (isLoadingSimulation && !isNewSimulation) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   return (
     <Story
@@ -250,7 +376,7 @@ export default function SimulationPage({ params }: SimulationPageProps) {
       allowStepNavigation={true}
       onStepChange={handleStepChange}
       onComplete={handleComplete}
-      isNextProcessing={isNextProcessing}
+      isNextProcessing={isSubmitting}
     />
   );
 }

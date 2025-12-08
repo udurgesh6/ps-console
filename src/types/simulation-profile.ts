@@ -30,8 +30,8 @@ export const simulationProfileSchema = z.object({
   categoryId: z.string(),
   employeeGroupIds: z.array(z.string()),
   attackVectorIds: z.array(z.string()),
-  minimumSimulationInterval: z.number().optional(),
-  maximumSimulationInterval: z.number().optional(),
+  minSimulationInterval: z.number().optional(),
+  maxSimulationFrequency: z.number().optional(),
   isActive: z.boolean().optional(),
   startDate: z.number().optional(), // Unix timestamp
   endDate: z.number().optional(), // Unix timestamp
@@ -107,12 +107,12 @@ const baseScheduleSchema = z.object({
 const autonomousScheduleSchema = baseScheduleSchema
   .extend({
     isAutonomous: z.literal(true),
-    minimumSimulationInterval: z
+    minSimulationInterval: z
       .number()
       .int("Must be a whole number")
       .min(1, "Minimum interval must be at least 1 day")
       .max(365, "Minimum interval cannot exceed 365 days"),
-    maximumSimulationInterval: z
+    maxSimulationFrequency: z
       .number()
       .int("Must be a whole number")
       .min(1, "Maximum interval must be at least 1 day")
@@ -123,11 +123,11 @@ const autonomousScheduleSchema = baseScheduleSchema
     path: ["endDate"],
   })
   .refine(
-    (data) => data.maximumSimulationInterval >= data.minimumSimulationInterval,
+    (data) => data.maxSimulationFrequency >= data.minSimulationInterval,
     {
       message:
         "Maximum interval must be greater than or equal to minimum interval",
-      path: ["maximumSimulationInterval"],
+      path: ["maxSimulationFrequency"],
     }
   )
   .refine(
@@ -308,28 +308,38 @@ export type SimulationProfileScheduleFormData = z.infer<
   typeof simulationProfileScheduleSchema
 >;
 
-// Helper function to convert form data to API format
+// Helper function to convert form data to API format with proper timezone handling
 export const convertScheduleFormToAPI = (
   formData: SimulationProfileScheduleFormData,
-  timezone: string
+  timezone?: string
 ): Partial<SimulationProfile> => {
-  // Convert dates with times to UTC timestamps
-  const startDateTime = new Date(
-    `${formData.startDate}T${formData.startTime}`
+  // Use the timezone from formData or fallback to provided timezone
+  const tz = formData.timezone || timezone || "UTC";
+
+  // Convert dates with times to UTC timestamps considering the selected timezone
+  // We need to interpret the date/time as being in the selected timezone, then convert to UTC
+  const startDateTime = convertToUTCTimestamp(
+    formData.startDate,
+    formData.startTime,
+    tz
   );
-  const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
+  const endDateTime = convertToUTCTimestamp(
+    formData.endDate,
+    formData.endTime,
+    tz
+  );
 
   const baseData = {
-    startDate: startDateTime.getTime(),
-    endDate: endDateTime.getTime(),
+    startDate: startDateTime,
+    endDate: endDateTime,
   };
 
   // Autonomous mode
   if (formData.isAutonomous) {
     return {
       ...baseData,
-      minimumSimulationInterval: formData.minimumSimulationInterval,
-      maximumSimulationInterval: formData.maximumSimulationInterval,
+      minSimulationInterval: formData.minSimulationInterval,
+      maxSimulationFrequency: formData.maxSimulationFrequency,
     };
   }
 
@@ -358,12 +368,116 @@ export const convertScheduleFormToAPI = (
       ...baseData,
       scheduleType: formData.scheduleType,
       launchDates: formData.specificDates.map((date) =>
-        new Date(`${date}T${formData.startTime}`).getTime()
+        convertToUTCTimestamp(date, formData.startTime, tz)
       ),
     };
   }
 
   return baseData;
 };
+
+// Helper function to convert date, time, and timezone to UTC timestamp
+function convertToUTCTimestamp(
+  date: string,
+  time: string,
+  timezone: string
+): number {
+  // Create an ISO string in the format that includes timezone info
+  // Example: "2024-01-15T14:30:00" in "America/New_York" timezone
+  
+  // Combine date and time
+  const dateTimeString = `${date}T${time}:00`;
+  
+  // Option 1: Using Intl.DateTimeFormat (browser-native, no dependencies)
+  // This creates a date in the specified timezone
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  // Parse the input date/time as if it's in the target timezone
+  const parts = formatter.formatToParts(new Date(dateTimeString));
+  const getPart = (type: string) =>
+    parts.find((part) => part.type === type)?.value || "";
+
+  const year = getPart("year");
+  const month = getPart("month");
+  const day = getPart("day");
+  const hour = getPart("hour");
+  const minute = getPart("minute");
+  const second = getPart("second");
+
+  // Create a UTC date from the parsed parts
+  // But we need to account for the timezone offset
+  const localDate = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+  
+  // Get the offset between the specified timezone and UTC at this date/time
+  const offsetMinutes = getTimezoneOffset(dateTimeString, timezone);
+  
+  // Adjust for timezone offset to get UTC timestamp
+  return localDate.getTime() - offsetMinutes * 60 * 1000;
+}
+
+// Helper to get timezone offset in minutes for a specific date/time
+function getTimezoneOffset(dateTimeString: string, timezone: string): number {
+  // Create date object as if it's in the target timezone
+  const date = new Date(dateTimeString);
+  
+  // Format it in both UTC and the target timezone
+  const utcDate = new Date(
+    date.toLocaleString("en-US", { timeZone: "UTC" })
+  );
+  const tzDate = new Date(
+    date.toLocaleString("en-US", { timeZone: timezone })
+  );
+  
+  // The difference in milliseconds is the offset
+  return (tzDate.getTime() - utcDate.getTime()) / (60 * 1000);
+}
+
+export interface SimulationProfileQueryParams {
+  limit?: number;
+  offset?: number;
+  query?: string;
+  sortKey?: string;
+  sortDirection?: "asc" | "desc";
+  categoryId?: string;
+  isActive?: boolean;
+  [key: string]: string | number | boolean | undefined; // Add index signature
+}
+
+export interface SimulationProfileDetailsResponse {
+  simulationProfiles: SimulationProfile[];
+  total: number;
+  limit: number;
+}
+
+export interface CreateSimulationProfileRequest {
+  name: string;
+  description: string;
+  categoryId: string;
+  employeeGroupIds: string[];
+  attackVectorIds: string[];
+  minSimulationInterval?: number;
+  maxSimulationFrequency?: number;
+  isActive?: boolean;
+  startDate?: number; // Unix timestamp
+  endDate?: number; // Unix timestamp
+  simulationTrackingDuration?: number;
+  scheduleType?: "weekly" | "bi-weekly" | "monthly" | "custom";
+  launchPreference?: number;
+  launchDates?: number[];
+}
+
+export interface UpdateSimulationProfileRequest
+  extends CreateSimulationProfileRequest {
+  id: string;
+}
 
 export default SimulationProfile;
