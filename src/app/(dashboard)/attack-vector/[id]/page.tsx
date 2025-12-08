@@ -170,7 +170,9 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
     defaultValues: {
       tropicality: attackVectorData?.tropicality || "custom",
       startDate: attackVectorData?.startDate
-        ? new Date(attackVectorData.startDate * 1000).toISOString().split("T")[0]
+        ? new Date(attackVectorData.startDate * 1000)
+            .toISOString()
+            .split("T")[0]
         : "",
       startTime: attackVectorData?.startDate
         ? new Date(attackVectorData.startDate * 1000).toTimeString().slice(0, 5)
@@ -230,7 +232,11 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
             description:
               "Select or create a form to collect credentials or information from the target.",
             content: <FormSelector form={formSelectorForm} />,
-            validation: () => formSelectorForm.formState.isValid,
+            validation: () => {
+              const forms = formSelectorForm.getValues("forms");
+              const isValid = forms && forms.length > 0;
+              return isValid;
+            },
           },
         ]
       : []),
@@ -314,7 +320,7 @@ export default function AttackVectorPage({ params }: AttackVectorPageProps) {
           name: emailHtmlTemplateData.subject || basicInfoData.name, // Use subject as name, fallback to attack vector name
           htmlBody: emailHtmlTemplateData.htmlContent,
           subject: emailHtmlTemplateData.subject,
-          senderEmail: `${emailHtmlTemplateData.emailPrefix}@${emailHtmlTemplateData.emailFromDomain.replace(/^@/, '')}`, // Remove leading @ if present
+          senderEmail: `${emailHtmlTemplateData.emailPrefix}@${emailHtmlTemplateData.emailFromDomain.replace(/^@/, "")}`, // Remove leading @ if present
         },
         landingPageId: landingPageData.landingPages[0]?.id,
         ...(basicInfoData.type === "submission" && {

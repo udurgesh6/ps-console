@@ -71,8 +71,10 @@ export const FormSelector = ({ form }: FormSelectorProps) => {
       }
       append(newForm);
 
-      // Trigger validation after updating
-      form.trigger("forms");
+      // Force re-validation of the entire form
+      setTimeout(() => {
+        form.trigger("forms");
+      }, 0);
     }
 
     setShowModal(false);
