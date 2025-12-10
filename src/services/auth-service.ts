@@ -1,10 +1,13 @@
-// services/auth-service.ts
 import { api } from '@/lib/axios'
 import type {
   LoginRequest,
   OtpVerifyRequest,
   OtpRequestResponse,
   LoginResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  ConfirmResetPasswordRequest,
+  ConfirmResetPasswordResponse,
 } from '@/types'
 
 export const authService = {
@@ -28,4 +31,20 @@ export const authService = {
     const response = await api.post('/refresh', { refreshToken })
     return response
   },
+
+  resetPassword: async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
+    const response = await api.post<ResetPasswordResponse>(
+      '/reset-password',
+      data
+    )
+    return response
+  },
+
+  confirmResetPassword: async (data: ConfirmResetPasswordRequest): Promise<ConfirmResetPasswordResponse> => {
+    const response = await api.post<ConfirmResetPasswordResponse>(
+      '/reset-password/confirm',
+      data
+    )
+    return response
+  }
 }

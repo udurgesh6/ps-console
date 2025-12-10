@@ -9,18 +9,6 @@ export default function SimulationProfiles() {
   const libraryRef = useRef<LibraryHandle>(null);
   const bulkActions = useMemo(
     () => [
-      // {
-      //   label: "Activate",
-      //   onClick: (items) => {
-      //     console.log("Activating profiles:", items);
-      //   },
-      // },
-      // {
-      //   label: "Deactivate",
-      //   onClick: (items) => {
-      //     console.log("Deactivating profiles:", items);
-      //   },
-      // },
       {
         label: "Delete",
         onClick: (items) => {

@@ -15,11 +15,13 @@ import {
   LogOut,
   Search,
   Bell,
-  MessageSquare,
+  Download,
 } from "lucide-react";
 import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from "@/constants/navigation";
 import { User } from "@/types";
 import { ContextAwareCreateButton } from "./context-aware-create-button";
+import { useExportEmployees } from "@/hooks";
+import toast from "react-hot-toast";
 
 export const Navbar = ({
   onMobileMenuToggle,
@@ -37,6 +39,18 @@ export const Navbar = ({
   const sidebarCollapsedWidth = SIDEBAR_COLLAPSED_WIDTH;
   const sidebarExpandedWidth = SIDEBAR_WIDTH;
 
+  const exportMutation = useExportEmployees();
+
+  const handleExportEmployees = async () => {
+    try {
+      const result = await exportMutation.mutateAsync();
+      toast.success(result.message || "Employee report will be sent to your email");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export employees. Please try again.");
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-background h-16 bg-gray-100 pr-2">
       <div
@@ -48,9 +62,6 @@ export const Navbar = ({
         }}
       >
         <div className="flex items-center justify-end h-full gap-3">
-          {/* <h1 className="text-3xl font-bold text-primary pl-6">Dashboard</h1> */}
-          {/* Search Input */}
-
           {/* Right Side Icons and Profile */}
           <div className="flex items-center gap-3">
             <div className="relative flex-1 w-64">
@@ -63,20 +74,30 @@ export const Navbar = ({
             </div>
             <ContextAwareCreateButton />
 
+            {/* Export Employees Button */}
+            <Button
+              variant="ghost"
+              className="rounded-full p-0 bg-white hover:bg-gray-50 flex items-center justify-center"
+              onClick={handleExportEmployees}
+              disabled={exportMutation.isPending}
+              title="Export Employees"
+            >
+              <Download
+                className={`w-5 h-5 text-gray-600 ${
+                  exportMutation.isPending ? "animate-pulse" : ""
+                }`}
+              />
+              <span className="text-sm">
+                {exportMutation.isPending ? "Exporting..." : "Export"}
+              </span>
+            </Button>
+
             {/* Notification Icon */}
             <Button
               variant="ghost"
               className="rounded-full w-10 h-10 p-0 bg-white hover:bg-gray-50 flex items-center justify-center"
             >
               <Bell className="w-5 h-5 text-gray-600" />
-            </Button>
-
-            {/* Chat Icon */}
-            <Button
-              variant="ghost"
-              className="rounded-full w-10 h-10 p-0 bg-white hover:bg-gray-50 flex items-center justify-center"
-            >
-              <MessageSquare className="w-5 h-5 text-gray-600" />
             </Button>
 
             {/* Profile Dropdown */}
@@ -95,7 +116,6 @@ export const Navbar = ({
                         .toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  {/* <ChevronDown className="w-4 h-4 hidden sm:block" /> */}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -106,6 +126,17 @@ export const Navbar = ({
                     </p>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={handleExportEmployees}
+                  disabled={exportMutation.isPending}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  <span>
+                    {exportMutation.isPending ? "Exporting..." : "Export Employees"}
+                  </span>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-red-600"
@@ -138,6 +169,25 @@ export const Navbar = ({
           </div>
 
           <div className="flex items-center space-x-2">
+            {/* Mobile Export Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleExportEmployees}
+              disabled={exportMutation.isPending}
+              className="flex items-center gap-2 px-3 py-2"
+              title="Export Employees"
+            >
+              <Download
+                className={`h-4 w-4 ${
+                  exportMutation.isPending ? "animate-pulse" : ""
+                }`}
+              />
+              <span className="text-sm">
+                {exportMutation.isPending ? "Exporting..." : "Export"}
+              </span>
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -163,6 +213,17 @@ export const Navbar = ({
                     </p>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={handleExportEmployees}
+                  disabled={exportMutation.isPending}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  <span>
+                    {exportMutation.isPending ? "Exporting..." : "Export Employees"}
+                  </span>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-red-600"

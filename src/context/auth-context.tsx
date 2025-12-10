@@ -38,11 +38,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  const cookieOptions = {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
-    expires: 7,
-  }
+  // const cookieOptions = {
+  //   secure: process.env.NODE_ENV === 'production',
+  //   sameSite: 'strict' as const,
+  //   expires: 7,
+  // }
 
   const login = (loginResponse: LoginResponse) => {
     const user: User = {
@@ -58,11 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: loginResponse.tenant.name,
     }
 
-    Cookies.set('accessToken', loginResponse.access_token, cookieOptions)
-    Cookies.set('refreshToken', loginResponse.refresh_token, cookieOptions)
-    Cookies.set('user', JSON.stringify(user), cookieOptions)
-    Cookies.set('tenant', JSON.stringify(tenant), cookieOptions)
+    Cookies.set('accessToken', loginResponse.access_token)
+    Cookies.set('refreshToken', loginResponse.refresh_token)
+    Cookies.set('user', JSON.stringify(user))
+    Cookies.set('tenant', JSON.stringify(tenant))
     setUserDetails(user)
+    setTenantDetails(tenant)
   }
 
   const logout = () => {
@@ -71,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     Cookies.remove('tenant')
     Cookies.remove('user')
     setUserDetails(null)
+    setTenantDetails(null) 
     router.push('/login')
   }
 

@@ -1,3 +1,4 @@
+import * as z from 'zod'
 
 export interface LoginRequest {
   email: string
@@ -42,4 +43,21 @@ export interface AuthContextType {
   login: (loginResponse: LoginResponse) => void
   logout: () => void
   isAuthenticated: boolean
+}
+
+export interface ResetPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordResponse {
+  message: string
+}
+
+export interface ConfirmResetPasswordRequest {
+  token: string
+  newPassword: string
+}
+
+export interface ConfirmResetPasswordResponse {
+  message: string
 }

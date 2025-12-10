@@ -74,14 +74,14 @@ apiClient.interceptors.response.use(
 
           const { accessToken, refreshToken: newRefreshToken } = response.data;
           
-          const cookieOptions = {
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict' as const,
-            expires: 7,
-          };
+          // const cookieOptions = {
+          //   secure: process.env.NODE_ENV === 'production',
+          //   sameSite: 'strict' as const,
+          //   expires: 7,
+          // };
           
-          Cookies.set("accessToken", accessToken, cookieOptions);
-          Cookies.set("refreshToken", newRefreshToken, cookieOptions);
+          Cookies.set("accessToken", accessToken);
+          Cookies.set("refreshToken", newRefreshToken);
 
           apiClient.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
           

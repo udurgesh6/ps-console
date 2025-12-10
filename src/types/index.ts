@@ -12,5 +12,6 @@ export * from './awareness';
 export * from './employee';
 export * from './operations';
 export * from './email-template';
+export * from './dashboard';
 export * from './general';
 export * from './ad-sync';
